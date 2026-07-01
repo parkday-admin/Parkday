@@ -1,0 +1,74 @@
+:root {
+  --sans: 'Inter', system-ui, sans-serif;
+  --heading: 'Fraunces', Georgia, serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  /* Colors — placeholder tokens; swap with design system */
+  --bg: #faf9f7;
+  --bg-card: #ffffff;
+  --text: #4b4553;
+  --text-h: #0d0b14;
+  --text-muted: #8a8394;
+  --border: #e8e6eb;
+  --accent: #2d5be3;
+  --accent-hover: #1e47cc;
+  --accent-text: #ffffff;
+  --accent-bg: rgba(45, 91, 227, 0.08);
+  --danger: #d63f3f;
+  --success: #2a8a5a;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  font: 15px/150% var(--sans);
+  letter-spacing: 0.01em;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0e13;
+    --bg-card: #1a1820;
+    --text: #a09aab;
+    --text-h: #f0eef5;
+    --text-muted: #5e5869;
+    --border: #2a2730;
+    --accent: #5b82f5;
+    --accent-hover: #7095f7;
+    --accent-bg: rgba(91, 130, 245, 0.12);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body { margin: 0; }
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+  margin: 0;
+}
+
+p { margin: 0; }
+
+button {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+input, select, textarea {
+  font-family: var(--sans);
+}
