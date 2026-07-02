@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Parkday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+html,body{min-height:100%;background:#e8e4dc;}
+body{font-family:'Inter',sans-serif;display:flex;justify-content:center;padding:20px 0 40px;}
+.app{width:100%;max-width:480px;background:var(--cream);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(30,42,68,0.18);}
+
+/* ---- SHARED HEADER ---- */
+.pk-header{background:var(--night);padding:13px 16px 0;flex-shrink:0;}
+.pk-hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pk-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pk-logo i{color:#fff;font-size:15px;}
+.pk-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;flex:1;}
+.pk-sub{font-size:10px;color:var(--mint);font-weight:500;margin-top:1px;}
+.hdr-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:10px;font-weight:500;color:rgba(255,255,255,0.55);display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;text-decoration:none;}
+
+/* ---- TRIP VIEW HEADER ADDITIONS ---- */
+.countdown-strip{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);padding:10px 0 12px;}
+.cd-main{display:flex;align-items:baseline;gap:5px;}
+.cd-num{font-family:'Fraunces',serif;font-size:26px;font-weight:400;color:var(--gold);line-height:1;}
+.cd-unit{font-size:11px;color:rgba(255,255,255,0.45);font-weight:500;}
+.cd-details{text-align:right;}
+.cd-dates{font-size:12px;font-weight:500;color:#fff;}
+.cd-resort{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.cd-progress{height:2px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden;margin-top:10px;}
+.cd-progress-fill{height:100%;background:var(--mint);border-radius:1px;width:68%;}
+.urgency-strip{background:rgba(255,122,107,0.12);border:1px solid rgba(255,122,107,0.25);border-radius:10px;padding:8px 12px;margin:10px 14px 0;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.urgency-dot{width:6px;height:6px;border-radius:50%;background:var(--coral);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.urgency-text{flex:1;font-size:12px;font-weight:500;color:var(--ink);}
+.urgency-text span{color:var(--coral);font-weight:600;}
+.urgency-arrow{font-size:12px;color:rgba(30,42,68,0.35);}
+
+/* ---- SCROLL BODY ---- */
+.scroll{overflow-y:auto;padding:12px 14px 24px;}
+
+/* ---- EMPTY STATE ---- */
+.empty-hdr-bottom{border-top:1px solid rgba(255,255,255,0.08);padding:10px 0 14px;display:flex;align-items:center;justify-content:space-between;}
+.empty-greeting{font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);}
+.empty-greeting span{color:#fff;}
+.empty-hero{padding:32px 20px 24px;text-align:center;}
+.empty-icon{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--sky),var(--mint));display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.empty-icon i{font-size:34px;color:#fff;}
+.empty-title{font-family:'Fraunces',serif;font-size:24px;font-weight:400;color:var(--night);margin-bottom:8px;line-height:1.2;}
+.empty-desc{font-size:13px;color:rgba(30,42,68,0.55);line-height:1.6;max-width:280px;margin:0 auto 24px;}
+.plan-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;background:var(--sky);border:none;border-radius:13px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;color:#fff;cursor:pointer;text-decoration:none;margin-bottom:10px;}
+.plan-btn:hover{opacity:0.9;}
+.plan-btn i{font-size:17px;}
+.estimate-link{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;color:rgba(30,42,68,0.45);cursor:pointer;text-decoration:none;padding:6px;}
+.estimate-link:hover{color:var(--sky);}
+.estimate-link i{font-size:13px;}
+.features-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:24px;}
+.feature-card{background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:12px 10px;text-align:center;}
+.feature-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+.feature-icon i{font-size:16px;}
+.feature-label{font-size:10px;font-weight:600;color:var(--ink);line-height:1.3;}
+.feature-sub{font-size:9px;color:rgba(30,42,68,0.45);margin-top:3px;line-height:1.3;}
+
+/* ---- TRIP VIEW CARDS ---- */
+.budget-card{background:var(--white);border:1px solid var(--n12);border-radius:14px;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color 0.12s;}
+.budget-card:hover{border-color:rgba(74,144,226,0.3);}
+.bc-header{background:var(--night);padding:12px 14px;}
+.bc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.bc-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.bc-num{font-family:'Fraunces',serif;font-size:28px;font-weight:400;color:var(--gold);line-height:1;letter-spacing:-0.02em;}
+.bc-right{text-align:right;}
+.bc-remaining-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+.bc-remaining{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--mint);}
+.bc-bar-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.bc-bar-fill{height:100%;background:var(--gold);border-radius:2px;}
+.bc-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:5px;}
+.bc-body{padding:10px 14px;}
+.bc-cat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.bc-cat-row:last-child{margin-bottom:0;}
+.bc-cat-left{display:flex;align-items:center;gap:7px;}
+.bc-cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.bc-cat-name{font-size:12px;font-weight:500;color:var(--ink);}
+.bc-cat-right{display:flex;align-items:center;gap:8px;}
+.bc-cat-spent{font-size:11px;color:rgba(30,42,68,0.45);}
+.bc-cat-prog{width:60px;height:3px;background:var(--n08);border-radius:2px;overflow:hidden;}
+.bc-cat-prog-fill{height:100%;border-radius:2px;}
+.bc-footer{padding:8px 14px;border-top:1px solid var(--n08);display:flex;align-items:center;justify-content:space-between;}
+.bc-footer-stat{text-align:center;}
+.bc-footer-lbl{font-size:9px;font-weight:600;color:rgba(30,42,68,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+.bc-footer-val{font-family:'Fraunces',serif;font-size:15px;font-weight:400;}
+.bc-divider{width:1px;height:28px;background:var(--n12);}
+.itin-card{background:var(--white);border:1px solid var(--n12);border-radius:14px;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:border-color 0.12s;}
+.itin-card:hover{border-color:rgba(74,144,226,0.3);}
+.itin-hdr{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--n08);}
+.itin-hdr-l{display:flex;align-items:center;gap:8px;}
+.itin-icon{width:28px;height:28px;border-radius:8px;background:rgba(74,144,226,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.itin-icon i{font-size:14px;color:var(--sky);}
+.itin-title{font-size:13px;font-weight:600;color:var(--ink);}
+.itin-sub{font-size:11px;color:rgba(30,42,68,0.45);}
+.itin-view{font-size:11px;color:var(--sky);font-weight:500;display:flex;align-items:center;gap:3px;}
+.itin-view i{font-size:12px;}
+.day-row{padding:9px 14px;border-bottom:1px solid var(--n08);display:flex;align-items:center;gap:10px;}
+.day-row:last-child{border-bottom:none;}
+.day-chip{width:36px;height:36px;border-radius:9px;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.day-chip.empty{background:var(--n08);}
+.day-chip-num{font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:#fff;line-height:1;}
+.day-chip.empty .day-chip-num{color:rgba(30,42,68,0.3);}
+.day-chip-lbl{font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:1px;}
+.day-chip.empty .day-chip-lbl{color:rgba(30,42,68,0.25);}
+.day-info{flex:1;min-width:0;}
+.day-park{font-size:12px;font-weight:600;color:var(--ink);}
+.day-park.empty{color:rgba(30,42,68,0.35);}
+.day-date{font-size:10px;color:rgba(30,42,68,0.4);margin-top:1px;}
+.day-status{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;}
+.pg{background:rgba(126,214,196,0.22);color:#0f7a67;}
+.pb{background:rgba(74,144,226,0.14);color:#1a5fa8;}
+.po{background:rgba(246,184,75,0.2);color:#8a5a00;}
+.pc{background:rgba(255,122,107,0.15);color:#c03a2b;}
+.pz{background:var(--n08);color:rgba(30,42,68,0.5);}
+.ai-cta{background:var(--night);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:2px;}
+.ai-cta:hover{opacity:0.9;}
+.ai-icon{width:30px;height:30px;border-radius:8px;background:rgba(246,184,75,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-icon i{font-size:15px;color:var(--gold);}
+.ai-text{flex:1;}
+.ai-title{font-size:12px;font-weight:600;color:#fff;}
+.ai-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.ai-arrow{font-size:14px;color:rgba(255,255,255,0.3);}
+
+/* ---- DEMO TOGGLE ---- */
+.demo-toggle{position:fixed;bottom:16px;right:16px;background:var(--night);border:none;border-radius:20px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:rgba(255,255,255,0.7);cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.2);z-index:100;}
+.demo-toggle:hover{color:#fff;}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- EMPTY STATE -->
+  <div id="view-empty">
+    <div class="pk-header">
+      <div class="pk-hdr-top">
+        <div class="pk-logo"><i class="ti ti-map-2"></i></div>
+        <div style="flex:1;">
+          <div class="pk-title">Parkday</div>
+        </div>
+        <a class="hdr-btn" href="#"><i class="ti ti-user"></i> Account</a>
+      </div>
+      <div class="empty-hdr-bottom">
+        <div class="empty-greeting">Welcome back, <span>Nick</span></div>
+        <a class="hdr-btn" href="parkday_estimator_v20.html"><i class="ti ti-calculator"></i> Estimate</a>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <div class="empty-hero">
+        <div class="empty-icon">
+          <i class="ti ti-map-2"></i>
+        </div>
+        <div class="empty-title">Plan your Disney adventure</div>
+        <div class="empty-desc">Set up your trip to start tracking your budget, itinerary, and every dollar along the way.</div>
+        <a class="plan-btn" href="parkday_configurator_v4.html">
+          <i class="ti ti-plus"></i> Plan a trip
+        </a>
+        <a class="estimate-link" href="parkday_estimator_v20.html">
+          <i class="ti ti-calculator"></i> Start with a cost estimate first
+        </a>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon" style="background:rgba(74,144,226,0.1);">
+              <i class="ti ti-wallet" style="color:var(--sky);"></i>
+            </div>
+            <div class="feature-label">Budget tracker</div>
+            <div class="feature-sub">By category and by day</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="background:rgba(126,214,196,0.15);">
+              <i class="ti ti-calendar" style="color:#0f7a67;"></i>
+            </div>
+            <div class="feature-label">Itinerary</div>
+            <div class="feature-sub">Park days mapped out</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon" style="background:rgba(246,184,75,0.15);">
+              <i class="ti ti-sparkles" style="color:#7a4a00;"></i>
+            </div>
+            <div class="feature-label">AI planning</div>
+            <div class="feature-sub">Advice when you need it</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRIP VIEW -->
+  <div id="view-trip" style="display:none;">
+    <div class="pk-header">
+      <div class="pk-hdr-top">
+        <div class="pk-logo"><i class="ti ti-map-2"></i></div>
+        <div style="flex:1;">
+          <div class="pk-title">Parkday</div>
+          <div class="pk-sub">Orlando 2026</div>
+        </div>
+        <button class="hdr-btn"><i class="ti ti-settings"></i> Trip</button>
+      </div>
+      <div class="countdown-strip">
+        <div class="cd-main">
+          <div class="cd-num">47</div>
+          <div style="margin-left:6px;">
+            <div class="cd-unit">days to go</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;">2 adults · 1 child</div>
+          </div>
+        </div>
+        <div class="cd-details">
+          <div class="cd-dates">Aug 10 – 15, 2026</div>
+          <div class="cd-resort">Caribbean Beach · 5 nights · 4 park days</div>
+        </div>
+      </div>
+      <div class="cd-progress"><div class="cd-progress-fill"></div></div>
+    </div>
+
+    <div class="urgency-strip">
+      <div class="urgency-dot"></div>
+      <div class="urgency-text"><span>ADR window opens in 17 days</span> — Jun 23 at midnight ET</div>
+      <i class="ti ti-chevron-right urgency-arrow"></i>
+    </div>
+
+    <div class="scroll">
+      <div class="budget-card">
+        <div class="bc-header">
+          <div class="bc-top">
+            <div>
+              <div class="bc-lbl">Total budget</div>
+              <div class="bc-num">$7,500</div>
+            </div>
+            <div class="bc-right">
+              <div class="bc-remaining-lbl">Remaining</div>
+              <div class="bc-remaining">$5,660</div>
+            </div>
+          </div>
+          <div class="bc-bar-track"><div class="bc-bar-fill" style="width:25%;"></div></div>
+          <div class="bc-sub">$4,320 planned · $1,840 spent · 25% of budget used</div>
+        </div>
+        <div class="bc-body">
+          <div class="bc-cat-row">
+            <div class="bc-cat-left"><div class="bc-cat-dot" style="background:var(--sky);"></div><div class="bc-cat-name">Accommodations</div></div>
+            <div class="bc-cat-right"><span class="bc-cat-spent">$1,380 / $2,200</span><div class="bc-cat-prog"><div class="bc-cat-prog-fill" style="width:63%;background:var(--sky);"></div></div></div>
+          </div>
+          <div class="bc-cat-row">
+            <div class="bc-cat-left"><div class="bc-cat-dot" style="background:var(--gold);"></div><div class="bc-cat-name">Dining</div></div>
+            <div class="bc-cat-right"><span class="bc-cat-spent">$320 / $1,400</span><div class="bc-cat-prog"><div class="bc-cat-prog-fill" style="width:23%;background:var(--gold);"></div></div></div>
+          </div>
+          <div class="bc-cat-row">
+            <div class="bc-cat-left"><div class="bc-cat-dot" style="background:var(--mint);"></div><div class="bc-cat-name">Tickets &amp; LL</div></div>
+            <div class="bc-cat-right"><span class="bc-cat-spent">$140 / $2,200</span><div class="bc-cat-prog"><div class="bc-cat-prog-fill" style="width:6%;background:var(--mint);"></div></div></div>
+          </div>
+          <div class="bc-cat-row">
+            <div class="bc-cat-left"><div class="bc-cat-dot" style="background:var(--coral);"></div><div class="bc-cat-name">Experiences &amp; extras</div></div>
+            <div class="bc-cat-right"><span class="bc-cat-spent">$0 / $500</span><div class="bc-cat-prog"><div class="bc-cat-prog-fill" style="width:0%;background:var(--coral);"></div></div></div>
+          </div>
+        </div>
+        <div class="bc-footer">
+          <div class="bc-footer-stat">
+            <div class="bc-footer-lbl">Budgeted</div>
+            <div class="bc-footer-val" style="color:var(--night);">$7,500</div>
+          </div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat">
+            <div class="bc-footer-lbl">Planned</div>
+            <div class="bc-footer-val" style="color:var(--sky);">$4,320</div>
+          </div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat">
+            <div class="bc-footer-lbl">Spent</div>
+            <div class="bc-footer-val" style="color:var(--coral);">$1,840</div>
+          </div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat">
+            <div class="bc-footer-lbl">Remaining</div>
+            <div class="bc-footer-val" style="color:var(--mint);">$5,660</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="itin-card">
+        <div class="itin-hdr">
+          <div class="itin-hdr-l">
+            <div class="itin-icon"><i class="ti ti-calendar"></i></div>
+            <div>
+              <div class="itin-title">Itinerary &amp; spending</div>
+              <div class="itin-sub">5 days · $1,695 planned across 3 days</div>
+            </div>
+          </div>
+          <a class="itin-view" href="parkday_itinerary_budget.html">View <i class="ti ti-chevron-right"></i></a>
+        </div>
+        <div class="day-row">
+          <div class="day-chip"><div class="day-chip-num">1</div><div class="day-chip-lbl">Mon</div></div>
+          <div class="day-info"><div class="day-park">Magic Kingdom</div><div class="day-date">Aug 10 · 5 entries</div></div>
+          <div class="day-status"><span class="pill pg">Planned</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$550 planned</div></div>
+        </div>
+        <div class="day-row">
+          <div class="day-chip"><div class="day-chip-num">2</div><div class="day-chip-lbl">Tue</div></div>
+          <div class="day-info"><div class="day-park">EPCOT</div><div class="day-date">Aug 11 · 4 entries</div></div>
+          <div class="day-status"><span class="pill pg">Planned</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$400 planned</div></div>
+        </div>
+        <div class="day-row">
+          <div class="day-chip"><div class="day-chip-num">3</div><div class="day-chip-lbl">Wed</div></div>
+          <div class="day-info"><div class="day-park">Hollywood Studios</div><div class="day-date">Aug 12 · 4 entries</div></div>
+          <div class="day-status"><span class="pill pb">Partial</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$545 planned</div></div>
+        </div>
+        <div class="day-row">
+          <div class="day-chip empty"><div class="day-chip-num">4</div><div class="day-chip-lbl">Thu</div></div>
+          <div class="day-info"><div class="day-park empty">Animal Kingdom</div><div class="day-date">Aug 13 · no entries yet</div></div>
+          <div class="day-status"><span class="pill pz">Not started</span></div>
+        </div>
+        <div class="day-row">
+          <div class="day-chip empty"><div class="day-chip-num">5</div><div class="day-chip-lbl">Fri</div></div>
+          <div class="day-info"><div class="day-park empty">Resort / Pool day</div><div class="day-date">Aug 14 · no entries yet</div></div>
+          <div class="day-status"><span class="pill pz">Not started</span></div>
+        </div>
+      </div>
+
+      <div class="ai-cta">
+        <div class="ai-icon"><i class="ti ti-sparkles"></i></div>
+        <div class="ai-text">
+          <div class="ai-title">Get personalised planning advice</div>
+          <div class="ai-sub">47 days out · ADR window approaching</div>
+        </div>
+        <i class="ti ti-arrow-right ai-arrow"></i>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Demo toggle -->
+<button class="demo-toggle" id="demo-toggle" onclick="toggleView()">Switch view</button>
+
+<script>
+let hasTrip = new URLSearchParams(window.location.search).get('trip') === '1';
+
+function showView(trip) {
+  hasTrip = trip;
+  document.getElementById('view-empty').style.display = trip ? 'none' : 'block';
+  document.getElementById('view-trip').style.display = trip ? 'block' : 'none';
+  document.getElementById('demo-toggle').textContent = trip ? 'Show empty state' : 'Show with trip';
+}
+
+function toggleView() { showView(!hasTrip); }
+
+showView(hasTrip);
+</script>
+</body>
+</html>

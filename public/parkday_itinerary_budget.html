@@ -1,0 +1,490 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+.app{font-family:'Inter',sans-serif;background:var(--cream);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;height:700px;}
+.pk-header{background:var(--night);padding:13px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.pk-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pk-logo i{color:#fff;font-size:15px;}
+.pk-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;flex:1;}
+.pk-sub{font-size:10px;color:var(--mint);font-weight:500;}
+ 
+/* Tabs */
+.tabs{background:var(--night);padding:0 16px;display:flex;gap:0;flex-shrink:0;}
+.tab{flex:1;padding:9px 0;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;}
+.tab.active{color:#fff;border-bottom-color:var(--gold);}
+ 
+/* Screens */
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--cream);}
+.screen.hidden{display:none;}
+.scroll{flex:1;overflow-y:auto;padding:12px 14px 80px;}
+ 
+/* Day view nav */
+.day-nav{background:var(--white);border-bottom:1px solid var(--n12);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.day-nav-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--n12);background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--night);transition:background 0.12s;}
+.day-nav-btn:hover{background:var(--sky);border-color:var(--sky);color:#fff;}
+.day-nav-btn:disabled{opacity:0.3;cursor:default;}
+.day-label{text-align:center;}
+.day-label-title{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--night);}
+.day-label-sub{font-size:11px;color:rgba(30,42,68,0.45);margin-top:1px;}
+ 
+/* Day summary bar */
+.day-summary{background:var(--night);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.ds-item{text-align:center;}
+.ds-item+.ds-item{border-left:1px solid rgba(255,255,255,0.1);}
+.ds-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+.ds-val{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:#fff;}
+.ds-val.planned{color:var(--sky);}
+.ds-val.actual{color:var(--coral);}
+.ds-val.under{color:var(--mint);}
+.ds-val.over{color:var(--coral);}
+ 
+/* Section dividers */
+.section-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.4);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 6px;display:flex;align-items:center;gap:5px;}
+.section-lbl i{font-size:12px;}
+ 
+/* Entry cards */
+.entry{background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:center;gap:10px;}
+.entry.paid{border-left:3px solid var(--mint);}
+.entry.confirmed{border-left:3px solid var(--sky);}
+.entry.waitlist{border-left:3px solid var(--gold);}
+.entry-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.entry-icon i{font-size:13px;}
+.ei-dining{background:rgba(255,122,107,0.12);} .ei-dining i{color:var(--coral);}
+.ei-exp{background:rgba(246,184,75,0.15);} .ei-exp i{color:#c47c00;}
+.ei-ll{background:rgba(126,214,196,0.18);} .ei-ll i{color:#0f7a67;}
+.ei-sv{background:rgba(255,122,107,0.12);} .ei-sv i{color:var(--coral);}
+.ei-tr{background:rgba(74,144,226,0.12);} .ei-tr i{color:var(--sky);}
+.ei-misc{background:rgba(30,42,68,0.07);} .ei-misc i{color:rgba(30,42,68,0.5);}
+.entry-body{flex:1;min-width:0;}
+.entry-name{font-size:12px;font-weight:600;color:var(--ink);}
+.entry-meta{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.entry-amts{text-align:right;flex-shrink:0;}
+.entry-planned{font-size:13px;font-weight:500;color:var(--ink);}
+.entry-actual{font-size:11px;color:rgba(30,42,68,0.4);margin-top:1px;}
+.entry-paid-row{display:flex;align-items:center;gap:4px;}
+.entry-strike{font-size:10px;color:rgba(30,42,68,0.35);text-decoration:line-through;}
+.entry-actual-amt{font-size:12px;font-weight:600;}
+.entry-delta{font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;}
+.delta-under{background:rgba(126,214,196,0.2);color:#0f7a67;}
+.delta-over{background:rgba(255,122,107,0.15);color:var(--coral);}
+.pill{display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:600;}
+.pg{background:rgba(126,214,196,0.22);color:#0f7a67;}
+.pb{background:rgba(74,144,226,0.14);color:#1a5fa8;}
+.po{background:rgba(246,184,75,0.2);color:#8a5a00;}
+.pc{background:rgba(255,122,107,0.15);color:#c03a2b;}
+.pz{background:var(--n08);color:rgba(30,42,68,0.5);}
+ 
+/* Category view */
+.cat-hero{background:var(--night);border-radius:12px;padding:12px 14px;margin-bottom:12px;}
+.ch-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.ch-num{font-family:'Fraunces',serif;font-size:26px;font-weight:400;color:var(--gold);line-height:1;}
+.ch-row{display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:rgba(255,255,255,0.4);}
+.ch-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:8px;}
+.ch-bar-fill{height:100%;background:var(--gold);border-radius:2px;}
+.cat-card{background:var(--white);border:1px solid var(--n12);border-radius:12px;overflow:hidden;margin-bottom:8px;}
+.cat-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--n08);cursor:pointer;}
+.cat-row:last-child{border-bottom:none;}
+.cat-row:hover{background:var(--n04);}
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-size:12px;font-weight:600;color:var(--ink);}
+.cat-sub{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;}
+.cat-prog{height:3px;background:var(--n08);border-radius:2px;overflow:hidden;margin-top:4px;}
+.cat-prog-fill{height:100%;border-radius:2px;}
+.cat-vals{text-align:right;flex-shrink:0;}
+.cat-budgeted{font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:var(--ink);}
+.cat-pct{font-size:10px;color:rgba(30,42,68,0.4);margin-top:1px;}
+ 
+/* FAB */
+.fab{position:absolute;bottom:16px;right:14px;width:48px;height:48px;border-radius:50%;background:var(--sky);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(74,144,226,0.4);z-index:20;}
+.fab i{color:#fff;font-size:22px;}
+ 
+/* Sheet */
+.overlay{position:absolute;inset:0;background:rgba(10,18,36,0.5);z-index:30;display:none;}
+.overlay.show{display:block;}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:18px 18px 0 0;z-index:31;transform:translateY(100%);transition:transform 0.26s cubic-bezier(.4,0,.2,1);max-height:90%;}
+.sheet.show{transform:translateY(0);}
+.sheet-inner{overflow-y:auto;padding:0 0 28px;}
+.sheet-drag{width:36px;height:4px;background:var(--n12);border-radius:2px;margin:10px auto 12px;}
+.sheet-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:var(--night);padding:0 16px 14px;}
+.field{margin:0 16px 12px;}
+.field-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.5);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;}
+.amt-wrap{display:flex;align-items:center;gap:5px;background:var(--n04);border:1.5px solid var(--n12);border-radius:10px;padding:9px 12px;}
+.amt-wrap:focus-within{border-color:var(--sky);}
+.amt-pre{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:rgba(30,42,68,0.3);}
+.amt-inp{border:none;background:transparent;font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--night);width:100%;outline:none;}
+.text-inp{width:100%;border:1.5px solid var(--n12);background:var(--white);border-radius:10px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;}
+.text-inp:focus{border-color:var(--sky);}
+.seg{display:grid;gap:6px;}
+.seg2{grid-template-columns:1fr 1fr;}
+.seg3{grid-template-columns:1fr 1fr 1fr;}
+.seg-btn{padding:8px;border-radius:9px;border:1.5px solid var(--n12);background:var(--white);font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:rgba(30,42,68,0.5);cursor:pointer;text-align:center;transition:all 0.12s;}
+.seg-btn.sel{border-color:var(--sky);background:rgba(74,144,226,0.08);color:var(--sky);}
+.save-btn{margin:4px 16px 0;width:calc(100% - 32px);padding:12px;background:var(--sky);border:none;border-radius:11px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.save-btn i{font-size:14px;}
+</style>
+ 
+<div class="app">
+  <div class="pk-header">
+    <div class="pk-logo"><i class="ti ti-map-2" aria-hidden="true"></i></div>
+    <div style="flex:1;"><div class="pk-title">Parkday</div><div class="pk-sub">Orlando 2026 · Itinerary & Budget</div></div>
+  </div>
+ 
+  <div class="tabs">
+    <div class="tab active" id="tab-day" onclick="switchTab('day')">By day</div>
+    <div class="tab" id="tab-cat" onclick="switchTab('cat')">By category</div>
+  </div>
+ 
+  <div class="screens">
+ 
+    <!-- DAY VIEW -->
+    <div class="screen" id="screen-day">
+      <div class="day-nav">
+        <button class="day-nav-btn" id="prev-day" onclick="changeDay(-1)"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+        <div class="day-label">
+          <div class="day-label-title" id="day-title">Day 1 · Aug 10</div>
+          <div class="day-label-sub" id="day-park">Magic Kingdom</div>
+        </div>
+        <button class="day-nav-btn" id="next-day" onclick="changeDay(1)"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+      </div>
+      <div class="scroll" id="day-scroll">
+        <div class="day-summary" id="day-summary"></div>
+        <div id="day-entries"></div>
+      </div>
+      <button class="fab" onclick="openSheet()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+    </div>
+ 
+    <!-- CATEGORY VIEW -->
+    <div class="screen hidden" id="screen-cat">
+      <div class="scroll">
+        <div class="cat-hero" id="cat-hero"></div>
+        <div id="cat-list"></div>
+      </div>
+      <button class="fab" onclick="openSheet()"><i class="ti ti-plus" aria-hidden="true"></i></button>
+    </div>
+ 
+  </div>
+ 
+  <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-inner">
+      <div class="sheet-drag"></div>
+      <div class="sheet-title">Add expense</div>
+ 
+      <div class="field">
+        <div class="field-lbl">Amount</div>
+        <div class="amt-wrap"><div class="amt-pre">$</div><input class="amt-inp" id="s-amt" type="number" placeholder="0" min="0"></div>
+      </div>
+ 
+      <div class="field">
+        <div class="field-lbl">Category</div>
+        <div class="seg seg2" id="s-cat-grid">
+          <button class="seg-btn sel" data-cat="dining">🍽 Dining</button>
+          <button class="seg-btn" data-cat="experience">✨ Experience</button>
+          <button class="seg-btn" data-cat="ll">⚡ Lightning Lane</button>
+          <button class="seg-btn" data-cat="souvenirs">🎁 Souvenirs</button>
+          <button class="seg-btn" data-cat="transport">🚌 Transport</button>
+          <button class="seg-btn" data-cat="misc">· · · Misc</button>
+        </div>
+      </div>
+ 
+      <div class="field">
+        <div class="field-lbl">Label</div>
+        <input class="text-inp" id="s-label" type="text" placeholder="e.g. Be Our Guest dinner">
+      </div>
+ 
+      <div class="field">
+        <div class="field-lbl">Day</div>
+        <div class="seg seg3" id="s-day-grid"></div>
+      </div>
+ 
+      <div class="field" id="s-time-field">
+        <div class="field-lbl">Time <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional — for scheduled items)</span></div>
+        <input class="text-inp" id="s-time" type="time">
+      </div>
+ 
+      <div class="field" id="s-status-field" style="display:none;">
+        <div class="field-lbl">Reservation status</div>
+        <div class="seg seg3" id="s-status-grid">
+          <button class="seg-btn sel" data-status="planned">Planned</button>
+          <button class="seg-btn" data-status="confirmed">Confirmed</button>
+          <button class="seg-btn" data-status="waitlist">Waitlist</button>
+        </div>
+      </div>
+ 
+      <div class="field">
+        <div class="field-lbl">Type</div>
+        <div class="seg seg2" id="s-type-grid">
+          <button class="seg-btn sel" data-type="planned">📋 Planned</button>
+          <button class="seg-btn" data-type="actual">✅ Actual</button>
+        </div>
+      </div>
+ 
+      <button class="save-btn" onclick="saveEntry()"><i class="ti ti-check" aria-hidden="true"></i> Save</button>
+    </div>
+  </div>
+</div>
+ 
+<script>
+const DAYS=[
+  {num:1,date:'Aug 10',park:'Magic Kingdom'},
+  {num:2,date:'Aug 11',park:'EPCOT'},
+  {num:3,date:'Aug 12',park:'Hollywood Studios'},
+  {num:4,date:'Aug 13',park:'Animal Kingdom'},
+  {num:5,date:'Aug 14',park:'Resort / Pool day'},
+];
+ 
+const CATS={
+  dining:   {label:'Dining',        icon:'ti-tools-kitchen-2', ei:'ei-dining', color:'var(--coral)',  prog:'#FF7A6B', budgeted:900},
+  experience:{label:'Experiences',  icon:'ti-stars',           ei:'ei-exp',    color:'#c47c00',       prog:'#F6B84B', budgeted:600},
+  ll:       {label:'Lightning Lane', icon:'ti-bolt',           ei:'ei-ll',     color:'#0f7a67',       prog:'#7ED6C4', budgeted:400},
+  souvenirs:{label:'Souvenirs',     icon:'ti-gift',            ei:'ei-sv',     color:'var(--coral)',  prog:'#FF7A6B', budgeted:300},
+  transport:{label:'Transport',     icon:'ti-bus',             ei:'ei-tr',     color:'var(--sky)',    prog:'#4A90E2', budgeted:200},
+  misc:     {label:'Misc',          icon:'ti-dots',            ei:'ei-misc',   color:'rgba(30,42,68,0.5)', prog:'#888', budgeted:100},
+};
+ 
+const STATUS_PILL={planned:'pz',confirmed:'pb',waitlist:'po',paid:'pg'};
+const STATUS_LABEL={planned:'Planned',confirmed:'Confirmed',waitlist:'Waitlist',paid:'Paid'};
+ 
+// Seed data
+let entries=[
+  {id:1,  day:1, cat:'dining',    label:'Be Our Guest — Lunch',      time:'12:30', status:'confirmed', plannedAmt:180, actualAmt:214},
+  {id:2,  day:1, cat:'experience',label:'Tron LLS booking',          time:null,    status:'confirmed', plannedAmt:140, actualAmt:140},
+  {id:3,  day:1, cat:'ll',        label:'Lightning Lane Multi Pass', time:null,    status:'planned',   plannedAmt:75,  actualAmt:null},
+  {id:4,  day:1, cat:'dining',    label:'Casey\'s Corner — Dinner',  time:'19:30', status:'planned',   plannedAmt:55,  actualAmt:null},
+  {id:5,  day:1, cat:'souvenirs', label:'Souvenir budget',           time:null,    status:'planned',   plannedAmt:100, actualAmt:null},
+  {id:6,  day:2, cat:'dining',    label:'Space 220 — Dinner',        time:'19:00', status:'confirmed', plannedAmt:220, actualAmt:null},
+  {id:7,  day:2, cat:'ll',        label:'Lightning Lane Multi Pass', time:null,    status:'planned',   plannedAmt:75,  actualAmt:null},
+  {id:8,  day:2, cat:'dining',    label:'Quick service — Lunch',     time:'12:00', status:'planned',   plannedAmt:45,  actualAmt:null},
+  {id:9,  day:2, cat:'souvenirs', label:'EPCOT merch budget',        time:null,    status:'planned',   plannedAmt:60,  actualAmt:null},
+  {id:10, day:3, cat:'experience',label:'Bibbidi Bobbidi Boutique',  time:'10:00', status:'confirmed', plannedAmt:325, actualAmt:null},
+  {id:11, day:3, cat:'dining',    label:'50\'s Prime Time — Lunch',  time:'12:00', status:'confirmed', plannedAmt:90,  actualAmt:null},
+  {id:12, day:3, cat:'ll',        label:'Lightning Lane Multi Pass', time:null,    status:'planned',   plannedAmt:75,  actualAmt:null},
+  {id:13, day:3, cat:'dining',    label:'Quick service — Dinner',    time:'18:30', status:'planned',   plannedAmt:55,  actualAmt:null},
+];
+let nextId=14;
+let currentDay=0;
+let currentTab='day';
+let selectedCat='dining';
+let selectedStatus='planned';
+let selectedType='planned';
+let selectedSheetDay=0;
+ 
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const rng=(a,b)=>fmt(a)+'–'+fmt(b);
+ 
+function dayEntries(d){return entries.filter(e=>e.day===d+1);}
+ 
+function daySummary(d){
+  const es=dayEntries(d);
+  const planned=es.reduce((a,e)=>a+e.plannedAmt,0);
+  const actual=es.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0);
+  const delta=planned-actual;
+  return{planned,actual,delta,hasPaid:es.some(e=>e.actualAmt!=null)};
+}
+ 
+function totalSummary(){
+  const planned=entries.reduce((a,e)=>a+e.plannedAmt,0);
+  const actual=entries.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0);
+  return{planned,actual};
+}
+ 
+function catSummary(cat){
+  const es=entries.filter(e=>e.cat===cat);
+  const planned=es.reduce((a,e)=>a+e.plannedAmt,0);
+  const actual=es.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0);
+  return{planned,actual,count:es.length};
+}
+ 
+function renderDayView(){
+  const d=DAYS[currentDay];
+  document.getElementById('day-title').textContent=`Day ${d.num} · ${d.date}`;
+  document.getElementById('day-park').textContent=d.park;
+  document.getElementById('prev-day').disabled=currentDay===0;
+  document.getElementById('next-day').disabled=currentDay===DAYS.length-1;
+ 
+  const s=daySummary(currentDay);
+  const delta=s.planned-s.actual;
+  const deltaColor=s.hasPaid?(delta>=0?'under':'over'):'';
+  document.getElementById('day-summary').innerHTML=`
+    <div class="ds-item"><div class="ds-lbl">Planned</div><div class="ds-val planned">${fmt(s.planned)}</div></div>
+    <div class="ds-item"><div class="ds-lbl">Actual</div><div class="ds-val actual">${s.hasPaid?fmt(s.actual):'—'}</div></div>
+    <div class="ds-item"><div class="ds-lbl">${delta>=0?'Under':'Over'}</div><div class="ds-val ${deltaColor}">${s.hasPaid?fmt(Math.abs(delta)):'—'}</div></div>`;
+ 
+  const es=dayEntries(currentDay);
+  const timed=es.filter(e=>e.time).sort((a,b)=>a.time.localeCompare(b.time));
+  const untimed=es.filter(e=>!e.time);
+ 
+  let html='';
+  if(timed.length){
+    html+=`<div class="section-lbl"><i class="ti ti-clock" aria-hidden="true"></i> Scheduled</div>`;
+    html+=timed.map(e=>entryHtml(e)).join('');
+  }
+  if(untimed.length){
+    html+=`<div class="section-lbl"><i class="ti ti-list" aria-hidden="true"></i> Day costs</div>`;
+    html+=untimed.map(e=>entryHtml(e)).join('');
+  }
+  if(!es.length){
+    html=`<div style="text-align:center;padding:32px 0;font-size:13px;color:rgba(30,42,68,0.35);">No expenses planned for this day yet.<br>Tap + to add one.</div>`;
+  }
+  document.getElementById('day-entries').innerHTML=html;
+}
+ 
+function entryHtml(e){
+  const cat=CATS[e.cat];
+  const timeStr=e.time?formatTime(e.time):'';
+  const statusPill=e.status&&e.status!=='planned'?`<span class="pill ${STATUS_PILL[e.status]||'pz'}">${STATUS_LABEL[e.status]||e.status}</span>`:'';
+  const borderClass=e.status==='confirmed'?'confirmed':e.status==='waitlist'?'waitlist':e.actualAmt!=null?'paid':'';
+ 
+  let amtHtml='';
+  if(e.actualAmt!=null){
+    const delta=e.plannedAmt-e.actualAmt;
+    const dc=delta>=0?'delta-under':'delta-over';
+    const ds=delta>=0?`-${fmt(Math.abs(delta))}`:`+${fmt(Math.abs(delta))}`;
+    amtHtml=`<div class="entry-paid-row"><span class="entry-strike">${fmt(e.plannedAmt)}</span></div>
+      <div class="entry-paid-row"><span class="entry-actual-amt" style="color:${delta>=0?'#0f7a67':'var(--coral)'};">${fmt(e.actualAmt)}</span><span class="entry-delta ${dc}">${ds}</span></div>`;
+  } else {
+    amtHtml=`<div class="entry-planned">${fmt(e.plannedAmt)}</div><div class="entry-actual" style="font-size:10px;color:rgba(30,42,68,0.35);">planned</div>`;
+  }
+ 
+  return`<div class="entry ${borderClass}">
+    <div class="entry-icon ${cat.ei}"><i class="ti ${cat.icon}" aria-hidden="true"></i></div>
+    <div class="entry-body">
+      <div class="entry-name">${e.label}</div>
+      <div class="entry-meta">${timeStr?`<span>${timeStr}</span>`:''}${statusPill}</div>
+    </div>
+    <div class="entry-amts">${amtHtml}</div>
+  </div>`;
+}
+ 
+function formatTime(t){
+  if(!t)return'';
+  const[h,m]=t.split(':');
+  const hour=parseInt(h);
+  const ampm=hour>=12?'PM':'AM';
+  const h12=hour%12||12;
+  return`${h12}:${m} ${ampm}`;
+}
+ 
+function renderCatView(){
+  const tot=totalSummary();
+  const totalBudget=Object.values(CATS).reduce((a,c)=>a+c.budgeted,0);
+  const pct=totalBudget>0?Math.round((tot.actual/totalBudget)*100):0;
+  document.getElementById('cat-hero').innerHTML=`
+    <div class="ch-lbl">Total budget</div>
+    <div class="ch-num">${fmt(totalBudget)}</div>
+    <div class="ch-row"><span>${fmt(tot.planned)} planned · ${fmt(tot.actual)} spent</span><span style="color:var(--gold);">${pct}% spent</span></div>
+    <div class="ch-bar"><div class="ch-bar-fill" style="width:${Math.min(100,pct)}%;"></div></div>`;
+ 
+  document.getElementById('cat-list').innerHTML=`<div class="cat-card">${
+    Object.entries(CATS).map(([key,cat])=>{
+      const s=catSummary(key);
+      const pct=cat.budgeted>0?Math.round((s.actual/cat.budgeted)*100):0;
+      const over=s.actual>cat.budgeted;
+      return`<div class="cat-row">
+        <div class="entry-icon ${cat.ei}" style="flex-shrink:0;"><i class="ti ${cat.icon}" aria-hidden="true"></i></div>
+        <div class="cat-info">
+          <div class="cat-name">${cat.label}</div>
+          <div class="cat-sub">${fmt(s.actual)} spent · ${fmt(s.planned)} planned · ${s.count} entries</div>
+          <div class="cat-prog"><div class="cat-prog-fill" style="width:${Math.min(100,pct)}%;background:${over?'var(--coral)':cat.prog};"></div></div>
+        </div>
+        <div class="cat-vals">
+          <div class="cat-budgeted" style="color:${over?'var(--coral)':'var(--ink)'};">${fmt(cat.budgeted)}</div>
+          <div class="cat-pct">${pct}% used</div>
+        </div>
+      </div>`;
+    }).join('')
+  }</div>`;
+}
+ 
+function changeDay(d){
+  currentDay=Math.max(0,Math.min(DAYS.length-1,currentDay+d));
+  selectedSheetDay=currentDay;
+  renderDayView();
+}
+ 
+function switchTab(tab){
+  currentTab=tab;
+  document.getElementById('tab-day').classList.toggle('active',tab==='day');
+  document.getElementById('tab-cat').classList.toggle('active',tab==='cat');
+  document.getElementById('screen-day').classList.toggle('hidden',tab!=='day');
+  document.getElementById('screen-cat').classList.toggle('hidden',tab!=='cat');
+  if(tab==='cat')renderCatView();
+}
+ 
+function openSheet(){
+  selectedSheetDay=currentDay;
+  selectedCat='dining';
+  selectedStatus='planned';
+  selectedType='planned';
+  document.getElementById('s-amt').value='';
+  document.getElementById('s-label').value='';
+  document.getElementById('s-time').value='';
+  // Reset cat buttons
+  document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('sel',b.dataset.cat==='dining'));
+  // Reset status
+  document.querySelectorAll('[data-status]').forEach(b=>b.classList.toggle('sel',b.dataset.status==='planned'));
+  // Reset type
+  document.querySelectorAll('[data-type]').forEach(b=>b.classList.toggle('sel',b.dataset.type==='planned'));
+  // Day buttons
+  renderSheetDays();
+  updateStatusVisibility();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+  setTimeout(()=>document.getElementById('s-amt').focus(),300);
+}
+ 
+function renderSheetDays(){
+  document.getElementById('s-day-grid').innerHTML=DAYS.map((d,i)=>
+    `<button class="seg-btn${i===selectedSheetDay?' sel':''}" data-day="${i}">Day ${d.num}</button>`
+  ).join('');
+  document.querySelectorAll('[data-day]').forEach(b=>{
+    b.onclick=()=>{selectedSheetDay=parseInt(b.dataset.day);document.querySelectorAll('[data-day]').forEach(x=>x.classList.toggle('sel',x===b));};
+  });
+}
+ 
+function updateStatusVisibility(){
+  const show=selectedCat==='dining'||selectedCat==='experience';
+  document.getElementById('s-status-field').style.display=show?'block':'none';
+}
+ 
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
+}
+ 
+function saveEntry(){
+  const amt=parseFloat(document.getElementById('s-amt').value);
+  if(isNaN(amt)||amt<=0){document.getElementById('s-amt').style.borderColor='var(--coral)';setTimeout(()=>document.getElementById('s-amt').style.borderColor='',1200);return;}
+  const label=document.getElementById('s-label').value.trim()||CATS[selectedCat].label;
+  const time=document.getElementById('s-time').value||null;
+  const entry={
+    id:nextId++,day:selectedSheetDay+1,cat:selectedCat,label,time,
+    status:selectedStatus,plannedAmt:amt,
+    actualAmt:selectedType==='actual'?amt:null
+  };
+  entries.push(entry);
+  closeSheet();
+  if(currentTab==='day'){currentDay=selectedSheetDay;renderDayView();}
+  else renderCatView();
+}
+ 
+// Wire sheet interactions
+document.querySelectorAll('[data-cat]').forEach(b=>{
+  b.onclick=()=>{selectedCat=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('sel',x===b));updateStatusVisibility();};
+});
+document.querySelectorAll('[data-status]').forEach(b=>{
+  b.onclick=()=>{selectedStatus=b.dataset.status;document.querySelectorAll('[data-status]').forEach(x=>x.classList.toggle('sel',x===b));};
+});
+document.querySelectorAll('[data-type]').forEach(b=>{
+  b.onclick=()=>{selectedType=b.dataset.type;document.querySelectorAll('[data-type]').forEach(x=>x.classList.toggle('sel',x===b));};
+});
+ 
+// Init
+renderDayView();
+</script>

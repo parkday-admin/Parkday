@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Parkday — Set up your trip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+html,body{min-height:100%;background:#e8e4dc;}
+body{font-family:'Inter',sans-serif;display:flex;justify-content:center;padding:20px 0 40px;}
+.app{width:100%;max-width:480px;background:var(--cream);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;min-height:640px;box-shadow:0 8px 40px rgba(30,42,68,0.18);}
+/* Header */
+.cfg-hdr{background:var(--night);padding:13px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.pk-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pk-logo i{color:#fff;font-size:15px;}
+.cfg-hdr-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;flex:1;}
+.cancel-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:500;color:rgba(255,255,255,0.55);font-family:'Inter',sans-serif;text-decoration:none;display:flex;align-items:center;}
+/* Progress */
+.prog-wrap{background:var(--night);padding:0 16px 14px;flex-shrink:0;}
+.prog-steps{display:flex;gap:4px;margin-bottom:6px;}
+.ps{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.12);transition:background 0.2s;}
+.ps.done{background:var(--mint);}
+.ps.active{background:var(--gold);}
+.ps.skipped{background:rgba(255,255,255,0.3);}
+.prog-lbl{display:flex;justify-content:space-between;}
+.pl-num{font-size:10px;color:rgba(255,255,255,0.35);}
+.pl-name{font-size:10px;font-weight:500;color:rgba(255,255,255,0.6);}
+/* Screens */
+.screens{flex:1;overflow:hidden;position:relative;min-height:480px;}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:18px 16px 24px;background:var(--cream);transition:transform 0.26s cubic-bezier(.4,0,.2,1),opacity 0.18s;}
+.screen.hr{transform:translateX(100%);opacity:0;pointer-events:none;}
+.screen.hl{transform:translateX(-28%);opacity:0;pointer-events:none;}
+/* Typography */
+.sec-title{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--night);margin-bottom:4px;}
+.sec-desc{font-size:13px;color:rgba(30,42,68,0.55);margin-bottom:18px;line-height:1.5;}
+.field-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;}
+.field{margin-bottom:14px;}
+.divider-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.35);text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 8px;display:flex;align-items:center;gap:6px;}
+.divider-lbl::before,.divider-lbl::after{content:'';flex:1;height:1px;background:var(--n12);}
+/* Date inputs */
+.date-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.date-wrap{display:flex;flex-direction:column;}
+.col-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.45);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
+.date-inp{width:100%;padding:10px 12px;border:1.5px solid var(--n12);border-radius:11px;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:var(--white);outline:none;}
+.date-inp:focus{border-color:var(--sky);}
+.trip-chip{display:none;align-items:center;gap:6px;background:rgba(74,144,226,0.1);border:1px solid rgba(74,144,226,0.2);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:var(--sky);margin-bottom:16px;}
+.trip-chip i{font-size:13px;}
+.day-trip-note{background:rgba(246,184,75,0.12);border:1px solid rgba(246,184,75,0.3);border-radius:10px;padding:9px 12px;font-size:11px;color:rgba(30,42,68,0.65);margin-bottom:14px;display:none;line-height:1.5;}
+.day-trip-note i{color:var(--gold);margin-right:4px;}
+/* Steppers */
+.stpr-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:11px 14px;margin-bottom:8px;}
+.stpr-left{flex:1;}
+.stpr-name{font-size:13px;font-weight:600;color:var(--ink);}
+.stpr-hint{font-size:10px;color:rgba(30,42,68,0.4);margin-top:2px;}
+.stpr-ctrl{display:flex;align-items:center;gap:12px;}
+.sbtn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--n12);background:var(--cream);cursor:pointer;font-size:18px;color:var(--ink);display:flex;align-items:center;justify-content:center;transition:all 0.12s;}
+.sbtn:hover{background:var(--sky);border-color:var(--sky);color:#fff;}
+.sval{font-size:16px;font-weight:600;color:var(--ink);min-width:20px;text-align:center;}
+/* Option buttons */
+.og{display:grid;gap:8px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+.opt{background:var(--white);border:1.5px solid var(--n12);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left;transition:all 0.12s;font-family:'Inter',sans-serif;}
+.opt:hover{border-color:rgba(74,144,226,0.4);}
+.opt.sel{border-color:var(--sky);background:rgba(74,144,226,0.07);}
+.opt.disabled{opacity:0.38;pointer-events:none;}
+.opt-dot{width:7px;height:7px;border-radius:50%;background:var(--n12);display:inline-block;margin-right:5px;transition:background 0.12s;}
+.opt.sel .opt-dot{background:var(--sky);}
+.opt-name{font-size:12px;font-weight:600;color:var(--ink);}
+.opt-sub{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;padding-left:12px;line-height:1.3;}
+.opt-badge{display:inline-block;font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:4px;margin-left:12px;}
+.bg{background:rgba(126,214,196,0.2);color:#0f7a67;}
+.bb{background:rgba(74,144,226,0.15);color:#1a5fa8;}
+.bo{background:rgba(246,184,75,0.18);color:#7a4a00;}
+.bc{background:rgba(232,97,74,0.15);color:#a83210;}
+.bz{background:var(--n08);color:rgba(30,42,68,0.5);}
+/* Text input */
+.text-inp{width:100%;padding:10px 12px;border:1.5px solid var(--n12);border-radius:11px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;}
+.text-inp:focus{border-color:var(--sky);}
+.text-inp::placeholder{color:rgba(30,42,68,0.3);}
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:11px 14px;margin-bottom:8px;}
+.toggle-left{flex:1;}
+.toggle-name{font-size:13px;font-weight:600;color:var(--ink);}
+.toggle-sub{font-size:10px;color:rgba(30,42,68,0.4);margin-top:2px;}
+.toggle{width:38px;height:22px;border-radius:11px;background:var(--n12);position:relative;cursor:pointer;transition:background 0.2s;flex-shrink:0;border:none;}
+.toggle.on{background:var(--sky);}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle.on::after{transform:translateX(16px);}
+/* Sub-field */
+.sub-field{background:rgba(74,144,226,0.05);border:1px solid rgba(74,144,226,0.15);border-radius:12px;padding:12px;margin-top:8px;display:none;}
+.sub-field.show{display:block;}
+/* Resort search */
+.resort-sel-card{background:rgba(74,144,226,0.07);border:1.5px solid var(--sky);border-radius:12px;padding:12px 14px;margin-bottom:14px;}
+.rsc-name{font-size:14px;font-weight:600;color:var(--ink);}
+.rsc-desc{font-size:11px;color:rgba(30,42,68,0.5);line-height:1.4;}
+.rsc-change{background:none;border:none;font-size:11px;font-weight:600;color:var(--sky);cursor:pointer;padding:0;font-family:'Inter',sans-serif;white-space:nowrap;}
+.resort-search-field{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--n12);border-radius:11px;padding:9px 12px;margin-bottom:8px;}
+.resort-search-field:focus-within{border-color:var(--sky);}
+.resort-search-inp{border:none;background:transparent;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);flex:1;outline:none;}
+.resort-search-inp::placeholder{color:rgba(30,42,68,0.3);}
+.resort-clear{background:none;border:none;cursor:pointer;font-size:14px;color:rgba(30,42,68,0.35);padding:0;line-height:1;}
+.resort-list{max-height:280px;overflow-y:auto;margin-bottom:0;}
+.tier-hdr{font-size:9px;font-weight:600;color:rgba(30,42,68,0.35);text-transform:uppercase;letter-spacing:0.1em;padding:10px 2px 5px;display:flex;align-items:center;gap:6px;}
+.tier-hdr::after{content:'';flex:1;height:1px;background:var(--n12);}
+.resort-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;background:var(--white);border:1.5px solid var(--n12);border-radius:11px;margin-bottom:6px;cursor:pointer;transition:all 0.12s;}
+.resort-item:hover{border-color:var(--sky);background:rgba(74,144,226,0.04);}
+.resort-item.sel{border-color:var(--sky);background:rgba(74,144,226,0.07);}
+.off-prop-item{margin-top:10px;}
+.ri-left{flex:1;min-width:0;}
+.ri-name{font-size:13px;font-weight:600;color:var(--ink);}
+.ri-desc{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;line-height:1.3;}
+/* Park day cards */
+.day-card{background:var(--white);border:1.5px solid var(--n12);border-radius:12px;padding:11px 13px;margin-bottom:8px;transition:border-color 0.12s;}
+.day-card.park-on{border-color:rgba(74,144,226,0.3);}
+.day-card-top{display:flex;align-items:center;gap:10px;}
+.day-chip2{width:38px;height:38px;border-radius:10px;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.day-chip2.off{background:var(--n08);}
+.day-chip2-num{font-family:'Fraunces',serif;font-size:15px;color:#fff;line-height:1;}
+.day-chip2.off .day-chip2-num{color:rgba(30,42,68,0.3);}
+.day-chip2-dow{font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:1px;}
+.day-chip2.off .day-chip2-dow{color:rgba(30,42,68,0.25);}
+.day-info{flex:1;}
+.day-date-lbl{font-size:13px;font-weight:600;color:var(--ink);}
+.day-status-lbl{font-size:10px;color:rgba(30,42,68,0.4);margin-top:2px;}
+.park-selector{margin-top:10px;display:none;}
+.park-selector.show{display:block;}
+.park-pills{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:5px;}
+.park-pill{padding:6px 4px;border-radius:8px;border:1.5px solid var(--n12);background:var(--cream);cursor:pointer;font-size:10px;font-weight:600;color:rgba(30,42,68,0.5);text-align:center;transition:all 0.12s;font-family:'Inter',sans-serif;}
+.park-pill:hover{border-color:rgba(74,144,226,0.4);color:var(--sky);}
+.park-pill.sel{border-color:var(--sky);background:rgba(74,144,226,0.1);color:var(--sky);}
+/* Flight inputs */
+.flight-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
+.flight-group{background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:11px 13px;}
+.flight-group-lbl{font-size:9px;font-weight:600;color:rgba(30,42,68,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;}
+.mini-inp{width:100%;padding:7px 9px;border:1.5px solid var(--n12);border-radius:8px;font-family:'Inter',sans-serif;font-size:12px;color:var(--ink);background:var(--cream);outline:none;margin-bottom:6px;}
+.mini-inp:last-child{margin-bottom:0;}
+.mini-inp:focus{border-color:var(--sky);}
+.mini-inp::placeholder{color:rgba(30,42,68,0.3);}
+/* Info note */
+.info-note{background:rgba(74,144,226,0.07);border:1px solid rgba(74,144,226,0.18);border-radius:10px;padding:9px 12px;font-size:11px;color:rgba(30,42,68,0.6);line-height:1.5;}
+.info-note i{color:var(--sky);margin-right:4px;}
+/* Review */
+.review-section{background:var(--white);border:1px solid var(--n12);border-radius:14px;overflow:hidden;margin-bottom:10px;}
+.review-hdr{background:var(--n04);padding:9px 13px;display:flex;align-items:center;justify-content:space-between;}
+.review-hdr-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.45);text-transform:uppercase;letter-spacing:0.08em;}
+.review-edit{font-size:11px;color:var(--sky);cursor:pointer;font-weight:500;}
+.review-row{display:flex;justify-content:space-between;align-items:center;padding:9px 13px;border-bottom:1px solid var(--n08);}
+.review-row:last-child{border-bottom:none;}
+.review-lbl{font-size:11px;color:rgba(30,42,68,0.45);}
+.review-val{font-size:12px;font-weight:600;color:var(--ink);text-align:right;max-width:58%;}
+.review-val.missing{color:#F59E0B;}
+/* Budget */
+.budget-wrap{background:var(--white);border:1.5px solid var(--n12);border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.budget-wrap:focus-within{border-color:var(--sky);}
+.budget-pre{font-family:'Fraunces',serif;font-size:22px;color:rgba(30,42,68,0.25);}
+.budget-inp{border:none;background:transparent;font-family:'Fraunces',serif;font-size:24px;color:var(--ink);width:100%;outline:none;}
+.budget-inp::placeholder{color:rgba(30,42,68,0.2);}
+/* Save */
+.save-card{background:var(--night);border-radius:14px;padding:16px;text-align:center;margin-bottom:4px;}
+.save-title{font-family:'Fraunces',serif;font-size:17px;color:#fff;margin-bottom:5px;}
+.save-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-bottom:14px;line-height:1.5;}
+.save-btn{width:100%;padding:13px;background:var(--gold);border:none;border-radius:11px;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;color:var(--night);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.save-btn i{font-size:16px;}
+.save-btn:hover{opacity:0.9;}
+/* Nav */
+.nav{background:var(--white);border-top:1px solid var(--n12);padding:11px 16px;display:flex;gap:10px;flex-shrink:0;}
+.nav-back{flex:1;padding:11px;border:1.5px solid var(--n12);background:transparent;border-radius:11px;font-size:13px;font-weight:600;color:rgba(30,42,68,0.55);cursor:pointer;font-family:'Inter',sans-serif;}
+.nav-back:hover{border-color:rgba(30,42,68,0.25);}
+.nav-next{flex:2;padding:11px;border:none;background:var(--sky);border-radius:11px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter',sans-serif;}
+.nav-next i{font-size:15px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="cfg-hdr">
+    <div class="pk-logo"><i class="ti ti-map-2"></i></div>
+    <div class="cfg-hdr-title">Set up your trip</div>
+    <a class="cancel-btn" href="parkday_dashboard_v3.html?trip=1">Cancel</a>
+  </div>
+
+  <div class="prog-wrap">
+    <div class="prog-steps" id="prog-steps">
+      <div class="ps active"></div><div class="ps"></div><div class="ps"></div>
+      <div class="ps"></div><div class="ps"></div><div class="ps"></div>
+    </div>
+    <div class="prog-lbl">
+      <span class="pl-num" id="prog-num">Step 1 of 6</span>
+      <span class="pl-name" id="prog-name">Dates &amp; party</span>
+    </div>
+  </div>
+
+  <div class="screens">
+
+    <!-- STEP 1: Dates & Party -->
+    <div class="screen" id="sc-0">
+      <div class="sec-title">When are you going?</div>
+      <div class="sec-desc">Set your travel dates and who's coming along.</div>
+      <div class="field">
+        <div class="date-row">
+          <div class="date-wrap">
+            <div class="col-lbl">Arrival</div>
+            <input class="date-inp" type="date" id="arrival-date" onchange="onArrivalChange()">
+          </div>
+          <div class="date-wrap">
+            <div class="col-lbl">Departure</div>
+            <input class="date-inp" type="date" id="departure-date" onchange="onDepartureChange()">
+          </div>
+        </div>
+        <div class="trip-chip" id="trip-chip">
+          <i class="ti ti-moon"></i><span id="trip-chip-txt"></span>
+        </div>
+        <div class="day-trip-note" id="day-trip-note">
+          <i class="ti ti-sun"></i>Day trip detected — we'll skip the accommodations step and set up a single park day for you.
+        </div>
+      </div>
+      <div class="field-lbl">Party size</div>
+      <div class="stpr-row">
+        <div class="stpr-left"><div class="stpr-name">Adults</div></div>
+        <div class="stpr-ctrl">
+          <button class="sbtn" id="a-dn">&#8722;</button>
+          <div class="sval" id="a-v">2</div>
+          <button class="sbtn" id="a-up">+</button>
+        </div>
+      </div>
+      <div class="stpr-row">
+        <div class="stpr-left">
+          <div class="stpr-name">Children</div>
+          <div class="stpr-hint">Ages 3&#8211;9</div>
+        </div>
+        <div class="stpr-ctrl">
+          <button class="sbtn" id="c-dn">&#8722;</button>
+          <div class="sval" id="c-v">1</div>
+          <button class="sbtn" id="c-up">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Accommodations (skipped for day trips) -->
+    <div class="screen hr" id="sc-1">
+      <div class="sec-title">Where are you staying?</div>
+      <div class="sec-desc">Search for your resort, or scroll to browse by tier.</div>
+      <div id="resort-selected" style="display:none;" class="resort-sel-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="flex:1;">
+            <div class="rsc-name" id="rsc-name"></div>
+            <span class="opt-badge" id="rsc-badge" style="margin:5px 0 6px;display:inline-block;"></span>
+            <div class="rsc-desc" id="rsc-desc"></div>
+          </div>
+          <button class="rsc-change" onclick="clearResort()">Change</button>
+        </div>
+      </div>
+      <div id="resort-search-wrap">
+        <div class="resort-search-field">
+          <i class="ti ti-search" style="font-size:15px;color:rgba(30,42,68,0.35);flex-shrink:0;"></i>
+          <input type="text" class="resort-search-inp" id="resort-inp" placeholder="Search resorts…" oninput="filterResorts(this.value)" autocomplete="off">
+          <button class="resort-clear" id="resort-clear" onclick="clearSearch()" style="display:none;">&#x2715;</button>
+        </div>
+        <div id="resort-list" class="resort-list"></div>
+        <div class="resort-item off-prop-item" onclick="selectOffProperty()">
+          <div class="ri-left">
+            <div class="ri-name">Off Property</div>
+            <div class="ri-desc">Non-Disney hotel or vacation rental</div>
+          </div>
+          <span class="opt-badge bz">Book separately only</span>
+        </div>
+      </div>
+      <div id="booking-section" style="display:none;">
+        <div class="divider-lbl" style="margin-top:16px;">Booking type</div>
+        <div class="og" style="gap:7px;" id="grp-booking">
+          <button class="opt sel" data-grp="booking" data-val="separate">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Book separately</span></div>
+            <div class="opt-sub">Hotel and tickets purchased independently</div>
+          </button>
+          <button class="opt" data-grp="booking" data-val="package" id="pkg-opt">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Vacation Package</span></div>
+            <div class="opt-sub">Resort + tickets bundled through Disney — one balance, one payment schedule</div>
+          </button>
+          <button class="opt" data-grp="booking" data-val="package_dining" id="pkg-dining-opt">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Package + Dining Plan</span></div>
+            <div class="opt-sub">Vacation Package with pre-paid meal credits — requires 2+ nights on property</div>
+          </button>
+        </div>
+        <div class="info-note" id="swan-note" style="display:none;margin-top:8px;">
+          <i class="ti ti-info-circle"></i>Swan &amp; Dolphin properties can be booked as a Vacation Package but are not eligible for the Disney Dining Plan.
+        </div>
+        <div class="sub-field" id="dining-plan-field">
+          <div class="field-lbl" style="color:rgba(74,144,226,0.7);margin-bottom:8px;">Dining plan tier</div>
+          <div class="og g3" id="grp-dining">
+            <button class="opt sel" data-grp="dining" data-val="quick_service">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Quick Service</span></div>
+              <div class="opt-sub">2 QS + 2 snacks per person per night</div>
+            </button>
+            <button class="opt" data-grp="dining" data-val="standard">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Standard</span></div>
+              <div class="opt-sub">1 TS + 1 QS + 2 snacks per person per night</div>
+            </button>
+            <button class="opt" data-grp="dining" data-val="deluxe">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Deluxe</span></div>
+              <div class="opt-sub">3 TS or QS + 2 snacks per person per night</div>
+            </button>
+          </div>
+        </div>
+        <div style="margin-top:10px;">
+          <div class="toggle-row">
+            <div class="toggle-left">
+              <div class="toggle-name">Memory Maker</div>
+              <div class="toggle-sub">Unlimited PhotoPass downloads · $229 flat rate for your whole party</div>
+            </div>
+            <button class="toggle" id="memory-maker-toggle" onclick="toggleMemoryMaker()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: Tickets & Access -->
+    <div class="screen hr" id="sc-2">
+      <div class="sec-title">Tickets &amp; access</div>
+      <div class="sec-desc">What kind of park tickets did you purchase?</div>
+      <div class="field">
+        <div class="field-lbl">Ticket type</div>
+        <div class="og g2" id="grp-ticket">
+          <button class="opt sel" data-grp="ticket" data-val="base">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Base</span></div>
+            <div class="opt-sub">One park per day</div>
+            <span class="opt-badge bg">Standard</span>
+          </button>
+          <button class="opt" data-grp="ticket" data-val="hopper">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Park Hopper</span></div>
+            <div class="opt-sub">Visit multiple parks per day after 2pm</div>
+            <span class="opt-badge bb">+$65&#8211;90/ticket</span>
+          </button>
+          <button class="opt" data-grp="ticket" data-val="hopper_plus">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Hopper Plus</span></div>
+            <div class="opt-sub">Park Hopper + water parks &amp; ESPN</div>
+            <span class="opt-badge bo">+$85&#8211;110/ticket</span>
+          </button>
+          <button class="opt" data-grp="ticket" data-val="water_sports">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Water Park &amp; Sports</span></div>
+            <div class="opt-sub">Typhoon Lagoon, Blizzard Beach &amp; ESPN only</div>
+            <span class="opt-badge bz">+$74&#8211;80/ticket</span>
+          </button>
+        </div>
+      </div>
+      <div class="divider-lbl">Lightning Lane</div>
+      <div class="field">
+        <div class="og g3" id="grp-ll">
+          <button class="opt sel" data-grp="ll" data-val="none">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">None</span></div>
+            <div class="opt-sub">Standby lines only</div>
+            <span class="opt-badge bg">Free</span>
+          </button>
+          <button class="opt" data-grp="ll" data-val="multipass">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Multi Pass</span></div>
+            <div class="opt-sub">Book multiple rides throughout the day</div>
+            <span class="opt-badge bb">~$15&#8211;25/pp/day</span>
+          </button>
+          <button class="opt" data-grp="ll" data-val="singles">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">MP + Singles</span></div>
+            <div class="opt-sub">Multi Pass + top ride bookings</div>
+            <span class="opt-badge bc">~$55&#8211;90/pp/day</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: Getting There -->
+    <div class="screen hr" id="sc-3">
+      <div class="sec-title">Getting there</div>
+      <div class="sec-desc">How are you travelling to Orlando?</div>
+      <div class="field">
+        <div class="og g2" id="grp-travel">
+          <button class="opt sel" data-grp="travel" data-val="flying">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Flying</span></div>
+            <div class="opt-sub">Into MCO</div>
+            <span class="opt-badge bb">Airfare + transfer</span>
+          </button>
+          <button class="opt" data-grp="travel" data-val="driving">
+            <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Driving</span></div>
+            <div class="opt-sub">Road trip to WDW</div>
+            <span class="opt-badge bo">Gas + parking</span>
+          </button>
+        </div>
+      </div>
+      <div id="flying-section">
+        <div class="divider-lbl">Flight details <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">(optional)</span></div>
+        <div class="flight-row">
+          <div class="flight-group">
+            <div class="flight-group-lbl">Arrival flight</div>
+            <input class="mini-inp" type="text" id="arr-airline" placeholder="Airline">
+            <input class="mini-inp" type="text" id="arr-flight" placeholder="Flight #">
+          </div>
+          <div class="flight-group">
+            <div class="flight-group-lbl">Departure flight</div>
+            <input class="mini-inp" type="text" id="dep-airline" placeholder="Airline">
+            <input class="mini-inp" type="text" id="dep-flight" placeholder="Flight #">
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-lbl">MCO arrival transfer</div>
+          <div class="og g3" id="grp-transfer">
+            <button class="opt sel" data-grp="transfer" data-val="mears">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Mears Connect</span></div>
+              <div class="opt-sub">Disney's official shuttle</div>
+            </button>
+            <button class="opt" data-grp="transfer" data-val="rideshare">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Rideshare</span></div>
+              <div class="opt-sub">Uber or Lyft from MCO</div>
+            </button>
+            <button class="opt" data-grp="transfer" data-val="rental">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Rental Car</span></div>
+              <div class="opt-sub">Pick up at MCO</div>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <div class="field-lbl">Departure airport parking</div>
+          <div class="og g3" id="grp-parking">
+            <button class="opt sel" data-grp="parking" data-val="dropoff">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Drop-off</span></div>
+              <div class="opt-sub">No parking needed</div>
+            </button>
+            <button class="opt" data-grp="parking" data-val="parking">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Parking</span></div>
+              <div class="opt-sub">Home airport daily rate</div>
+            </button>
+            <button class="opt" data-grp="parking" data-val="rideshare">
+              <div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Rideshare</span></div>
+              <div class="opt-sub">Both ways</div>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="driving-section" style="display:none;">
+        <div id="driving-content"></div>
+      </div>
+    </div>
+
+    <!-- STEP 5: Park Days -->
+    <div class="screen hr" id="sc-4">
+      <div class="sec-title">Plan your park days</div>
+      <div class="sec-desc">Which days are you heading to the parks? We've made our best guess — tap to adjust.</div>
+      <div id="park-day-cards"></div>
+    </div>
+
+    <!-- STEP 6: Review & Save -->
+    <div class="screen hr" id="sc-5">
+      <div class="sec-title">Looks good?</div>
+      <div class="sec-desc">Review your trip before we set up your planner. You can edit any of this later.</div>
+      <div class="field">
+        <div class="field-lbl">Total trip budget <span style="font-weight:400;text-transform:none;letter-spacing:0;color:rgba(30,42,68,0.35);">(set now or later)</span></div>
+        <div class="budget-wrap">
+          <div class="budget-pre">$</div>
+          <input class="budget-inp" type="number" id="budget-inp" placeholder="0" min="0" step="100">
+        </div>
+      </div>
+      <div id="review-content"></div>
+      <div class="save-card">
+        <div class="save-title">Ready to start planning</div>
+        <div class="save-sub">We'll create your budget categories and itinerary based on these details.</div>
+        <a href="parkday_dashboard_v3.html?trip=1" style="text-decoration:none;display:block;">
+          <button class="save-btn"><i class="ti ti-sparkles"></i> Save trip &amp; open planner</button>
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="nav">
+    <button class="nav-back" id="nav-back" style="display:none;" onclick="goBack()">&#8592; Back</button>
+    <button class="nav-next" id="nav-next" onclick="goNext()">Next <i class="ti ti-arrow-right"></i></button>
+  </div>
+
+</div>
+<script>
+const TOTAL=6;
+const STEP_NAMES=["Dates & party","Accommodations","Tickets & access","Getting there","Park days","Review & save"];
+const PARKS=["MK","EPCOT","HS","AK"];
+const PARK_NAMES={MK:"Magic Kingdom",EPCOT:"EPCOT",HS:"Hollywood Studios",AK:"Animal Kingdom"};
+const TIER_ORDER=["value","moderate","deluxe","villa"];
+const TIER_LABELS={value:"Value",moderate:"Moderate",deluxe:"Deluxe",villa:"Deluxe Villa"};
+const TIER_BADGE={value:"bg",moderate:"bb",deluxe:"bo",villa:"bc"};
+
+const RESORTS=[
+  {name:"All-Star Movies Resort",tier:"value",tl:"Value",pkg:"full",desc:"Movie-themed resort near Hollywood Studios. Most affordable tier."},
+  {name:"All-Star Music Resort",tier:"value",tl:"Value",pkg:"full",desc:"Music-themed resort with two large pools. Near Hollywood Studios."},
+  {name:"All-Star Sports Resort",tier:"value",tl:"Value",pkg:"full",desc:"Sports-themed budget resort. Great for families watching the wallet."},
+  {name:"Pop Century Resort",tier:"value",tl:"Value",pkg:"full",desc:"Retro pop-culture resort connected to EPCOT via Skyliner."},
+  {name:"Art of Animation Resort",tier:"value",tl:"Value",pkg:"full",desc:"Family-suite-heavy resort connected to EPCOT via Skyliner."},
+  {name:"Caribbean Beach Resort",tier:"moderate",tl:"Moderate",pkg:"full",desc:"Tropical resort connected to EPCOT and Hollywood Studios via Skyliner."},
+  {name:"Port Orleans Resort – French Quarter",tier:"moderate",tl:"Moderate",pkg:"full",desc:"New Orleans-style resort. Smaller and quieter than Riverside."},
+  {name:"Port Orleans Resort – Riverside",tier:"moderate",tl:"Moderate",pkg:"full",desc:"Sprawling bayou-themed resort with Royal Guest Rooms available."},
+  {name:"Coronado Springs Resort",tier:"moderate",tl:"Moderate",pkg:"full",desc:"Spanish colonial resort with a 15-story tower. Near Animal Kingdom."},
+  {name:"Fort Wilderness Resort – Cabins",tier:"moderate",tl:"Moderate",pkg:"full",desc:"Secluded log cabins sleeping up to 6. Unique setting near Magic Kingdom."},
+  {name:"Grand Floridian Resort & Spa",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"Disney’s flagship Victorian resort. Monorail, steps from Magic Kingdom."},
+  {name:"Polynesian Village Resort",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"South Pacific-themed resort. Monorail and walking distance to Magic Kingdom."},
+  {name:"Contemporary Resort",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"Iconic A-frame resort. Monorail runs through the building. Walk to Magic Kingdom."},
+  {name:"Wilderness Lodge",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"Pacific Northwest-inspired lodge. Boat access to Magic Kingdom."},
+  {name:"BoardWalk Inn",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"Atlantic City-inspired resort. Walking distance to EPCOT and Hollywood Studios."},
+  {name:"Beach Club Resort",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"New England resort with Stormalong Bay pool. Walking distance to EPCOT."},
+  {name:"Yacht Club Resort",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"Nautical resort sharing Stormalong Bay with Beach Club. Walk to EPCOT."},
+  {name:"Animal Kingdom Lodge",tier:"deluxe",tl:"Deluxe",pkg:"full",desc:"African savanna resort with live animals viewable from rooms. Near Animal Kingdom."},
+  {name:"Bay Lake Tower at Contemporary",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"DVC tower connected to Contemporary. Monorail and walk to Magic Kingdom."},
+  {name:"Boulder Ridge Villas at Wilderness Lodge",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Rustic DVC villas with access to Wilderness Lodge amenities."},
+  {name:"Copper Creek Villas at Wilderness Lodge",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Modern DVC villas with plunge pools. Boat access to Magic Kingdom."},
+  {name:"Grand Floridian Villas",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"DVC villas at Disney’s flagship resort. Monorail access to Magic Kingdom."},
+  {name:"Old Key West Resort",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Disney’s original DVC resort. Spacious Key West-inspired villas."},
+  {name:"Polynesian Villas & Bungalows",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"DVC studios and overwater bungalows. Monorail access to Magic Kingdom."},
+  {name:"Riviera Resort",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"European-inspired DVC resort. Skyliner to EPCOT and Hollywood Studios."},
+  {name:"Saratoga Springs Resort & Spa",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Sprawling DVC resort near Disney Springs. Largest DVC property on property."},
+  {name:"Treehouse Villas at Saratoga Springs",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Elevated three-bedroom villas in a wooded setting near Disney Springs."},
+  {name:"Villas at Animal Kingdom Lodge – Jambo House",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"DVC villas with savanna views. Access to Animal Kingdom Lodge amenities."},
+  {name:"Villas at Animal Kingdom Lodge – Kidani Village",tier:"villa",tl:"Deluxe Villa",pkg:"full",desc:"Quieter DVC village with its own savanna and pool. Adjacent to Jambo House."},
+  {name:"Walt Disney World Swan",tier:"deluxe",tl:"Swan & Dolphin",pkg:"package_only",desc:"Marriott-operated deluxe hotel. Early Entry included — not eligible for Disney Dining Plan."},
+  {name:"Walt Disney World Dolphin",tier:"deluxe",tl:"Swan & Dolphin",pkg:"package_only",desc:"Marriott-operated deluxe hotel. Early Entry included — not eligible for Disney Dining Plan."},
+  {name:"Walt Disney World Swan Reserve",tier:"deluxe",tl:"Swan & Dolphin",pkg:"package_only",desc:"Autograph Collection hotel adjacent to Swan & Dolphin. Early Entry access."},
+];
+
+let step=0;
+let selectedResort=null;
+const S={
+  arrival:"",departure:"",adults:2,children:1,
+  tier:"",accName:"",isOffProperty:false,
+  booking:"separate",dining:"quick_service",memoryMaker:false,
+  ticketType:"base",lightningLane:"none",
+  travel:"flying",parkTransport:"",transfer:"mears",parking:"dropoff",
+  parkDays:[],budget:0
+};
+
+// --- Utilities ---
+function isDayTrip(){return S.arrival&&S.departure&&S.arrival===S.departure;}
+function parseLocalDate(str){const[y,m,d]=str.split("-").map(Number);return new Date(y,m-1,d);}
+function fmtDate(str){return parseLocalDate(str).toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});}
+function fmtDOW(str){return parseLocalDate(str).toLocaleDateString("en-US",{weekday:"short"}).toUpperCase();}
+
+// --- Steppers ---
+[["a","adults",1,8],["c","children",0,6]].forEach(([id,key,mn,mx])=>{
+  document.getElementById(id+"-dn").onclick=()=>{S[key]=Math.max(mn,S[key]-1);document.getElementById(id+"-v").textContent=S[key];};
+  document.getElementById(id+"-up").onclick=()=>{S[key]=Math.min(mx,S[key]+1);document.getElementById(id+"-v").textContent=S[key];};
+});
+
+// --- Date handling ---
+function onArrivalChange(){
+  S.arrival=document.getElementById("arrival-date").value;
+  if(!S.arrival)return;
+  const dep=document.getElementById("departure-date");
+  dep.min=S.arrival;
+  if(!dep.value||dep.value<S.arrival){dep.value=S.arrival;}
+  dep.focus();
+  updateDateChip();
+}
+function onDepartureChange(){
+  S.departure=document.getElementById("departure-date").value;
+  updateDateChip();
+}
+function updateDateChip(){
+  S.arrival=document.getElementById("arrival-date").value;
+  S.departure=document.getElementById("departure-date").value;
+  const chip=document.getElementById("trip-chip");
+  const note=document.getElementById("day-trip-note");
+  if(S.arrival&&S.departure){
+    if(isDayTrip()){
+      chip.style.display="none";
+      note.style.display="block";
+    } else if(S.departure>S.arrival){
+      const nights=Math.round((parseLocalDate(S.departure)-parseLocalDate(S.arrival))/864e5);
+      chip.style.display="inline-flex";
+      document.getElementById("trip-chip-txt").textContent=nights+" night"+(nights!==1?"s":"")+" · dates set";
+      note.style.display="none";
+    }
+  } else {
+    chip.style.display="none";
+    note.style.display="none";
+  }
+  updateProgress();
+}
+
+// --- Option groups ---
+document.querySelectorAll(".opt[data-grp]").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const g=btn.dataset.grp,v=btn.dataset.val;
+    document.querySelectorAll('.opt[data-grp="'+g+'"]').forEach(b=>b.classList.remove("sel"));
+    btn.classList.add("sel");
+    if(g==="booking"){S.booking=v;onBookingChange(v);}
+    else if(g==="travel"){S.travel=v;onTravelChange(v);}
+    else if(g==="ticket"){S.ticketType=v;}
+    else if(g==="ll"){S.lightningLane=v;}
+    else if(g==="dining"){S.dining=v;}
+    else if(g==="transfer"){S.transfer=v;}
+    else if(g==="parking"){S.parking=v;}
+    else{S[g]=v;}
+  });
+});
+
+// --- Resort search ---
+function resortItemHtml(r){
+  const idx=RESORTS.indexOf(r);
+  const isSel=selectedResort&&selectedResort.name===r.name;
+  const badge=r.tl==="Swan & Dolphin"?"bz":TIER_BADGE[r.tier];
+  return '<div class="resort-item'+(isSel?" sel":"")+'" onclick="selectResort('+idx+')">'+
+    '<div class="ri-left"><div class="ri-name">'+r.name+'</div><div class="ri-desc">'+r.desc+'</div></div>'+
+    '<span class="opt-badge '+badge+'">'+r.tl+'</span></div>';
+}
+function filterResorts(q){
+  document.getElementById("resort-clear").style.display=q?"inline":"none";
+  renderResortList(q?RESORTS.filter(r=>r.name.toLowerCase().includes(q.toLowerCase())):RESORTS,!q);
+}
+function renderResortList(resorts,grouped){
+  const list=document.getElementById("resort-list");
+  if(!resorts.length){list.innerHTML='<div style="padding:12px 4px;font-size:12px;color:rgba(30,42,68,0.4);">No resorts found. Try "Caribbean", "Polynesian", or "Swan".</div>';return;}
+  if(grouped){
+    let html="";
+    TIER_ORDER.forEach(tier=>{
+      const group=resorts.filter(r=>r.tier===tier&&r.tl!=="Swan & Dolphin");
+      if(!group.length)return;
+      html+='<div class="tier-hdr">'+TIER_LABELS[tier]+'</div>'+group.map(r=>resortItemHtml(r)).join("");
+    });
+    const sd=resorts.filter(r=>r.tl==="Swan & Dolphin");
+    if(sd.length)html+='<div class="tier-hdr">Swan &amp; Dolphin</div>'+sd.map(r=>resortItemHtml(r)).join("");
+    list.innerHTML=html;
+  } else {
+    list.innerHTML=resorts.map(r=>resortItemHtml(r)).join("");
+  }
+}
+function selectResort(idx){
+  const r=RESORTS[idx];if(!r)return;
+  selectedResort=r;S.tier=r.tier;S.accName=r.name;S.isOffProperty=false;
+  document.getElementById("rsc-name").textContent=r.name;
+  const badge=document.getElementById("rsc-badge");
+  badge.textContent=r.tl;badge.className="opt-badge "+(r.tl==="Swan & Dolphin"?"bz":TIER_BADGE[r.tier]);
+  document.getElementById("rsc-desc").textContent=r.desc;
+  document.getElementById("resort-selected").style.display="block";
+  document.getElementById("resort-search-wrap").style.display="none";
+  document.getElementById("booking-section").style.display="block";
+  updateBookingOptions(r.pkg);
+}
+function selectOffProperty(){
+  selectedResort=null;S.tier="off_property";S.accName="";S.isOffProperty=true;
+  document.getElementById("rsc-name").textContent="Off Property";
+  const badge=document.getElementById("rsc-badge");
+  badge.textContent="Off Property";badge.className="opt-badge bz";
+  document.getElementById("rsc-desc").textContent="Non-Disney hotel or vacation rental — book separately only.";
+  document.getElementById("resort-selected").style.display="block";
+  document.getElementById("resort-search-wrap").style.display="none";
+  document.getElementById("booking-section").style.display="block";
+  updateBookingOptions("separate_only");
+}
+function clearResort(){
+  selectedResort=null;S.tier="";S.accName="";S.isOffProperty=false;
+  document.getElementById("resort-selected").style.display="none";
+  document.getElementById("resort-search-wrap").style.display="block";
+  document.getElementById("booking-section").style.display="none";
+  document.getElementById("resort-inp").value="";
+  document.getElementById("resort-clear").style.display="none";
+  renderResortList(RESORTS,true);
+}
+function clearSearch(){
+  document.getElementById("resort-inp").value="";
+  document.getElementById("resort-clear").style.display="none";
+  renderResortList(RESORTS,true);
+}
+function updateBookingOptions(pkg){
+  const pkgOpt=document.getElementById("pkg-opt");
+  const pkgDiningOpt=document.getElementById("pkg-dining-opt");
+  document.getElementById("swan-note").style.display="none";
+  document.getElementById("dining-plan-field").classList.remove("show");
+  document.querySelectorAll('.opt[data-grp="booking"]').forEach(b=>b.classList.remove("sel"));
+  document.querySelector('.opt[data-val="separate"]').classList.add("sel");
+  S.booking="separate";
+  pkgOpt.classList.remove("disabled");pkgDiningOpt.classList.remove("disabled");
+  // Dining plan requires 2+ nights on property
+  const nights=(S.arrival&&S.departure&&S.departure>S.arrival)?Math.round((parseLocalDate(S.departure)-parseLocalDate(S.arrival))/864e5):0;
+  const diningIneligible=pkg==="separate_only"||pkg==="package_only"||nights<2;
+  if(pkg==="separate_only"){pkgOpt.classList.add("disabled");pkgDiningOpt.classList.add("disabled");}
+  else if(pkg==="package_only"){pkgDiningOpt.classList.add("disabled");document.getElementById("swan-note").style.display="block";}
+  else if(nights===1){
+    pkgDiningOpt.classList.add("disabled");
+    // Show a small note explaining why
+    document.getElementById("swan-note").style.display="block";
+    document.getElementById("swan-note").innerHTML='<i class="ti ti-info-circle"></i>The Disney Dining Plan requires a minimum 2-night stay.';
+  }
+  if(diningIneligible&&S.booking==="package_dining"){
+    document.querySelector('.opt[data-val="separate"]').classList.add("sel");
+    S.booking="separate";
+  }
+}
+function onBookingChange(val){
+  S.booking=val;
+  document.getElementById("dining-plan-field").classList.toggle("show",val==="package_dining");
+}
+function toggleMemoryMaker(){
+  S.memoryMaker=!S.memoryMaker;
+  document.getElementById("memory-maker-toggle").classList.toggle("on",S.memoryMaker);
+}
+
+// --- Travel ---
+function onTravelChange(val){
+  S.travel=val;
+  document.getElementById("flying-section").style.display=val==="flying"?"block":"none";
+  document.getElementById("driving-section").style.display=val==="driving"?"block":"none";
+  if(val==="driving")renderDrivingSection();
+}
+function renderDrivingSection(){
+  const isOff=S.tier==="off_property"||S.isOffProperty;
+  const pc=S.parkDays.filter(d=>d.isPark).length;
+  const est=pc>0?" (~$"+(pc*30)+" for "+pc+" park "+(pc===1?"day":"days")+")":"";
+  let html="";
+  if(isOff){
+    S.parkTransport="drive";
+    html='<div class="info-note"><i class="ti ti-info-circle"></i>No Disney transport for off-property stays. WDW theme park parking ($30/park day'+est+') will be tracked in your Transport budget.</div>';
+  } else {
+    html='<div class="field-lbl" style="margin-bottom:8px;">Getting to the parks each day</div>'+
+    '<div class="og g2" id="grp-park-transport">'+
+    '<button class="opt'+(S.parkTransport==="disney_transport"?" sel":"")+'" data-grp="park-transport" data-val="disney_transport">'+
+    '<div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Disney transport</span></div>'+
+    '<div class="opt-sub">Buses, monorail, Skyliner — included with your stay</div>'+
+    '<span class="opt-badge bg">Free</span></button>'+
+    '<button class="opt'+(S.parkTransport==="drive"?" sel":"")+'" data-grp="park-transport" data-val="drive">'+
+    '<div style="display:flex;align-items:center;"><span class="opt-dot"></span><span class="opt-name">Drive each day</span></div>'+
+    '<div class="opt-sub">Self-park at WDW theme park garages</div>'+
+    '<span class="opt-badge bo">$30/park day</span></button>'+
+    '</div>'+
+    (S.parkTransport==="drive"?'<div class="info-note" style="margin-top:8px;"><i class="ti ti-info-circle"></i>WDW parking'+est+' will be tracked in your Transport budget.</div>':"");
+  }
+  document.getElementById("driving-content").innerHTML=html;
+  document.querySelectorAll('[data-grp="park-transport"]').forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      S.parkTransport=btn.dataset.val;
+      renderDrivingSection();
+    });
+  });
+}
+
+// --- Park days ---
+function generateParkDays(){
+  const el=document.getElementById("park-day-cards");
+  if(!S.arrival){el.innerHTML='<div style="text-align:center;padding:32px 0;font-size:13px;color:rgba(30,42,68,0.4);">Set your travel dates in Step 1 first.</div>';return;}
+  if(isDayTrip()){
+    S.parkDays=[{date:S.arrival,dayNum:1,isPark:true,park:"MK"}];
+    renderParkDayCards();return;
+  }
+  if(!S.departure||S.departure<=S.arrival){el.innerHTML='<div style="text-align:center;padding:32px 0;font-size:13px;color:rgba(30,42,68,0.4);">Set your travel dates in Step 1 first.</div>';return;}
+  const arr=parseLocalDate(S.arrival),dep=parseLocalDate(S.departure);
+  const totalNights=Math.round((dep-arr)/864e5);
+  const days=[];const cur=new Date(arr);let dn=1;
+  while(cur<=dep){
+    const ds=cur.toISOString().split("T")[0];
+    const isFirst=dn===1,isLast=cur.getTime()===dep.getTime();
+    const isPark=!isFirst&&!isLast&&totalNights>1;
+    days.push({date:ds,dayNum:dn,isPark,park:isPark?"MK":""});
+    cur.setDate(cur.getDate()+1);dn++;
+  }
+  S.parkDays=days;
+  renderParkDayCards();
+}
+function renderParkDayCards(){
+  document.getElementById("park-day-cards").innerHTML=S.parkDays.map((day,i)=>{
+    const isPark=day.isPark;
+    const isOnlyDay=S.parkDays.length===1;
+    const statusTxt=isPark?(PARK_NAMES[day.park]||"Park day"):(i===0&&!isOnlyDay?"Arrival day":i===S.parkDays.length-1?"Departure day":"Rest day");
+    return '<div class="day-card'+(isPark?" park-on":"")+'" id="dc-'+i+'">'+
+      '<div class="day-card-top">'+
+      '<div class="day-chip2'+(isPark?"":" off")+'">'+
+      '<div class="day-chip2-num">'+day.dayNum+'</div>'+
+      '<div class="day-chip2-dow">'+fmtDOW(day.date)+'</div></div>'+
+      '<div class="day-info"><div class="day-date-lbl">'+fmtDate(day.date)+'</div>'+
+      '<div class="day-status-lbl" id="ds-'+i+'">'+statusTxt+'</div></div>'+
+      (isOnlyDay?'':('<button class="toggle'+(isPark?" on":"")+'" onclick="toggleParkDay('+i+')"></button>'))+
+      '</div>'+
+      '<div class="park-selector'+(isPark?" show":"")+'" id="ps-'+i+'">'+
+      '<div class="park-pills">'+PARKS.map((p,pi)=>'<button class="park-pill'+(day.park===p?" sel":"")+'" onclick="selectPark('+i+','+pi+')">'+p+'</button>').join("")+
+      '</div></div></div>';
+  }).join("");
+}
+function toggleParkDay(i){
+  S.parkDays[i].isPark=!S.parkDays[i].isPark;
+  if(S.parkDays[i].isPark&&!S.parkDays[i].park)S.parkDays[i].park="MK";
+  if(!S.parkDays[i].isPark)S.parkDays[i].park="";
+  const isPark=S.parkDays[i].isPark;
+  const card=document.getElementById("dc-"+i);
+  card.classList.toggle("park-on",isPark);
+  card.querySelector(".day-chip2").classList.toggle("off",!isPark);
+  card.querySelector(".toggle").classList.toggle("on",isPark);
+  document.getElementById("ps-"+i).classList.toggle("show",isPark);
+  document.getElementById("ds-"+i).textContent=isPark?(PARK_NAMES[S.parkDays[i].park]||"Park day"):(i===0?"Arrival day":i===S.parkDays.length-1?"Departure day":"Rest day");
+}
+function selectPark(i,pi){
+  const park=PARKS[pi];
+  S.parkDays[i].park=park;
+  document.querySelectorAll("#ps-"+i+" .park-pill").forEach((p,idx)=>p.classList.toggle("sel",idx===pi));
+  document.getElementById("ds-"+i).textContent=PARK_NAMES[park]||park;
+}
+
+// --- Review ---
+function renderReview(){
+  const nights=S.arrival&&S.departure&&!isDayTrip()?Math.round((parseLocalDate(S.departure)-parseLocalDate(S.arrival))/864e5):0;
+  const parkCount=S.parkDays.filter(d=>d.isPark).length;
+  const BL={separate:"Book separately",package:"Vacation Package",package_dining:"Package + Dining Plan"};
+  const DL={quick_service:"Quick Service Plan",standard:"Standard Dining Plan",deluxe:"Deluxe Dining Plan"};
+  const TKL={base:"Base (one park/day)",hopper:"Park Hopper",hopper_plus:"Hopper Plus",water_sports:"Water Park & Sports"};
+  const LLL={none:"None — standby only",multipass:"Lightning Lane Multi Pass",singles:"Multi Pass + Singles"};
+  const XL={mears:"Mears Connect",rideshare:"Rideshare (Uber/Lyft)",rental:"Rental Car"};
+  const PKL={dropoff:"Drop-off",parking:"Parking",rideshare:"Rideshare both ways"};
+  const miss=(v,lbl)=>v?'<span class="review-val">'+v+'</span>':'<span class="review-val missing">'+lbl+' needed</span>';
+
+  let acc="";
+  if(isDayTrip()){
+    acc='<div class="review-row"><span class="review-lbl">Stay</span><span class="review-val">Day trip — no overnight stay</span></div>';
+  } else {
+    acc='<div class="review-row"><span class="review-lbl">Property</span>'+miss(S.accName,"Select resort")+'</div>'+
+      '<div class="review-row"><span class="review-lbl">Tier</span>'+miss(S.tier?TIER_LABELS[S.tier]||(S.tier==="off_property"?"Off Property":""):"","Select")+'</div>'+
+      '<div class="review-row"><span class="review-lbl">Booking</span><span class="review-val">'+BL[S.booking]+'</span></div>'+
+      (S.booking==="package_dining"?'<div class="review-row"><span class="review-lbl">Dining plan</span><span class="review-val">'+DL[S.dining]+'</span></div>':"")+
+      '<div class="review-row"><span class="review-lbl">Memory Maker</span><span class="review-val">'+(S.memoryMaker?"Yes · $229":"No")+'</span></div>';
+  }
+
+  let travelRows='<div class="review-row"><span class="review-lbl">Travel</span><span class="review-val">'+(S.travel==="flying"?"Flying into MCO":"Driving")+'</span></div>';
+  if(S.travel==="flying"){
+    travelRows+='<div class="review-row"><span class="review-lbl">MCO transfer</span><span class="review-val">'+XL[S.transfer]+'</span></div>'+
+      '<div class="review-row"><span class="review-lbl">Airport parking</span><span class="review-val">'+PKL[S.parking]+'</span></div>';
+  } else {
+    const ptxt=S.parkTransport==="drive"?"Drive each day — WDW parking tracked in budget":S.parkTransport==="disney_transport"?"Disney transport (free)":"Not yet selected";
+    travelRows+='<div class="review-row"><span class="review-lbl">Park transport</span><span class="review-val '+(S.parkTransport?"":"missing")+'">'+ptxt+'</span></div>';
+  }
+
+  document.getElementById("review-content").innerHTML=
+    '<div class="review-section">'+
+    '<div class="review-hdr"><span class="review-hdr-lbl">Dates &amp; party</span><span class="review-edit" onclick="goTo(0)">Edit</span></div>'+
+    '<div class="review-row"><span class="review-lbl">Arrival</span>'+miss(S.arrival?fmtDate(S.arrival):"","Date")+'</div>'+
+    (isDayTrip()?"":('<div class="review-row"><span class="review-lbl">Departure</span>'+miss(S.departure?fmtDate(S.departure):"","Date")+'</div>'))+
+    '<div class="review-row"><span class="review-lbl">Length</span><span class="review-val">'+(isDayTrip()?"Day trip":(nights>0?nights+" nights · "+parkCount+" park days":"Not set"))+'</span></div>'+
+    '<div class="review-row"><span class="review-lbl">Party</span><span class="review-val">'+S.adults+" adult"+(S.adults!==1?"s":"")+(S.children?" · "+S.children+" child"+(S.children!==1?"ren":""):"")+'</span></div>'+
+    '</div>'+
+    '<div class="review-section">'+
+    '<div class="review-hdr"><span class="review-hdr-lbl">Accommodations</span><span class="review-edit" onclick="goTo(isDayTrip()?0:1)">Edit</span></div>'+
+    acc+'</div>'+
+    '<div class="review-section">'+
+    '<div class="review-hdr"><span class="review-hdr-lbl">Tickets &amp; access</span><span class="review-edit" onclick="goTo(2)">Edit</span></div>'+
+    '<div class="review-row"><span class="review-lbl">Tickets</span><span class="review-val">'+TKL[S.ticketType]+'</span></div>'+
+    '<div class="review-row"><span class="review-lbl">Lightning Lane</span><span class="review-val">'+LLL[S.lightningLane]+'</span></div>'+
+    '</div>'+
+    '<div class="review-section">'+
+    '<div class="review-hdr"><span class="review-hdr-lbl">Getting there</span><span class="review-edit" onclick="goTo(3)">Edit</span></div>'+
+    travelRows+'</div>'+
+    '<div class="review-section">'+
+    '<div class="review-hdr"><span class="review-hdr-lbl">Park days</span><span class="review-edit" onclick="goTo(4)">Edit</span></div>'+
+    (parkCount===0?'<div class="review-row"><span class="review-val missing">No park days set</span></div>':
+      S.parkDays.filter(d=>d.isPark).map(d=>'<div class="review-row"><span class="review-lbl">'+fmtDate(d.date)+'</span><span class="review-val">'+(PARK_NAMES[d.park]||d.park)+'</span></div>').join(""))+
+    '</div>';
+}
+
+// --- Navigation ---
+function goTo(s,dir){
+  if(dir===undefined)dir=s>step?1:-1;
+  document.getElementById("sc-"+step).classList.add(dir>0?"hl":"hr");
+  const nxt=document.getElementById("sc-"+s);
+  nxt.classList.remove("hr","hl");nxt.scrollTop=0;
+  step=s;updateProgress();updateNav();
+  if(step===3&&S.travel==="driving")renderDrivingSection();
+  if(step===4)generateParkDays();
+  if(step===5)renderReview();
+}
+function goNext(){
+  let next=step+1;
+  if(next===1&&isDayTrip())next=2;
+  if(next<TOTAL)goTo(next,1);
+}
+function goBack(){
+  let prev=step-1;
+  if(prev===1&&isDayTrip())prev=0;
+  if(prev>=0)goTo(prev,-1);
+}
+function updateProgress(){
+  const dayTrip=isDayTrip();
+  document.querySelectorAll(".ps").forEach((d,i)=>{
+    d.className="ps";
+    if(i===1&&dayTrip)d.classList.add("skipped");
+    else if(i<step)d.classList.add("done");
+    else if(i===step)d.classList.add("active");
+  });
+  const displayStep=dayTrip&&step>1?step:step+1;
+  const totalDisplay=dayTrip?5:6;
+  document.getElementById("prog-num").textContent="Step "+displayStep+" of "+totalDisplay;
+  document.getElementById("prog-name").textContent=STEP_NAMES[step];
+}
+function updateNav(){
+  document.getElementById("nav-back").style.display=step>0?"flex":"none";
+  const next=document.getElementById("nav-next");
+  if(step===TOTAL-1){next.style.display="none";}
+  else{
+    next.style.display="flex";
+    next.innerHTML=step===TOTAL-2?'Review <i class="ti ti-arrow-right"></i>':'Next <i class="ti ti-arrow-right"></i>';
+  }
+}
+
+// Init
+renderResortList(RESORTS,true);
+updateProgress();
+updateNav();
+</script>
+</body>
+</html>
