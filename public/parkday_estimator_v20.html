@@ -5,97 +5,110 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parkday — Trip Cost Estimator</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 /* ── Reset ── */
 *{box-sizing:border-box;margin:0;padding:0;}
 
 /* ── Parkday design tokens (hardcoded) ── */
 :root{
-  --night:#1E2A44;
-  --sky:#4A90E2;
-  --gold:#F6B84B;
-  --coral:#FF7A6B;
-  --mint:#7ED6C4;
-  --cream:#FFF8EC;
+  --night:#0D2340;
+  --sky:#2A6FE0;
+  --sky-dark:#1E5AC4;
+  --gold:#F5B536;
+  --gold-dark:#C68A12;
+  --coral:#E0533F;
+  --teal:#2CA58D;
+  --teal-dark:#1B7D68;
+  --cream:#F3EEDE;
   --white:#FFFFFF;
   --ink:#20242C;
-  --card:#FFFFFF;
-  --bg:#F5F5F7;
-  --border:rgba(30,42,68,0.12);
-  --border-light:rgba(30,42,68,0.07);
+  --card:#FBF5E8;
+  --bg:#F3EEE3;
+  --border:rgba(13,35,64,0.28);
+  --border-light:rgba(13,35,64,0.1);
   --text-primary:#20242C;
-  --text-secondary:rgba(30,42,68,0.6);
-  --text-tertiary:rgba(30,42,68,0.4);
-  --radius:10px;
-  --radius-sm:7px;
-  --radius-lg:14px;
+  --text-secondary:rgba(13,35,64,0.6);
+  --text-tertiary:rgba(13,35,64,0.42);
+  --radius:11px;
+  --radius-sm:8px;
+  --radius-lg:16px;
 }
 
 body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothing:antialiased;}
+html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(13,35,64,0.18);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:rgba(13,35,64,0.3);}
 
 /* ── App shell ── */
-.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;min-height:640px;background:var(--cream);border-radius:20px;overflow:hidden;}
+.layout{max-width:480px;margin:0 auto;}
+.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh;min-height:100svh;background:var(--cream);position:relative;}
 
 /* ── Header ── */
-.pk-hdr{background:var(--night);padding:13px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.pk-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.pk-logo i{color:#fff;font-size:16px;}
-.pk-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;flex:1;}
-.pk-sub{font-size:10px;color:var(--mint);font-weight:500;margin-top:1px;}
-.restart-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:4px 8px;cursor:pointer;font-size:10px;font-weight:500;color:rgba(255,255,255,0.55);font-family:'Inter',sans-serif;}
+.pk-hdr{position:relative;background:var(--cream);padding:18px 18px 14px;display:flex;align-items:center;gap:11px;flex-shrink:0;overflow:hidden;}
+.pk-logo{width:64px;height:auto;flex-shrink:0;display:block;position:relative;z-index:1;}
+.pk-title{font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:var(--night);letter-spacing:-0.015em;line-height:1.05;}
+.pk-sub{font-size:12px;color:var(--sky);font-weight:500;margin-top:2px;}
+.restart-btn{position:relative;z-index:1;background:#fff;border:1px solid rgba(13,35,64,0.16);border-radius:20px;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:500;color:var(--night);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.restart-btn i{font-size:13px;}
 
 /* ── Cost bar (estimator) ── */
-.cost-wrap{background:var(--night);padding:0 16px 12px;flex-shrink:0;}
-.cost-row{display:flex;align-items:stretch;gap:0;margin-bottom:8px;}
-.cost-left{flex:1;}
-.cost-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
-.cost-num{font-family:'Fraunces',serif;font-size:28px;font-weight:400;color:var(--gold);line-height:1;}
-.cost-pp{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
-.cost-divider{width:1px;background:rgba(255,255,255,0.08);margin:0 16px;}
-.cost-right{text-align:right;flex-shrink:0;}
-.cost-rng{font-size:14px;font-weight:500;color:rgba(255,255,255,0.65);}
-.cost-rng-sub{font-size:10px;color:rgba(255,255,255,0.3);margin-top:3px;}
-.bar-track{height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
-.bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.35s ease;}
+.cost-wrap{margin:0;padding:0 14px 12px;flex-shrink:0;position:sticky;top:0;z-index:30;background:var(--cream);transform:translateZ(0);will-change:transform;}
+.cost-ticket{background:var(--night);border-radius:16px;padding:16px 20px;position:relative;overflow:hidden;display:flex;align-items:stretch;}
+.cost-ticket::before,.cost-ticket::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--cream);}
+.cost-ticket::before{left:-10px;}
+.cost-ticket::after{right:-10px;}
+.cost-left{flex:1.2;}
+.cost-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.42);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
+.cost-num{font-family:'Fraunces',serif;font-size:42px;font-weight:400;color:var(--gold);line-height:1;}
+.cost-pp{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:rgba(255,255,255,0.85);line-height:1;}
+.cost-divider{width:1px;background:rgba(255,255,255,0.1);margin:0 16px;}
+.cost-right{flex-shrink:0;align-self:center;}
+.cost-rng{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:rgba(255,255,255,0.85);line-height:1;}
+.cost-mid{flex-shrink:0;align-self:center;}
 
 
 /* ── Progress bar ── */
-.prog-wrap{background:var(--night);padding:0 16px 10px;flex-shrink:0;}
+.prog-wrap{background:var(--cream);padding:0 18px 14px;flex-shrink:0;}
 .prog-steps{display:flex;gap:3px;}
-.ps{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.15);transition:background 0.2s;}
-.ps.done{background:var(--mint);}
+.ps{flex:1;height:4px;border-radius:2px;background:rgba(13,35,64,0.14);transition:background 0.2s;}
+.ps.done{background:var(--teal);}
 .ps.active{background:var(--gold);}
-.ps.skipped{background:rgba(255,255,255,0.3);}
-.prog-lbl{display:flex;justify-content:space-between;margin-top:5px;}
-.pl-step{font-size:10px;color:rgba(255,255,255,0.4);}
-.pl-name{font-size:10px;color:rgba(255,255,255,0.6);font-weight:500;}
+.ps.skipped{background:rgba(13,35,64,0.08);}
+.prog-lbl{display:flex;justify-content:flex-end;align-items:baseline;gap:6px;margin-top:7px;}
+.pl-step{font-size:10.5px;color:rgba(13,35,64,0.42);font-weight:500;white-space:nowrap;flex-shrink:0;}
+.pl-name{font-size:10.5px;color:var(--night);font-weight:600;white-space:nowrap;}
 
 /* ── Screens ── */
-.screens{flex:1;overflow:hidden;position:relative;background:var(--bg);}
-.screen{position:absolute;inset:0;overflow-y:auto;padding:16px;transition:transform 0.26s cubic-bezier(.4,0,.2,1),opacity 0.18s;}
-.screen.hr{transform:translateX(100%);opacity:0;pointer-events:none;}
-.screen.hl{transform:translateX(-28%);opacity:0;pointer-events:none;}
+.screens{flex:1;position:relative;background:var(--cream);}
+.screens-clip{position:absolute;inset:0;overflow:hidden;}
+.screen{position:relative;padding:16px;transition:transform 0.26s cubic-bezier(.4,0,.2,1),opacity 0.18s;}
+.screen.hr,.screen.hl{position:absolute;inset:0;overflow-y:auto;pointer-events:none;}
+.screen.hr{transform:translateX(100%);opacity:0;}
+.screen.hl{transform:translateX(-28%);opacity:0;}
 
 /* ── Nav ── */
-.nav{background:var(--white);border-top:1px solid var(--border);padding:10px 16px;display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
+.nav{background:var(--cream);padding:11px 16px;display:flex;flex-direction:column;gap:7px;flex-shrink:0;}
 .nav-row{display:flex;gap:10px;}
-.nav-back{flex:1;padding:10px;border:1px solid var(--border);background:transparent;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;}
-.nav-next{flex:2;padding:10px;border:none;background:var(--sky);border-radius:var(--radius);font-size:13px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter',sans-serif;}
+.nav-back{flex:1;padding:11px;border:1px solid var(--border);background:rgba(255,255,255,0.45);border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;font-family:'Inter',sans-serif;}
+.nav-next{flex:2;padding:11px;border:none;background:var(--sky);border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter',sans-serif;}
 .nav-next i{font-size:15px;}
 .nav-skip{text-align:center;font-size:12px;color:var(--text-tertiary);cursor:pointer;padding:2px 0;}
 .nav-skip:hover{color:var(--text-secondary);}
 
 /* ── Section titles ── */
-.sec-title{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--ink);margin-bottom:4px;}
+.sec-title{font-family:'Fraunces',serif;font-size:21px;font-weight:400;color:var(--night);margin-bottom:4px;}
 .sec-desc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5;}
 
 /* ── Steppers ── */
-.steppers{display:flex;flex-direction:column;gap:7px;}
-.stpr{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 13px;display:flex;align-items:center;justify-content:space-between;}
+.steppers{display:flex;flex-direction:column;gap:8px;}
+.stpr{background:rgba(255,255,255,0.45);border:1px solid var(--border);border-radius:12px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;}
 .stpr-name{font-size:13px;font-weight:500;color:var(--text-primary);}
 .stpr-hint{font-size:10px;color:var(--text-tertiary);margin-top:2px;}
-.stpr-ctrl{display:flex;align-items:center;gap:10px;flex-shrink:0;}
-.sbtn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:17px;color:var(--text-primary);display:flex;align-items:center;justify-content:center;transition:background 0.1s;}
+.stpr-ctrl{display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.sbtn{width:30px;height:30px;border-radius:50%;border:1px solid rgba(13,35,64,0.14);background:var(--bg);cursor:pointer;font-size:18px;color:var(--text-primary);display:flex;align-items:center;justify-content:center;transition:background 0.1s;}
 .sbtn:hover{background:var(--sky);border-color:var(--sky);color:#fff;}
 .sval{font-size:16px;font-weight:600;color:var(--text-primary);min-width:22px;text-align:center;}
 
@@ -103,98 +116,148 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
 .og{display:grid;gap:7px;}
 .g2{grid-template-columns:1fr 1fr;}
 .g3{grid-template-columns:1fr 1fr 1fr;}
-.opt{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;text-align:left;transition:border-color 0.12s,background 0.12s;font-family:'Inter',sans-serif;}
-.opt:hover{border-color:rgba(74,144,226,0.4);}
-.opt.sel{border-color:var(--sky);background:rgba(74,144,226,0.07);}
-.opt.sel .od{background:var(--sky);}
-.od{width:7px;height:7px;border-radius:50%;background:var(--border);display:inline-block;margin-right:5px;flex-shrink:0;transition:background 0.12s;}
-.oname{font-size:12px;font-weight:600;color:var(--text-primary);}
-.osub{font-size:11px;color:var(--text-tertiary);margin-top:2px;padding-left:12px;line-height:1.3;}
-.obdg{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;margin-top:4px;margin-left:12px;}
-.bg{background:rgba(126,214,196,0.2);color:#0f7a67;}
-.bb{background:rgba(74,144,226,0.15);color:#1a5fa8;}
-.bo{background:rgba(246,184,75,0.18);color:#7a4a00;}
-.bc{background:rgba(232,97,74,0.15);color:#a83210;}
-.bz{background:var(--bg);color:var(--text-secondary);}
+.opt{position:relative;background:rgba(255,255,255,0.45);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;cursor:pointer;text-align:left;transition:border-color 0.12s,background 0.12s;font-family:'Inter',sans-serif;}
+.opt:hover{border-color:rgba(42,111,224,0.4);}
+.opt.sel{border-color:var(--sky);background:rgba(42,111,224,0.07);}
+.ochk{display:none;position:absolute;top:7px;right:7px;width:15px;height:15px;border-radius:50%;background:var(--sky);align-items:center;justify-content:center;}
+.ochk i{font-size:10px;color:#fff;font-weight:700;}
+.opt.sel .ochk{display:flex;}
+.oname{font-size:12px;font-weight:600;color:var(--text-primary);padding-right:14px;display:block;}
+.osub{font-size:11px;color:var(--text-tertiary);margin-top:2px;line-height:1.3;}
+.obdg{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:20px;margin-top:5px;}
+.bg{background:rgba(44,165,141,0.16);color:var(--teal-dark);}
+.bb{background:rgba(42,111,224,0.14);color:var(--sky-dark);}
+.bo{background:rgba(245,181,54,0.18);color:#8a5a00;}
+.bc{background:rgba(224,83,63,0.16);color:#c03a2b;}
+.bz{background:rgba(13,35,64,0.07);color:rgba(13,35,64,0.5);}
 
 /* ── Travel step ── */
 .loc-row{display:flex;gap:7px;align-items:center;margin-top:12px;}
-.loc-btn{display:flex;align-items:center;gap:5px;padding:8px 10px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;font-size:11px;font-weight:500;color:var(--sky);white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;}
-.loc-inp{flex:1;font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;background:var(--white);color:var(--text-primary);outline:none;}
+.loc-btn{display:flex;align-items:center;gap:5px;padding:8px 10px;background:var(--white);border:1px solid var(--border-light);border-radius:var(--radius);cursor:pointer;font-size:11px;font-weight:500;color:var(--sky);white-space:nowrap;font-family:'Inter',sans-serif;flex-shrink:0;}
+.loc-inp{flex:1;font-family:'Inter',sans-serif;font-size:13px;border:1px solid var(--border-light);border-radius:10px;padding:9px 11px;background:var(--white);color:var(--text-primary);outline:none;}
 .loc-inp:focus{border-color:var(--sky);}
-.loc-res{margin-top:8px;background:rgba(74,144,226,0.07);border:1px solid rgba(74,144,226,0.2);border-radius:var(--radius);padding:7px 10px;font-size:11px;color:var(--text-primary);display:none;}
+.loc-res{margin-top:8px;background:rgba(42,111,224,0.07);border:1px solid rgba(42,111,224,0.2);border-radius:10px;padding:8px 11px;font-size:11px;color:var(--text-primary);display:none;}
 .loc-res.show{display:block;}
-.travel-est{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-top:10px;display:none;}
+.travel-est{background:var(--white);border:1px solid var(--border-light);border-radius:10px;padding:10px 13px;margin-top:10px;display:none;}
 .travel-est.show{display:block;}
-.te-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.te-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
 .te-lbl{font-size:11px;color:var(--text-tertiary);}
 .te-val{font-size:13px;font-weight:600;color:var(--text-primary);}
 .te-note{font-size:10px;color:var(--text-tertiary);margin-top:6px;line-height:1.5;}
 
 /* ── Skip badge ── */
-.skip-badge{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 9px;font-size:10px;color:var(--text-tertiary);margin-bottom:12px;}
+.skip-badge{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border-light);border-radius:20px;padding:3px 9px;font-size:10px;color:var(--text-tertiary);margin-bottom:12px;}
 
 /* ── Dining plan compare ── */
-.dp-compare{background:rgba(74,144,226,0.06);border:1px solid rgba(74,144,226,0.18);border-radius:var(--radius);padding:10px 12px;margin-top:10px;}
+.dp-compare{background:rgba(42,111,224,0.06);border:1px solid rgba(42,111,224,0.18);border-radius:var(--radius);padding:10px 12px;margin-top:10px;}
 .dpc-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
 .dpc-lbl{font-size:11px;font-weight:500;color:var(--text-primary);}
 .dpc-val{font-size:13px;font-weight:600;}
-.dpc-div{height:1px;background:rgba(74,144,226,0.15);margin:7px 0;}
+.dpc-div{height:1px;background:rgba(42,111,224,0.15);margin:7px 0;}
 .dpc-note{font-size:10px;color:var(--text-tertiary);line-height:1.5;}
 .dpc-verdict{font-size:11px;font-weight:600;margin-top:6px;}
 
 /* ── Open-ended amount cards (extras) ── */
-.open-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;margin-bottom:8px;}
+.open-card{background:rgba(255,255,255,0.45);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:9px;}
 .open-card:last-child{margin-bottom:0;}
-.open-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.open-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.open-icon i{font-size:13px;}
+.open-top{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.open-icon{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.open-icon i{font-size:14px;}
 .open-title{font-size:13px;font-weight:600;color:var(--text-primary);}
 .open-sub{font-size:11px;color:var(--text-tertiary);margin-top:1px;}
-.amt-field{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;}
+.amt-field{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border-light);border-radius:10px;padding:9px 12px;}
 .amt-field:focus-within{border-color:var(--sky);}
 .amt-pre{font-size:17px;font-weight:500;color:var(--text-tertiary);}
 .amt-field input{border:none;background:transparent;font-size:19px;font-weight:600;color:var(--text-primary);width:100%;outline:none;font-family:'Inter',sans-serif;}
 .amt-field input::placeholder{color:var(--text-tertiary);}
-.ref-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px;}
+.ref-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .ref-lbl{font-size:10px;color:var(--text-tertiary);width:100%;margin-bottom:1px;}
-.ref-tag{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--bg);color:var(--text-secondary);cursor:pointer;border:1px solid var(--border);font-family:'Inter',sans-serif;}
+.ref-tag{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--text-secondary);cursor:pointer;border:1px solid var(--border-light);font-family:'Inter',sans-serif;}
 .ref-tag:hover{border-color:var(--sky);color:var(--sky);}
+.builder-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:9px;padding:9px 12px;background:rgba(42,111,224,0.07);border:1px solid rgba(42,111,224,0.25);border-radius:10px;font-size:11.5px;font-weight:600;color:var(--sky);cursor:pointer;font-family:'Inter',sans-serif;text-align:center;}
+.builder-btn:hover{background:rgba(42,111,224,0.13);border-color:var(--sky);}
+.builder-btn i{font-size:13px;}
 
 /* ── Summary screen ── */
-.summary-hero{background:var(--night);border-radius:var(--radius-lg);padding:16px;margin-bottom:14px;}
-.sh-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
-.sh-num{font-family:'Fraunces',serif;font-size:32px;font-weight:400;color:var(--gold);line-height:1;}
-.sh-rng{font-size:11px;color:rgba(255,255,255,0.4);margin-top:3px;}
-.sh-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;}
-.sh-stat{background:rgba(255,255,255,0.07);border-radius:var(--radius-sm);padding:8px 10px;}
-.sh-stat-lbl{font-size:9px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
-.sh-stat-val{font-size:14px;font-weight:600;color:#fff;}
-.bk-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;}
-.bk-hdr{padding:8px 12px;background:var(--bg);font-size:11px;font-weight:600;color:var(--text-secondary);}
-.bk-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid var(--border-light);}
+.bk-card{background:var(--white);border:1px solid var(--border-light);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.bk-hdr{padding:8px 13px;background:var(--bg);font-size:11px;font-weight:600;color:var(--text-secondary);}
+.bk-row{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid rgba(13,35,64,0.06);}
 .bk-row:last-child{border-bottom:none;}
-.bk-left{display:flex;align-items:center;gap:8px;}
+.bk-left{display:flex;align-items:center;gap:9px;}
 .bk-icon{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .bk-icon i{font-size:12px;}
 .bk-name{font-size:12px;font-weight:500;color:var(--text-primary);}
 .bk-right{text-align:right;}
 .bk-mid{font-size:13px;font-weight:600;color:var(--text-primary);}
 .bk-rng{font-size:10px;color:var(--text-tertiary);}
-.sum-sel{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;}
-.sel-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border-light);}
+.sum-sel{background:var(--white);border:1px solid var(--border-light);border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.sel-row{display:flex;justify-content:space-between;align-items:center;padding:8px 13px;border-bottom:1px solid rgba(13,35,64,0.06);}
 .sel-row:last-child{border-bottom:none;}
 .sel-lbl{font-size:11px;color:var(--text-tertiary);}
 .sel-val{font-size:12px;font-weight:500;color:var(--text-primary);text-align:right;max-width:60%;}
-.skipped-note{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--text-secondary);line-height:1.5;}
+.skipped-note{background:var(--bg);border:1px solid var(--border-light);border-radius:var(--radius);padding:10px 12px;margin-bottom:12px;font-size:11px;color:var(--text-secondary);line-height:1.5;}
 .skipped-note strong{color:var(--text-primary);}
-.convert-card{background:var(--night);border-radius:var(--radius-lg);padding:16px;text-align:center;}
-.cc-title{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:#fff;margin-bottom:6px;}
+.convert-card{background:var(--night);border-radius:14px;padding:16px;text-align:center;}
+.cc-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;margin-bottom:6px;}
 .cc-sub{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;margin-bottom:14px;}
-.cc-btn{width:100%;padding:12px;background:var(--gold);border:none;border-radius:var(--radius);font-size:14px;font-weight:600;color:var(--night);cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px;}
+.cc-btn{width:100%;padding:13px;background:var(--gold);border:none;border-radius:11px;font-size:14px;font-weight:600;color:var(--night);cursor:pointer;font-family:'Inter',sans-serif;margin-bottom:8px;}
 .cc-btn:hover{opacity:0.9;}
 .cc-alt{font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;}
 .cc-alt:hover{color:rgba(255,255,255,0.7);}
+
+/* ── Info triggers ── */
+.info-link{display:inline-block;font-family:'Inter',sans-serif;text-transform:none;letter-spacing:normal;color:var(--sky);font-size:11px;font-weight:500;cursor:pointer;vertical-align:middle;padding:6px 4px;margin:-6px -4px -6px 2px;}
+.info-link:hover{color:var(--sky-dark);}
+
+/* ── Bottom sheet overlays ── */
+.sheets-clip{position:absolute;inset:0;overflow:hidden;pointer-events:none;}
+.sheet-backdrop{position:absolute;inset:0;background:rgba(20,24,30,0.45);opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:60;}
+.sheet-backdrop.show{opacity:1;pointer-events:auto;}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:82%;background:var(--white);border-radius:18px 18px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,0.25);transform:translateY(100%);opacity:0;transition:transform 0.28s cubic-bezier(.4,0,.2,1),opacity 0.2s;z-index:61;display:flex;flex-direction:column;pointer-events:none;}
+.sheet.show{transform:translateY(0);opacity:1;pointer-events:auto;}
+.sheet-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:9px auto 2px;flex-shrink:0;}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:8px 16px 10px;border-bottom:1px solid var(--border-light);flex-shrink:0;}
+.sheet-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:var(--ink);}
+.sheet-close{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);background:var(--bg);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sheet-close:hover{background:var(--sky);border-color:var(--sky);color:#fff;}
+.sheet-body{flex:1;min-height:0;overflow-y:auto;padding:14px 16px 20px;}
+
+/* ── Sheet content: tier/type explainer cards ── */
+.si-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:11px 13px;margin-bottom:9px;}
+.si-card:last-child{margin-bottom:0;}
+.si-name{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:2px;}
+.si-price{font-size:11px;font-weight:500;color:var(--sky);margin-bottom:5px;}
+.si-desc{font-size:11.5px;color:var(--text-secondary);line-height:1.55;}
+.si-desc strong{color:var(--text-primary);}
+.si-note{background:rgba(42,111,224,0.07);border:1px solid rgba(42,111,224,0.18);border-radius:var(--radius);padding:10px 12px;margin-top:4px;font-size:11px;color:var(--text-secondary);line-height:1.6;}
+.si-note strong{color:var(--text-primary);}
+.si-sub{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.07em;margin:14px 0 7px;}
+.si-sub:first-child{margin-top:0;}
+
+/* ── Experiences mini-selector ── */
+.exp-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:border-color 0.12s,background 0.12s;}
+.exp-card:last-child{margin-bottom:0;}
+.exp-card.sel{border-color:var(--sky);background:rgba(42,111,224,0.07);}
+.exp-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.exp-name{font-size:12.5px;font-weight:600;color:var(--text-primary);}
+.exp-park{font-size:10px;color:var(--text-tertiary);margin-top:1px;}
+.exp-check{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background 0.12s,border-color 0.12s;}
+.exp-card.sel .exp-check{background:var(--sky);border-color:var(--sky);}
+.exp-check i{font-size:12px;color:#fff;display:none;}
+.exp-card.sel .exp-check i{display:block;}
+.exp-desc{font-size:11px;color:var(--text-secondary);line-height:1.45;margin-top:5px;}
+.exp-bottom{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.exp-price{font-size:11px;font-weight:600;color:var(--text-primary);}
+.exp-seasonal{display:inline-block;font-size:9px;font-weight:600;padding:1px 6px;border-radius:20px;background:rgba(245,181,54,0.22);color:#8a5a00;}
+.exp-pp-note{font-size:10px;color:var(--text-tertiary);margin-top:3px;}
+.exp-subtotal{flex-shrink:0;background:var(--white);border-top:1px solid var(--border);padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.exp-sub-row{display:flex;justify-content:space-between;align-items:baseline;}
+.exp-sub-lbl{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:8px;}
+.exp-clear{font-size:10px;color:var(--sky);font-weight:500;cursor:pointer;}
+.exp-clear:hover{color:var(--sky-dark);text-decoration:underline;}
+.exp-sub-val{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--text-primary);}
+.exp-use-btn{width:100%;padding:11px;background:var(--sky);border:none;border-radius:var(--radius);font-size:13px;font-weight:600;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;}
+.exp-use-btn:hover{opacity:0.92;}
 
 /* ── Section label in screens ── */
 .screen-section-lbl{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;margin:14px 0 7px;}
@@ -205,38 +268,84 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
 .park-day-lbl-txt{font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:1px;}
 .park-day-chip.inactive .park-day-lbl-txt{color:var(--text-tertiary);}
 
+/* ── Tablet (640–1023px) ── */
+@media (min-width:640px){
+  .layout{max-width:620px;}
+  .app{max-width:620px;}
+  .screen{padding:20px 22px;}
+  .sec-title{font-size:22px;}
+  .sec-desc{font-size:14px;}
+  .oname{font-size:12.5px;}
+  .osub{font-size:11.5px;}
+  .stpr-name{font-size:14px;}
+  .stpr{padding:12px 15px;}
+
+  /* Bottom sheets become centered modals */
+  .sheet-backdrop{position:fixed;}
+  .sheet{
+    position:fixed;
+    left:50%;top:50%;right:auto;bottom:auto;
+    width:90%;
+    max-width:560px;
+    max-height:80vh;
+    border-radius:var(--radius-lg);
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    transform:translate(-50%,-46%);
+    opacity:0;
+    transition:opacity 0.2s ease,transform 0.2s ease;
+  }
+  .sheet.show{
+    transform:translate(-50%,-50%);
+    opacity:1;
+  }
+  .sheet-handle{display:none;}
+}
+
+/* ── Desktop (1024px+) ── */
+@media (min-width:1024px){
+  .layout{max-width:720px;}
+  .app{max-width:720px;}
+  .sec-title{font-size:24px;}
+  .opt{padding:13px 15px;}
+  .oname{font-size:13px;}
+  .stpr{padding:13px 16px;}
+}
+
 </style>
 </head>
 <body>
 
+<div class="layout">
 <div class="app">
 
   <!-- Header -->
   <div class="pk-hdr">
-    <div class="pk-logo"><i class="ti ti-map-2"></i></div>
-    <div style="flex:1;">
+    <img class="pk-logo" src="assets/logos/parkday-icon.svg" alt="Parkday">
+    <div style="flex:1;position:relative;z-index:1;">
       <div class="pk-title">Parkday</div>
       <div class="pk-sub" id="hdr-sub">Plan smoother park days.</div>
     </div>
-    <button class="restart-btn" id="restart-btn">Start over</button>
+    <button class="restart-btn" id="restart-btn"><i class="ti ti-rotate-2"></i>Reset</button>
   </div>
 
   <!-- Estimator cost bar -->
   <div class="cost-wrap" id="cost-wrap">
-    <div class="cost-row">
+    <div class="cost-ticket">
       <div class="cost-left">
         <div class="cost-lbl">Estimated cost</div>
         <div class="cost-num" id="cost-num">$0</div>
-        <div class="cost-pp" id="cost-pp">—</div>
+      </div>
+      <div class="cost-divider"></div>
+      <div class="cost-mid">
+        <div class="cost-lbl">Low to high range</div>
+        <div class="cost-rng" id="cost-rng">— – —</div>
       </div>
       <div class="cost-divider"></div>
       <div class="cost-right">
-        <div class="cost-lbl">Range</div>
-        <div class="cost-rng" id="cost-rng">— – —</div>
-        <div class="cost-rng-sub">low · high</div>
+        <div class="cost-lbl">Per person</div>
+        <div class="cost-pp" id="cost-pp">—</div>
       </div>
     </div>
-    <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
   </div>
 
   <!-- Progress -->
@@ -244,6 +353,7 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
     <div class="prog-steps" id="prog-steps"></div>
     <div class="prog-lbl">
       <span class="pl-step" id="prog-step-lbl">Step 1 of 6</span>
+      <span>·</span>
       <span class="pl-name" id="prog-name-lbl">Party size</span>
     </div>
   </div>
@@ -251,26 +361,17 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
   <!-- Screens -->
   <div class="screens">
 
-    <!-- EST 0: Party size -->
-    <div class="screen" id="sc-0">
-      <div class="sec-title">Who's going?</div>
-      <div class="sec-desc">Tell us about your party and how long you're staying.</div>
-      <div class="steppers">
-        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Adults</div></div><div class="stpr-ctrl"><button class="sbtn" id="a-dn">−</button><div class="sval" id="a-v">1</div><button class="sbtn" id="a-up">+</button></div></div>
-        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Children <span style="font-size:11px;color:var(--text-tertiary);">(ages 3–9)</span></div></div><div class="stpr-ctrl"><button class="sbtn" id="c-dn">−</button><div class="sval" id="c-v">0</div><button class="sbtn" id="c-up">+</button></div></div>
-        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Nights at resort</div><div class="stpr-hint" id="nights-hint">Staying overnight</div></div><div class="stpr-ctrl"><button class="sbtn" id="n-dn">−</button><div class="sval" id="n-v">1</div><button class="sbtn" id="n-up">+</button></div></div>
-        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Park days</div></div><div class="stpr-ctrl"><button class="sbtn" id="p-dn">−</button><div class="sval" id="p-v">1</div><button class="sbtn" id="p-up">+</button></div></div>
-      </div>
-    </div>
+    <!-- Off-screen/transitioning steps live here, clipped so they can't cause page overflow. The active step is a direct, unclipped sibling below so position:sticky inside it works. -->
+    <div class="screens-clip" id="screens-clip">
 
     <!-- EST 1: Getting there -->
     <div class="screen hr" id="sc-1">
       <div class="sec-title">Getting there</div>
       <div class="sec-desc">How are you getting to Orlando? Enter your origin for a rough travel estimate.</div>
       <div class="og g3" id="grp-travel">
-        <button class="opt sel" data-grp="travel" data-val="flying"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Flying</span></div><div class="osub">Fly into MCO</div><span class="obdg bb">Airfare + transfer</span></button>
-        <button class="opt" data-grp="travel" data-val="driving"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Driving</span></div><div class="osub">Road trip to WDW</div><span class="obdg bo">Gas + parking</span></button>
-        <button class="opt" data-grp="travel" data-val="skip"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Skip for now</span></div><div class="osub">Exclude travel from estimate</div><span class="obdg bz">Not included</span></button>
+        <button class="opt sel" data-grp="travel" data-val="flying"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Flying</span><div class="osub">Fly into MCO</div><span class="obdg bb">Airfare + transfer</span></button>
+        <button class="opt" data-grp="travel" data-val="driving"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Driving</span><div class="osub">Road trip to WDW</div><span class="obdg bo">Gas + parking</span></button>
+        <button class="opt" data-grp="travel" data-val="skip"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Skip for now</span><div class="osub">Exclude travel from estimate</div><span class="obdg bz">Not included</span></button>
       </div>
       <div id="loc-section">
         <div class="loc-row">
@@ -291,17 +392,17 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
       <div class="sec-desc">Season and resort tier are the two biggest drivers of your total cost.</div>
       <div class="screen-section-lbl">Travel season</div>
       <div class="og g3" id="grp-season" style="margin-bottom:4px;">
-        <button class="opt sel" data-grp="season" data-val="value"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Value</span></div><div class="osub">Jan, late Aug–Sep</div><span class="obdg bg">Cheapest</span></button>
-        <button class="opt" data-grp="season" data-val="regular"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Regular</span></div><div class="osub">Feb–Mar, Jun, Oct</div><span class="obdg bb">Popular</span></button>
-        <button class="opt" data-grp="season" data-val="peak"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Peak</span></div><div class="osub">Spring break, holidays</div><span class="obdg bc">Priciest</span></button>
+        <button class="opt sel" data-grp="season" data-val="value"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Value</span><div class="osub">Jan, late Aug–Sep</div><span class="obdg bg">Cheapest</span></button>
+        <button class="opt" data-grp="season" data-val="regular"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Regular</span><div class="osub">Feb–Mar, Jun, Oct</div><span class="obdg bb">Popular</span></button>
+        <button class="opt" data-grp="season" data-val="peak"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Peak</span><div class="osub">Spring break, holidays</div><span class="obdg bc">Priciest</span></button>
       </div>
-      <div class="screen-section-lbl">Resort tier</div>
+      <div class="screen-section-lbl">Resort tier <span class="info-link" onclick="openSheet('resort')">What's this?</span></div>
       <div class="og g2" id="grp-resort">
-        <button class="opt sel" data-grp="resort" data-val="value"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Value</span></div><div class="osub">All-Star, Pop, Art of Animation</div><span class="obdg bg">$130–$280/night</span></button>
-        <button class="opt" data-grp="resort" data-val="moderate"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Moderate</span></div><div class="osub">Caribbean Beach, Port Orleans</div><span class="obdg bb">$220–$450/night</span></button>
-        <button class="opt" data-grp="resort" data-val="deluxe"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Deluxe</span></div><div class="osub">Grand Floridian, Polynesian…</div><span class="obdg bo">$430–$1,100/night</span></button>
-        <button class="opt" data-grp="resort" data-val="villa"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Deluxe Villa</span></div><div class="osub">DVC resorts</div><span class="obdg bc">$500–$1,350/night</span></button>
-        <button class="opt" data-grp="resort" data-val="offsite" style="grid-column:span 2;"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Offsite hotel</span></div><div class="osub">No Disney transport or early entry perks</div><span class="obdg bz">$100–$250/night</span></button>
+        <button class="opt sel" data-grp="resort" data-val="value"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Value</span><div class="osub">All-Star, Pop, Art of Animation</div><span class="obdg bg">$130–$280/night</span></button>
+        <button class="opt" data-grp="resort" data-val="moderate"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Moderate</span><div class="osub">Caribbean Beach, Port Orleans</div><span class="obdg bb">$220–$450/night</span></button>
+        <button class="opt" data-grp="resort" data-val="deluxe"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Deluxe</span><div class="osub">Grand Floridian, Polynesian…</div><span class="obdg bo">$430–$1,100/night</span></button>
+        <button class="opt" data-grp="resort" data-val="villa"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Deluxe Villa</span><div class="osub">DVC resorts</div><span class="obdg bc">$500–$1,350/night</span></button>
+        <button class="opt" data-grp="resort" data-val="offsite" style="grid-column:span 2;"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Offsite hotel</span><div class="osub">No Disney transport or early entry perks</div><span class="obdg bz">$100–$250/night</span></button>
       </div>
     </div>
 
@@ -309,34 +410,30 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
     <div class="screen hr" id="sc-3">
       <div class="sec-title">Tickets & Lightning Lane</div>
       <div class="sec-desc">What kind of park access are you planning?</div>
-      <div class="screen-section-lbl">Ticket type</div>
+      <div class="screen-section-lbl">Ticket type <span class="info-link" onclick="openSheet('ticket')">What's this?</span></div>
       <div class="og g2" id="grp-ticket" style="margin-bottom:4px;">
-        <button class="opt sel" data-grp="ticket" data-val="base"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Base</span></div><div class="osub">One park per day</div><span class="obdg bg">No add-on</span></button>
-        <button class="opt" data-grp="ticket" data-val="wpas"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Water Park & Sports</span></div><div class="osub">Base + water parks & golf</div><span class="obdg bb">+$74–80/pp/day</span></button>
-        <button class="opt" data-grp="ticket" data-val="hopper"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Park Hopper</span></div><div class="osub">Multiple parks/day</div><span class="obdg bo">+$80–100/day</span></button>
-        <button class="opt" data-grp="ticket" data-val="hopperplus"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Hopper Plus</span></div><div class="osub">Park Hopper + water parks & sports</div><span class="obdg bc">+$100–130/day</span></button>
+        <button class="opt sel" data-grp="ticket" data-val="base"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Base</span><div class="osub">One park per day</div><span class="obdg bg">No add-on</span></button>
+        <button class="opt" data-grp="ticket" data-val="wpas"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Water Park & Sports</span><div class="osub">Base + water parks & golf</div><span class="obdg bb">+$74–80/pp/day</span></button>
+        <button class="opt" data-grp="ticket" data-val="hopper"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Park Hopper</span><div class="osub">Multiple parks/day</div><span class="obdg bo">+$80–100/day</span></button>
+        <button class="opt" data-grp="ticket" data-val="hopperplus"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Hopper Plus</span><div class="osub">Park Hopper + water parks & sports</div><span class="obdg bc">+$100–130/day</span></button>
       </div>
-      <div class="screen-section-lbl">Lightning Lane</div>
+      <div class="screen-section-lbl">Lightning Lane <span class="info-link" onclick="openSheet('ll')">What's this?</span></div>
       <div class="og g3" id="grp-ll">
-        <button class="opt sel" data-grp="ll" data-val="none"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">None</span></div><div class="osub">Standby only</div><span class="obdg bg">Free</span></button>
-        <button class="opt" data-grp="ll" data-val="multipass"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">Multi Pass</span></div><div class="osub">Multiple rides/day</div><span class="obdg bb">~$15–25/pp/day</span></button>
-        <button class="opt" data-grp="ll" data-val="singles"><div style="display:flex;align-items:center;"><span class="od"></span><span class="oname">MP + Singles</span></div><div class="osub">Tron, Cosmic Rewind…</div><span class="obdg bc">~$55–90/pp/day</span></button>
+        <button class="opt sel" data-grp="ll" data-val="none"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">None</span><div class="osub">Standby only</div><span class="obdg bg">Free</span></button>
+        <button class="opt" data-grp="ll" data-val="multipass"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">Multi Pass</span><div class="osub">Multiple rides/day</div><span class="obdg bb">~$15–25/pp/day</span></button>
+        <button class="opt" data-grp="ll" data-val="singles"><span class="ochk"><i class="ti ti-check"></i></span><span class="oname">MP + Singles</span><div class="osub">Tron, Cosmic Rewind…</div><span class="obdg bc">~$55–90/pp/day</span></button>
       </div>
     </div>
 
     <!-- EST 4: Dining -->
     <div class="screen hr" id="sc-4">
-      <div class="sec-title">Dining</div>
+      <div class="sec-title">Dining <span class="info-link" onclick="openSheet('dining')">What's this?</span></div>
       <div class="sec-desc">How many meals of each type are you planning? Tips are estimated automatically on sit-down meals.</div>
       <div class="steppers" style="margin-bottom:10px;">
         <div class="stpr"><div style="flex:1;"><div class="stpr-name">Quick service meals/day</div><div class="stpr-hint" id="qs-hint">~$12–20/person</div></div><div class="stpr-ctrl"><button class="sbtn" id="qs-dn">−</button><div class="sval" id="qs-v">2</div><button class="sbtn" id="qs-up">+</button></div></div>
         <div class="stpr"><div style="flex:1;"><div class="stpr-name">Table service meals/day</div><div class="stpr-hint" id="ts-hint">~$45–75/person</div></div><div class="stpr-ctrl"><button class="sbtn" id="ts-dn">−</button><div class="sval" id="ts-v">1</div><button class="sbtn" id="ts-up">+</button></div></div>
         <div class="stpr"><div style="flex:1;"><div class="stpr-name">Character dining meals</div><div class="stpr-hint" id="ch-hint">~$60–95/person · total</div></div><div class="stpr-ctrl"><button class="sbtn" id="ch-dn">−</button><div class="sval" id="ch-v">0</div><button class="sbtn" id="ch-up">+</button></div></div>
         <div class="stpr"><div style="flex:1;"><div class="stpr-name">Snacks per person/day</div><div class="stpr-hint" id="sn-hint">~$6–14 each</div></div><div class="stpr-ctrl"><button class="sbtn" id="sn-dn">−</button><div class="sval" id="sn-v">2</div><button class="sbtn" id="sn-up">+</button></div></div>
-      </div>
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-top:10px;font-size:11px;color:var(--text-secondary);line-height:1.6;">
-        <i class="ti ti-info-circle" style="font-size:12px;vertical-align:-1px;margin-right:4px;color:var(--text-tertiary);"></i>
-        Disney offers dining plans that can cover some or all of these costs. You can compare plans and see if they make sense for your trip when setting up your booking.
       </div>
     </div>
 
@@ -358,8 +455,7 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
           <div><div class="open-title">Experiences</div><div class="open-sub">Memory Maker, tours, Bibbidi Bobbidi, after-hours…</div></div>
         </div>
         <div class="amt-field"><div class="amt-pre">$</div><input type="number" id="experiences-inp" placeholder="0" min="0" step="10"></div>
-        <div class="ref-tags"><div class="ref-lbl">Common add-ons:</div><span class="ref-tag" data-key="experiences" data-val="229">Memory Maker $229</span><span class="ref-tag" data-key="experiences" data-val="120">MNSSHP ~$120/pp</span><span class="ref-tag" data-key="experiences" data-val="325">Bibbidi $325+</span><span class="ref-tag" data-key="experiences" data-val="350">After-hours ~$350</span></div>
-        <div style="font-size:10px;color:var(--text-tertiary);margin-top:6px;line-height:1.5;">Memory Maker is a flat party rate. MNSSHP and after-hours are per-person tickets.</div>
+        <button class="builder-btn" id="exp-builder-btn" onclick="openSheet('experiences')"><i class="ti ti-list-check"></i> Not sure? Build an estimate from common add-ons</button>
       </div>
     </div>
 
@@ -368,6 +464,19 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
       <div id="summary-content"></div>
     </div>
 
+    </div><!-- /screens-clip -->
+
+    <!-- EST 0: Party size (active by default; stays outside screens-clip) -->
+    <div class="screen" id="sc-0">
+      <div class="sec-title">Who's going?</div>
+      <div class="sec-desc">Tell us about your party and how long you're staying.</div>
+      <div class="steppers">
+        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Adults</div></div><div class="stpr-ctrl"><button class="sbtn" id="a-dn">−</button><div class="sval" id="a-v">1</div><button class="sbtn" id="a-up">+</button></div></div>
+        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Children <span style="font-size:11px;color:var(--text-tertiary);">(ages 3–9)</span></div></div><div class="stpr-ctrl"><button class="sbtn" id="c-dn">−</button><div class="sval" id="c-v">0</div><button class="sbtn" id="c-up">+</button></div></div>
+        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Nights at resort</div><div class="stpr-hint" id="nights-hint">Staying overnight</div></div><div class="stpr-ctrl"><button class="sbtn" id="n-dn">−</button><div class="sval" id="n-v">1</div><button class="sbtn" id="n-up">+</button></div></div>
+        <div class="stpr"><div style="flex:1;"><div class="stpr-name">Park days</div></div><div class="stpr-ctrl"><button class="sbtn" id="p-dn">−</button><div class="sval" id="p-v">1</div><button class="sbtn" id="p-up">+</button></div></div>
+      </div>
+    </div>
 
   </div><!-- /screens -->
 
@@ -380,7 +489,78 @@ body{font-family:'Inter',sans-serif;background:var(--cream);-webkit-font-smoothi
     <div class="nav-skip" id="nav-skip" style="display:none;"></div>
   </div>
 
+  <!-- Info sheets: clipped wrapper so closed sheets (translated off-screen) can't add to page scroll height -->
+  <div class="sheets-clip" id="sheets-clip">
+
+  <div class="sheet-backdrop" id="sheet-backdrop" onclick="closeSheet()"></div>
+
+  <div class="sheet" id="sheet-resort">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><div class="sheet-title">Resort tiers</div><button class="sheet-close" onclick="closeSheet()"><i class="ti ti-x"></i></button></div>
+    <div class="sheet-body">
+      <div class="si-card"><div class="si-name">Value</div><div class="si-price">$130–$280/night</div><div class="si-desc">All-Star Movies/Music/Sports, Pop Century, Art of Animation. Compact rooms, food-court dining, bus or skyliner transport to parks. <br><strong>Best for:</strong> budget-conscious families and anyone who'll spend most waking hours in the parks anyway.</div></div>
+      <div class="si-card"><div class="si-name">Moderate</div><div class="si-price">$220–$450/night</div><div class="si-desc">Caribbean Beach, Port Orleans (Riverside & French Quarter), Coronado Springs. Themed grounds, larger pools with slides, a table-service option on-site. <br><strong>Best for:</strong> families who want more atmosphere and room without deluxe pricing.</div></div>
+      <div class="si-card"><div class="si-name">Deluxe</div><div class="si-price">$430–$1,100/night</div><div class="si-desc">Grand Floridian, Polynesian, Contemporary, Wilderness Lodge, Animal Kingdom Lodge, BoardWalk, Yacht & Beach Club. Walking, monorail, or boat access to a park, full-service dining, larger rooms. <strong>Best for:</strong> guests who want the resort itself to be part of the vacation, or easy access back for midday breaks.</div></div>
+      <div class="si-card"><div class="si-name">Deluxe Villa</div><div class="si-price">$500–$1,350/night</div><div class="si-desc">Bay Lake Tower, Boulder Ridge & Copper Creek Villas, Old Key West, Saratoga Springs. DVC studios and 1–3BR villas with kitchens or kitchenettes and laundry. <strong>Best for:</strong> larger or multi-generational groups, and longer stays where cooking some meals offsets the nightly rate.</div></div>
+      <div class="si-card"><div class="si-name">Off Property</div><div class="si-price">$100–$250/night</div><div class="si-desc">Swan/Dolphin, Bonnet Creek, Disney Springs-area hotels, and other offsite options. No Disney transportation and no early theme park entry at most (Swan/Dolphin is an exception). Usually means a rental car. <strong>Best for:</strong> budget travelers comfortable driving and parking themselves.</div></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-ticket">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><div class="sheet-title">Ticket types</div><button class="sheet-close" onclick="closeSheet()"><i class="ti ti-x"></i></button></div>
+    <div class="sheet-body">
+      <div class="si-card"><div class="si-name">Base</div><div class="si-price">No add-on cost</div><div class="si-desc">One park per day, no switching. <strong>Makes sense when:</strong> you're following a clear one-park-a-day plan, especially for first-time visitors — it's the easiest to plan around and the cheapest.</div></div>
+      <div class="si-card"><div class="si-name">Water Park & Sports</div><div class="si-price">+$74–$80/pp/day</div><div class="si-desc">Base access plus entry to the water parks, Oak Trail golf, and ESPN Wide World of Sports. <strong>Makes sense when:</strong> your trip includes a water park day and you don't otherwise need to hop between theme parks.</div></div>
+      <div class="si-card"><div class="si-name">Park Hopper</div><div class="si-price">+$80–$100/day</div><div class="si-desc">Visit more than one theme park in the same day. <strong>2pm restriction:</strong> on most days you can't enter your second park until 2:00pm, which limits same-day hopping to evenings. <strong>Makes sense when:</strong> you want to catch fireworks at a different park than you spent the day in, or have a dining reservation elsewhere in the evening — less useful if you're not actually planning to move around.</div></div>
+      <div class="si-card"><div class="si-name">Hopper Plus</div><div class="si-price">+$100–$130/day</div><div class="si-desc">Park Hopper plus Water Park & Sports access. <strong>Makes sense when:</strong> you want maximum flexibility on a longer trip — otherwise it's usually more add-on than most trips need.</div></div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-ll">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><div class="sheet-title">Lightning Lane</div><button class="sheet-close" onclick="closeSheet()"><i class="ti ti-x"></i></button></div>
+    <div class="sheet-body">
+      <div class="si-desc" style="margin-bottom:12px;">Lightning Lane is Disney's paid line-skipping system — you book a return window for an attraction and use a shorter queue instead of standby.</div>
+      <div class="si-card"><div class="si-name">Multi Pass</div><div class="si-price">~$15–$25/pp/day</div><div class="si-desc">Book a handful of participating attractions per park per day, then re-book more once you've used your selections — similar to the old free FastPass+, but paid. Pricing varies by date and demand.</div></div>
+      <div class="si-card"><div class="si-name">MP + Singles</div><div class="si-price">~$55–$90/pp/day</div><div class="si-desc">Multi Pass plus Individual Lightning Lane purchases for the highest-demand headliners (Tron, Guardians of the Galaxy: Cosmic Rewind, Rise of the Resistance, etc.), bought separately per ride, per person.</div></div>
+      <div class="si-note"><strong>Honest take:</strong> worth it for families with young kids who tire of long waits, or anyone visiting during summer/holiday crowd levels. If you're traveling value season with a party willing to rope-drop and use standby strategically, you can often skip it. Singles are usually only worth it for 1–2 must-do headliners rather than buying them for every ride.</div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-dining">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><div class="sheet-title">Dining at Disney</div><button class="sheet-close" onclick="closeSheet()"><i class="ti ti-x"></i></button></div>
+    <div class="sheet-body">
+      <div class="si-sub">Quick Service</div>
+      <div class="si-card"><div class="si-desc">Order at a counter or on the app, no reservation needed, food arrives fast. Examples: Docking Bay 7, Satu'li Canteen, Columbia Harbour House, Woody's Lunch Box.</div></div>
+      <div class="si-sub">Table Service</div>
+      <div class="si-card"><div class="si-desc">Sit-down restaurants with table service. Reservations open 60 days before your check-in date and popular spots fill up fast — book early. Examples: Be Our Guest, Sci-Fi Dine-In Theater, Skipper Canteen.</div></div>
+      <div class="si-sub">Character Dining</div>
+      <div class="si-card"><div class="si-desc">A table-service meal with costumed characters visiting your table for photos and autographs. Families love it because it guarantees character interactions without waiting in a meet-and-greet line. Comes at a price premium — typically $60–$95/person versus $45–$75 for standard table service. Examples: Chef Mickey's, Cinderella's Royal Table, Topolino's Terrace.</div></div>
+      <div class="si-sub">Dining plans</div>
+      <div class="si-note">Disney sells prepaid dining plans — roughly Quick-Service ($57 adult / $23 child per night), Dining ($94 / $30), and Deluxe Dining ($119 / $48) — that bundle a set number of meals and snacks per resort night. Whether one saves you money depends on how many table-service and character meals you're already planning and how big your appetite is; it's worth comparing the plan cost against paying out of pocket before you book.</div>
+    </div>
+  </div>
+
+  <div class="sheet" id="sheet-experiences">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr"><div class="sheet-title">Experiences & add-ons</div><button class="sheet-close" onclick="closeSheet()"><i class="ti ti-x"></i></button></div>
+    <div class="sheet-body">
+      <div class="si-desc" style="margin-bottom:12px;">Tap to add any special experiences you're planning. These are rough per-item estimates — per-person items scale with your party size — toggle what you're considering and we'll total it up below.</div>
+      <div id="exp-list"></div>
+    </div>
+    <div class="exp-subtotal">
+      <div class="exp-sub-row"><div class="exp-sub-lbl">Subtotal <span class="exp-clear" id="exp-clear-btn">Clear selections</span></div><div class="exp-sub-val" id="exp-subtotal-val">$0</div></div>
+      <button class="exp-use-btn" id="exp-use-btn">Use this estimate</button>
+    </div>
+  </div>
+
+  </div><!-- /sheets-clip -->
+
 </div><!-- /app -->
+
+</div><!-- /layout -->
 
 <script>
 const STEP_NAMES=['Party size','Getting there','When & where','Tickets & LL','Dining','Extras','Your estimate'];
@@ -433,11 +613,11 @@ function travelEst(){
   if(S.travel==='flying'){
     const fc=ftier(originMiles);
     const lo=fc[0]*2*t+16*t*2,hi=fc[1]*2*t+35*t*2;
-    return{lo,hi,lines:[{icon:'ti-plane',bg:'rgba(74,144,226,0.12)',ic:'#185FA5',name:'Airfare + airport transfer (est.)',lo,hi}]};
+    return{lo,hi,lines:[{icon:'ti-plane',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Airfare + airport transfer (est.)',lo,hi}]};
   } else {
     const[gLo,gHi]=gas(originMiles);
     const pk=30*S.parkdays;
-    return{lo:gLo+pk,hi:gHi+pk,lines:gLo>0?[{icon:'ti-car',bg:'rgba(74,144,226,0.12)',ic:'#185FA5',name:'Gas + WDW parking (est.)',lo:gLo+pk,hi:gHi+pk}]:[]};
+    return{lo:gLo+pk,hi:gHi+pk,lines:gLo>0?[{icon:'ti-car',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Gas + WDW parking (est.)',lo:gLo+pk,hi:gHi+pk}]:[]};
   }
 }
 
@@ -474,31 +654,29 @@ function calc(){
   const mLo=subLo*0.1,mHi=subHi*0.1;
   const totalLo=subLo+mLo,totalHi=subHi+mHi,total=(totalLo+totalHi)/2;
   const lines=[
-    {icon:'ti-building-castle',bg:'rgba(30,42,68,0.08)',ic:'#888',name:'Resort',lo:rLo,hi:rHi},
-    {icon:'ti-ticket',bg:'rgba(74,144,226,0.12)',ic:'#185FA5',name:'Tickets',lo:tkLo,hi:tkHi},
-    {icon:'ti-bolt',bg:'rgba(246,184,75,0.15)',ic:'#c47c00',name:'Lightning Lane',lo:llLo,hi:llHi},
+    {icon:'ti-building-castle',bg:'rgba(13,35,64,0.08)',ic:'#0D2340',name:'Accommodations',lo:rLo,hi:rHi},
+    {icon:'ti-ticket',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Tickets',lo:tkLo,hi:tkHi},
+    {icon:'ti-bolt',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Lightning Lane',lo:llLo,hi:llHi},
   ];
   if(includeDining){
-    if(S.qs>0)lines.push({icon:'ti-shopping-bag',bg:'rgba(232,97,74,0.12)',ic:'#a83210',name:'Quick service dining',lo:d.qsLo,hi:d.qsHi});
-    if(S.ts>0)lines.push({icon:'ti-tools-kitchen-2',bg:'rgba(232,97,74,0.12)',ic:'#a83210',name:'Table service dining',lo:d.tsLo,hi:d.tsHi});
-    if(S.character>0)lines.push({icon:'ti-stars',bg:'rgba(246,184,75,0.15)',ic:'#c47c00',name:'Character dining',lo:d.chLo,hi:d.chHi});
-    if(S.snacks>0)lines.push({icon:'ti-ice-cream',bg:'rgba(126,214,196,0.18)',ic:'#0f7a67',name:'Snacks',lo:d.snLo,hi:d.snHi});
-    if(d.tipsLo>0)lines.push({icon:'ti-coin',bg:'rgba(246,184,75,0.15)',ic:'#c47c00',name:'Tips (est.)',lo:d.tipsLo,hi:d.tipsHi});
+    if(S.qs>0)lines.push({icon:'ti-shopping-bag',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Quick service dining',lo:d.qsLo,hi:d.qsHi});
+    if(S.ts>0)lines.push({icon:'ti-tools-kitchen-2',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Table service dining',lo:d.tsLo,hi:d.tsHi});
+    if(S.character>0)lines.push({icon:'ti-stars',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Character dining',lo:d.chLo,hi:d.chHi});
+    if(S.snacks>0)lines.push({icon:'ti-ice-cream',bg:'rgba(44,165,141,0.16)',ic:'#1B7D68',name:'Snacks',lo:d.snLo,hi:d.snHi});
+    if(d.tipsLo>0)lines.push({icon:'ti-coin',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Tips (est.)',lo:d.tipsLo,hi:d.tipsHi});
   }
   if(includeTravel)lines.push(...tv.lines);
-  if(S.souvenirs>0)lines.push({icon:'ti-gift',bg:'rgba(232,97,74,0.12)',ic:'#a83210',name:'Souvenirs',lo:S.souvenirs,hi:S.souvenirs});
-  if(S.experiences>0)lines.push({icon:'ti-stars',bg:'rgba(246,184,75,0.15)',ic:'#c47c00',name:'Experiences',lo:S.experiences,hi:S.experiences});
-  lines.push({icon:'ti-dots',bg:'rgba(30,42,68,0.08)',ic:'#888',name:'Buffer (10%)',lo:mLo,hi:mHi});
+  if(S.souvenirs>0)lines.push({icon:'ti-gift',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Souvenirs',lo:S.souvenirs,hi:S.souvenirs});
+  if(S.experiences>0)lines.push({icon:'ti-stars',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Experiences',lo:S.experiences,hi:S.experiences});
+  lines.push({icon:'ti-dots',bg:'rgba(13,35,64,0.08)',ic:'#0D2340',name:'Buffer (10%)',lo:mLo,hi:mHi});
   return{total,totalLo,totalHi,lines,dining:d};
 }
 
 function updateCostBar(){
   const c=calc(),t=S.adults+S.children;
   document.getElementById('cost-num').textContent=fmt(c.total);
-  document.getElementById('cost-pp').textContent=t>0?fmt(c.total/t)+' per person · party of '+t:'—';
+  document.getElementById('cost-pp').textContent=t>0?fmt(c.total/t):'—';
   document.getElementById('cost-rng').textContent=rng(c.totalLo,c.totalHi);
-  const mx=Math.max(15000,c.totalHi*1.1);
-  document.getElementById('bar-fill').style.width=Math.min(100,(c.total/mx)*100)+'%';
 }
 
 // ── Progress ──
@@ -538,11 +716,11 @@ function updateNav(){
 
   if(step===EST_TOTAL-1){
     next.innerHTML='See my estimate <i class="ti ti-sparkles"></i>';
-    next.style.background='#4A90E2';
+    next.style.background='#2A6FE0';
     next.style.color='#fff';
   } else {
     next.innerHTML='Next <i class="ti ti-arrow-right"></i>';
-    next.style.background='#4A90E2';
+    next.style.background='#2A6FE0';
     next.style.color='#fff';
   }
 
@@ -555,8 +733,18 @@ function renderStepSpecific(){
   updateStprVals();
   renderDiningHints();
   renderTravelEst();
+  renderExpBuilderBtn();
   const eb=document.getElementById('extras-skipped-badge');
   if(eb)eb.style.display=skipped.extras?'block':'none';
+}
+
+function renderExpBuilderBtn(){
+  const btn=document.getElementById('exp-builder-btn');if(!btn)return;
+  if(S.experiences>0){
+    btn.innerHTML=`<i class="ti ti-edit"></i> Edit in add-on builder (${fmt(S.experiences)} selected)`;
+  } else {
+    btn.innerHTML='<i class="ti ti-list-check"></i> Not sure? Build an estimate from common add-ons';
+  }
 }
 
 function updateStprVals(){
@@ -604,19 +792,10 @@ function renderSummary(){
   if(skipped.travel)skippedItems.push('travel costs');
   const skippedHtml=skippedItems.length?`<div class="skipped-note"><strong>Not included:</strong> ${skippedItems.join(' and ')} were skipped.</div>`:'';
   document.getElementById('summary-content').innerHTML=`
-<div class="summary-hero">
-  <div class="sh-lbl">Your trip estimate</div>
-  <div class="sh-num">${fmt(c.total)}</div>
-  <div class="sh-rng">${rng(c.totalLo,c.totalHi)} estimated range</div>
-  <div class="sh-stats">
-    <div class="sh-stat"><div class="sh-stat-lbl">Per person</div><div class="sh-stat-val">${t>0?fmt(c.total/t):'—'}</div></div>
-    <div class="sh-stat"><div class="sh-stat-lbl">Per night</div><div class="sh-stat-val">${S.nights>0?fmt(c.total/S.nights):'—'}</div></div>
-    <div class="sh-stat"><div class="sh-stat-lbl">Party</div><div class="sh-stat-val">${t} guest${t!==1?'s':''}</div></div>
-  </div>
-</div>
+<div class="sec-title">Cost breakdown</div>
+<div class="sec-desc">Here's how your ${fmt(c.total)} estimate breaks down.</div>
 ${skippedHtml}
 <div class="bk-card">
-  <div class="bk-hdr">Cost breakdown</div>
   ${c.lines.map(l=>{const mid=(l.lo+l.hi)/2;if(mid<1)return'';return`<div class="bk-row"><div class="bk-left"><div class="bk-icon" style="background:${l.bg};"><i class="ti ${l.icon}" style="color:${l.ic};"></i></div><div class="bk-name">${l.name}</div></div><div class="bk-right"><div class="bk-mid">${fmt(mid)}</div><div class="bk-rng">${l.lo===l.hi?'Fixed':rng(l.lo,l.hi)}</div></div></div>`;}).join('')}
 </div>
 <div class="sum-sel">
@@ -647,10 +826,12 @@ function goTo(s,dir){
   const nxt=document.getElementById(`sc-${s}`);
   if(!nxt)return;
   cur.classList.add(dir>0?'hl':'hr');
+  document.getElementById('screens-clip').appendChild(cur);
   nxt.classList.remove('hr','hl');
+  document.querySelector('.screens').appendChild(nxt);
   nxt.scrollTop=0;
   step=s;
-  updateProgress();updateNav();renderStepSpecific();
+  updateProgress();updateNav();renderStepSpecific();updateCostBar();
   if(step===EST_TOTAL)renderSummary();
 }
 
@@ -659,7 +840,13 @@ document.getElementById('nav-next').onclick=()=>{if(step<EST_TOTAL)goTo(step+1,1
 document.getElementById('nav-back').onclick=()=>{if(step>0)goTo(step-1,-1);};
 document.getElementById('restart-btn').onclick=()=>{
   step=0;skipped.travel=false;skipped.extras=false;
-  document.querySelectorAll('.screen').forEach((s,i)=>{s.className='screen'+(i>0?' hr':'');});
+  const clip=document.getElementById('screens-clip'),screensEl=document.querySelector('.screens');
+  for(let i=0;i<=EST_TOTAL;i++){
+    const s=document.getElementById('sc-'+i);
+    if(!s)continue;
+    s.className='screen'+(i>0?' hr':'');
+    if(i===0)screensEl.appendChild(s);else clip.appendChild(s);
+  }
   updateProgress();updateNav();updateCostBar();renderStepSpecific();
 };
 document.getElementById('nav-skip').onclick=()=>{};
@@ -692,10 +879,8 @@ document.querySelectorAll('.opt[data-grp]').forEach(btn=>{
     const g=btn.dataset.grp,v=btn.dataset.val;
     document.querySelectorAll(`.opt[data-grp="${g}"]`).forEach(b=>{
       b.classList.remove('sel');
-      const od=b.querySelector('.od');if(od)od.style.background='';
     });
     btn.classList.add('sel');
-    const od=btn.querySelector('.od');if(od)od.style.background='#4A90E2';
 
     if(g==='travel'){
       const locSection=document.getElementById('loc-section');
@@ -734,7 +919,7 @@ document.querySelectorAll('.ref-tag[data-key]').forEach(tag=>{
 });
 
 document.getElementById('souvenirs-inp').addEventListener('input',e=>{S.souvenirs=parseFloat(e.target.value)||0;skipped.extras=false;updateNav();updateProgress();updateCostBar();});
-document.getElementById('experiences-inp').addEventListener('input',e=>{S.experiences=parseFloat(e.target.value)||0;skipped.extras=false;updateNav();updateProgress();updateCostBar();});
+document.getElementById('experiences-inp').addEventListener('input',e=>{S.experiences=parseFloat(e.target.value)||0;skipped.extras=false;updateNav();updateProgress();updateCostBar();renderExpBuilderBtn();});
 
 // Geolocation / city lookup
 const CITIES={'new york':[40.71,-74.01],'nyc':[40.71,-74.01],'chicago':[41.88,-87.63],'los angeles':[34.05,-118.24],'la':[34.05,-118.24],'houston':[29.76,-95.37],'phoenix':[33.45,-112.07],'philadelphia':[39.95,-75.17],'san antonio':[29.42,-98.49],'san diego':[32.72,-117.16],'dallas':[32.78,-96.80],'austin':[30.27,-97.74],'jacksonville':[30.33,-81.66],'columbus':[39.96,-82.99],'charlotte':[35.23,-80.84],'indianapolis':[39.77,-86.16],'san francisco':[37.77,-122.42],'sf':[37.77,-122.42],'seattle':[47.61,-122.33],'denver':[39.74,-104.98],'boston':[42.36,-71.06],'nashville':[36.17,-86.78],'miami':[25.78,-80.21],'atlanta':[33.75,-84.39],'minneapolis':[44.98,-93.27],'portland':[45.52,-122.68],'las vegas':[36.17,-115.14],'memphis':[35.15,-90.05],'louisville':[38.25,-85.76],'baltimore':[39.29,-76.61],'raleigh':[35.78,-78.64],'tucson':[32.22,-110.93],'sacramento':[38.58,-121.49],'kansas city':[39.10,-94.58],'chapel hill':[35.91,-79.06],'durham':[35.99,-78.90],'orlando':[28.54,-81.38],'tampa':[27.95,-82.46],'cincinnati':[39.10,-84.51],'pittsburgh':[40.44,-79.99],'cleveland':[41.50,-81.69],'detroit':[42.33,-83.05],'st louis':[38.63,-90.20],'new orleans':[29.95,-90.07],'richmond':[37.54,-77.44],'salt lake city':[40.76,-111.89],'albuquerque':[35.08,-106.65],'oklahoma city':[35.47,-97.52],'boise':[43.62,-116.21]};
@@ -796,6 +981,85 @@ else{la=34.1;lo=-118.2;}
     const el=document.getElementById('loc-res');el.className='loc-res show';el.textContent='City not found — try a major city or 5-digit zip.';
   },400);
 });
+
+// ── Info sheets ──
+const EXPERIENCES=[
+  {id:'memorymaker',name:'Memory Maker',park:'All parks',desc:'Unlimited digital downloads of ride photos & PhotoPass shots for your whole trip.',price:'$199–$299 total',val:249},
+  {id:'bbb',name:'Bibbidi Bobbidi Boutique',park:'MK / Disney Springs',desc:'Hair, makeup & costume transformation for kids at the castle salon.',price:'$75–$450',val:262},
+  {id:'pirates',name:'Pirates League',park:'MK',desc:'Pirate-themed makeover with face paint, bandana & sword for kids.',price:'$60–$130',val:95},
+  {id:'mnsshp',name:"Mickey's Not-So-Scary Halloween Party",park:'MK',desc:'After-hours hard-ticket event with trick-or-treating, parade & fireworks.',price:'$99–$184/pp',val:141,pp:true,seasonal:'Aug–Oct'},
+  {id:'mvmcp',name:"Mickey's Very Merry Christmas Party",park:'MK',desc:'After-hours holiday party with snow, parade & exclusive fireworks.',price:'$99–$189/pp',val:144,pp:true,seasonal:'Nov–Dec'},
+  {id:'afterhours',name:'Disney After Hours',park:'MK / HS / AK',desc:'Low-crowd after-hours access with free snacks & short-to-no lines.',price:'$139–$184/pp',val:161,pp:true,seasonal:'Select nights'},
+  {id:'fireworksdp',name:'Fireworks Dessert Party',park:'MK',desc:'Reserved viewing area plus desserts for the nighttime fireworks show.',price:'$99–$159/pp',val:129,pp:true},
+  {id:'savis',name:"Savi's Workshop",park:'HS',desc:"Build-your-own custom lightsaber experience in Galaxy's Edge.",price:'$250 flat',val:250},
+  {id:'droid',name:'Droid Depot',park:'HS',desc:"Build-your-own custom droid companion in Galaxy's Edge.",price:'$120 flat',val:120},
+  {id:'wat',name:'Wild Africa Trek',park:'AK',desc:'Guided backstage safari walk over the savanna with a harnessed bridge crossing.',price:'$189–$249/pp',val:219,pp:true},
+  {id:'giants',name:'Caring for Giants',park:'AK',desc:"Small-group up-close experience learning about the park's elephants.",price:'$35–$45/pp',val:40,pp:true},
+  {id:'seeds',name:'Behind the Seeds',park:'EPCOT',desc:'Guided greenhouse tour of the growing labs behind The Land pavilion.',price:'$30–$35/pp',val:32,pp:true},
+  {id:'epcotdp',name:'EPCOT Dessert Party',park:'EPCOT',desc:"Reserved viewing plus desserts for EPCOT's nighttime spectacular.",price:'$99–$139/pp',val:119,pp:true},
+  {id:'viptour',name:'VIP Tour',park:'All parks',desc:'Private guide who plans your day and gets your party to the front of lines.',price:'$450–$900/hr',val:675}
+];
+function expLineTotal(e){const t=S.adults+S.children;return e.pp?e.val*Math.max(1,t):e.val;}
+const expSelected=new Set();
+
+function renderExpList(){
+  const el=document.getElementById('exp-list');if(!el)return;
+  const t=S.adults+S.children;
+  el.innerHTML=EXPERIENCES.map(e=>`
+    <div class="exp-card${expSelected.has(e.id)?' sel':''}" data-exp="${e.id}">
+      <div class="exp-top">
+        <div><div class="exp-name">${e.name}</div><div class="exp-park">${e.park}</div></div>
+        <div class="exp-check"><i class="ti ti-check"></i></div>
+      </div>
+      <div class="exp-desc">${e.desc}</div>
+      <div class="exp-bottom"><div class="exp-price">${e.price}</div>${e.seasonal?`<span class="exp-seasonal">Seasonal · ${e.seasonal}</span>`:''}</div>
+      ${e.pp?`<div class="exp-pp-note">${fmt(e.val)}/pp × ${t} guest${t!==1?'s':''} = ${fmt(expLineTotal(e))}</div>`:''}
+    </div>`).join('');
+  el.querySelectorAll('.exp-card').forEach(card=>{
+    card.addEventListener('click',()=>{
+      const id=card.dataset.exp;
+      if(expSelected.has(id))expSelected.delete(id);else expSelected.add(id);
+      card.classList.toggle('sel');
+      renderExpSubtotal();
+    });
+  });
+  renderExpSubtotal();
+}
+
+function renderExpSubtotal(){
+  const total=EXPERIENCES.filter(e=>expSelected.has(e.id)).reduce((s,e)=>s+expLineTotal(e),0);
+  document.getElementById('exp-subtotal-val').textContent=fmt(total);
+}
+
+document.getElementById('exp-clear-btn').onclick=()=>{
+  expSelected.clear();
+  renderExpList();
+};
+
+document.getElementById('exp-use-btn').onclick=()=>{
+  const total=EXPERIENCES.filter(e=>expSelected.has(e.id)).reduce((s,e)=>s+expLineTotal(e),0);
+  S.experiences=total;
+  document.getElementById('experiences-inp').value=total;
+  skipped.extras=false;updateNav();updateProgress();updateCostBar();renderExpBuilderBtn();
+  closeSheet();
+};
+
+let activeSheet=null;
+function openSheet(id){
+  if(activeSheet)closeSheet();
+  const sheet=document.getElementById('sheet-'+id);if(!sheet)return;
+  if(id==='experiences')renderExpList();
+  document.getElementById('sheet-backdrop').classList.add('show');
+  sheet.classList.add('show');
+  activeSheet=id;
+}
+function closeSheet(){
+  if(!activeSheet)return;
+  const sheet=document.getElementById('sheet-'+activeSheet);
+  if(sheet)sheet.classList.remove('show');
+  document.getElementById('sheet-backdrop').classList.remove('show');
+  activeSheet=null;
+}
 
 // Init
 updateProgress();updateNav();updateCostBar();

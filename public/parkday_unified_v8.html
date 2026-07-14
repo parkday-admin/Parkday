@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parkday</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+html,body{height:100%;background:#e8e0d4;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;}
+.phone{width:390px;height:750px;background:var(--cream);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,0.25),0 0 0 1px rgba(0,0,0,0.08);}
+
+/* PAGE SYSTEM */
+.page{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--cream);transition:transform 0.3s cubic-bezier(.4,0,.2,1),opacity 0.2s;}
+.page.hidden{transform:translateX(100%);opacity:0;pointer-events:none;}
+.page.slide-left{transform:translateX(-8%);opacity:0;pointer-events:none;}
+
+/* HEADER */
+.pk-header{background:var(--night);padding:13px 16px 0;flex-shrink:0;}
+.pk-hdr-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.pk-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.pk-logo i{color:#fff;font-size:15px;}
+.pk-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:#fff;flex:1;}
+.pk-sub{font-size:10px;color:var(--mint);font-weight:500;margin-top:1px;}
+.hdr-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:10px;font-weight:500;color:rgba(255,255,255,0.55);display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
+.back-btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:5px 9px;cursor:pointer;font-size:11px;font-weight:500;color:rgba(255,255,255,0.75);display:flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
+.back-btn i{font-size:13px;}
+
+/* COUNTDOWN */
+.countdown-strip{display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,0.08);padding:10px 0 12px;}
+.cd-num{font-family:'Fraunces',serif;font-size:26px;font-weight:400;color:var(--gold);line-height:1;}
+.cd-unit{font-size:11px;color:rgba(255,255,255,0.45);font-weight:500;}
+.cd-dates{font-size:12px;font-weight:500;color:#fff;}
+.cd-resort{font-size:10px;color:rgba(255,255,255,0.45);margin-top:2px;}
+.cd-progress{height:2px;background:rgba(255,255,255,0.1);border-radius:1px;overflow:hidden;margin-top:10px;}
+.cd-progress-fill{height:100%;background:var(--mint);border-radius:1px;width:68%;}
+
+/* URGENCY */
+.urgency-strip{background:rgba(255,122,107,0.12);border:1px solid rgba(255,122,107,0.25);border-radius:10px;padding:8px 12px;margin:10px 14px 0;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.urgency-dot{width:6px;height:6px;border-radius:50%;background:var(--coral);flex-shrink:0;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.urgency-text{flex:1;font-size:12px;font-weight:500;color:var(--ink);}
+.urgency-text span{color:var(--coral);font-weight:600;}
+.scroll{overflow-y:auto;flex:1;padding:12px 14px 28px;}
+
+/* BUDGET CARD */
+.budget-card{background:var(--white);border:1px solid var(--n12);border-radius:14px;overflow:hidden;margin-bottom:10px;}
+.bc-header{background:var(--night);padding:12px 14px;cursor:pointer;}
+.bc-header:hover{opacity:0.95;}
+.bc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.bc-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.bc-num{font-family:'Fraunces',serif;font-size:28px;font-weight:400;color:var(--gold);line-height:1;}
+.bc-right{text-align:right;}
+.bc-remaining-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+.bc-remaining{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--mint);}
+.bc-bar-track{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.bc-bar-fill{height:100%;background:var(--gold);border-radius:2px;}
+.bc-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:5px;}
+.bc-body{padding:10px 14px;}
+.bc-cat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;cursor:pointer;border-radius:6px;padding:3px 2px;transition:background 0.1s;}
+.bc-cat-row:last-child{margin-bottom:0;}
+.bc-cat-row:hover{background:var(--n04);}
+.bc-cat-row:hover .bc-cat-name{color:var(--sky);}
+.bc-cat-left{display:flex;align-items:center;gap:7px;}
+.bc-cat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.bc-cat-name{font-size:12px;font-weight:500;color:var(--ink);transition:color 0.12s;}
+.bc-cat-right{display:flex;align-items:center;gap:8px;}
+.bc-cat-spent{font-size:11px;color:rgba(30,42,68,0.45);}
+.bc-cat-prog{width:60px;height:3px;background:var(--n08);border-radius:2px;overflow:hidden;}
+.bc-cat-prog-fill{height:100%;border-radius:2px;}
+.bc-footer{padding:8px 14px;border-top:1px solid var(--n08);display:flex;align-items:center;justify-content:space-between;}
+.bc-footer-stat{text-align:center;}
+.bc-footer-lbl{font-size:9px;font-weight:600;color:rgba(30,42,68,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+.bc-footer-val{font-family:'Fraunces',serif;font-size:15px;font-weight:400;}
+.bc-divider{width:1px;height:28px;background:var(--n12);}
+.bc-view{display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:11px;color:var(--sky);font-weight:500;padding:6px 14px 8px;cursor:pointer;}
+.bc-view:hover{opacity:0.7;}
+
+/* ITINERARY CARD */
+.itin-card{background:var(--white);border:1px solid var(--n12);border-radius:14px;overflow:hidden;margin-bottom:10px;}
+.itin-hdr{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--n08);}
+.itin-hdr-l{display:flex;align-items:center;gap:8px;}
+.itin-icon{width:28px;height:28px;border-radius:8px;background:rgba(74,144,226,0.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.itin-icon i{font-size:14px;color:var(--sky);}
+.itin-title{font-size:13px;font-weight:600;color:var(--ink);}
+.itin-sub{font-size:11px;color:rgba(30,42,68,0.45);}
+.itin-view{font-size:11px;color:var(--sky);font-weight:500;display:flex;align-items:center;gap:3px;cursor:pointer;}
+.day-row{padding:9px 14px;border-bottom:1px solid var(--n08);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.1s;}
+.day-row:last-child{border-bottom:none;}
+.day-row:hover{background:var(--n04);}
+.day-chip{width:36px;height:36px;border-radius:9px;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;}
+.day-chip.empty{background:var(--n08);}
+.day-chip-num{font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:#fff;line-height:1;}
+.day-chip.empty .day-chip-num{color:rgba(30,42,68,0.3);}
+.day-chip-lbl{font-size:8px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:1px;}
+.day-chip.empty .day-chip-lbl{color:rgba(30,42,68,0.25);}
+.day-info{flex:1;min-width:0;}
+.day-park{font-size:12px;font-weight:600;color:var(--ink);}
+.day-park.empty{color:rgba(30,42,68,0.35);}
+.day-date{font-size:10px;color:rgba(30,42,68,0.4);margin-top:1px;}
+.day-status{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:2px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600;}
+.pg{background:rgba(126,214,196,0.22);color:#0f7a67;}
+.pb{background:rgba(74,144,226,0.14);color:#1a5fa8;}
+.po{background:rgba(246,184,75,0.2);color:#8a5a00;}
+.pc{background:rgba(255,122,107,0.15);color:#c03a2b;}
+.pz{background:var(--n08);color:rgba(30,42,68,0.5);}
+
+/* AI CTA */
+.ai-cta{background:var(--night);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.ai-cta:hover{opacity:0.9;}
+.ai-icon{width:30px;height:30px;border-radius:8px;background:rgba(246,184,75,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ai-icon i{font-size:15px;color:var(--gold);}
+.ai-title{font-size:12px;font-weight:600;color:#fff;}
+.ai-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+
+/* TABS */
+.tabs{background:var(--night);padding:0 16px;display:flex;flex-shrink:0;}
+.tab{flex:1;padding:9px 0;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;text-align:center;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;}
+.tab.active{color:#fff;border-bottom-color:var(--gold);}
+.screens{flex:1;overflow:hidden;position:relative;}
+.tscreen{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--cream);}
+.tscreen.hidden{display:none;}
+.tscroll{flex:1;overflow-y:auto;padding:12px 14px 80px;}
+
+/* DAY NAV */
+.day-nav{background:var(--white);border-bottom:1px solid var(--n12);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.day-nav-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--n12);background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--night);transition:background 0.12s;}
+.day-nav-btn:hover:not(:disabled){background:var(--sky);border-color:var(--sky);color:#fff;}
+.day-nav-btn:disabled{opacity:0.3;cursor:default;}
+.day-label{text-align:center;}
+.day-label-title{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--night);}
+.day-label-sub{font-size:11px;color:rgba(30,42,68,0.45);margin-top:1px;}
+
+/* DAY SUMMARY BAR */
+.day-summary{background:var(--night);border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;}
+.ds-item{text-align:center;}
+
+.ds-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:3px;}
+.ds-val{font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:#fff;}
+.ds-val.planned{color:var(--sky);}
+.ds-val.actual{color:var(--coral);}
+.ds-val.under{color:var(--mint);}
+.ds-val.over{color:var(--coral);}
+
+/* SECTION LABELS */
+.section-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.4);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 6px;display:flex;align-items:center;gap:5px;}
+.section-lbl i{font-size:12px;}
+
+/* SWIPEABLE ENTRY */
+.entry-wrap{position:relative;margin-bottom:7px;border-radius:12px;overflow:hidden;}
+.entry-delete-reveal{position:absolute;inset:0;background:var(--coral);display:flex;align-items:center;justify-content:flex-end;padding-right:18px;border-radius:12px;gap:6px;cursor:pointer;}
+.entry-delete-reveal i{color:#fff;font-size:18px;}
+.entry-delete-reveal span{color:#fff;font-size:11px;font-weight:600;}
+.entry{background:var(--white);border:1px solid var(--n12);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;position:relative;cursor:pointer;transition:transform 0.22s cubic-bezier(.4,0,.2,1);user-select:none;}
+.entry:hover{box-shadow:0 2px 8px rgba(30,42,68,0.08);}
+.entry.swiped{transform:translateX(-80px);}
+.entry.paid{border-left:3px solid var(--mint);}
+.entry.confirmed{border-left:3px solid var(--sky);}
+.entry.waitlist{border-left:3px solid var(--gold);}
+.entry-icon{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.entry-icon i{font-size:13px;}
+.entry-body{flex:1;min-width:0;}
+.entry-name{font-size:12px;font-weight:600;color:var(--ink);}
+.entry-meta{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;display:flex;align-items:center;gap:5px;}
+.entry-meta .pill{font-size:9px;padding:1px 5px;}
+.entry-amts{text-align:right;flex-shrink:0;}
+.entry-planned{font-size:13px;font-weight:500;color:var(--ink);}
+.entry-actual{font-size:10px;color:rgba(30,42,68,0.35);}
+.entry-paid-row{display:flex;align-items:center;gap:4px;justify-content:flex-end;}
+.entry-strike{font-size:10px;color:rgba(30,42,68,0.35);text-decoration:line-through;}
+.entry-actual-amt{font-size:12px;font-weight:600;}
+.entry-delta{font-size:9px;font-weight:600;padding:1px 4px;border-radius:3px;}
+.delta-under{background:rgba(126,214,196,0.2);color:#0f7a67;}
+.delta-over{background:rgba(255,122,107,0.15);color:var(--coral);}
+
+/* CATEGORY VIEW */
+.cat-hero{background:var(--night);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.ch-hdr{padding:12px 14px;}
+.ch-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.ch-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.ch-num{font-family:'Fraunces',serif;font-size:28px;font-weight:400;color:var(--gold);line-height:1;}
+.ch-right{text-align:right;}
+.ch-remaining-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:3px;}
+.ch-remaining{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:var(--mint);}
+.ch-bar{height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.ch-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.3s;}
+.ch-sub{font-size:10px;color:rgba(255,255,255,0.35);margin-top:5px;}
+.ch-footer{padding:8px 14px;border-top:1px solid rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:space-between;}
+.ch-footer-stat{text-align:center;flex:1;}
+.ch-footer-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px;}
+.ch-footer-val{font-family:'Fraunces',serif;font-size:15px;font-weight:400;}
+.ch-divider{width:1px;height:28px;background:rgba(255,255,255,0.1);}
+.cat-card{background:var(--white);border:1px solid var(--n12);border-radius:12px;overflow:hidden;margin-bottom:8px;}
+.cat-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--n08);transition:background 0.1s;}
+.cat-row:last-child{border-bottom:none;}
+.cat-row:hover{background:var(--n04);}
+.cat-row-tap{flex:1;display:flex;align-items:center;gap:8px;cursor:pointer;min-width:0;}
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-size:12px;font-weight:600;color:var(--ink);}
+.cat-sub{font-size:10px;color:rgba(30,42,68,0.45);margin-top:2px;}
+.cat-prog{height:3px;background:var(--n08);border-radius:2px;overflow:hidden;margin-top:4px;}
+.cat-prog-fill{height:100%;border-radius:2px;}
+.cat-vals{text-align:right;flex-shrink:0;}
+.cat-budgeted{font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:var(--ink);}
+.cat-pct{font-size:10px;color:rgba(30,42,68,0.4);margin-top:1px;}
+
+/* CAT DETAIL */
+.cat-detail-hdr{background:var(--white);border-bottom:1px solid var(--n12);padding:11px 14px;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.cat-detail-back{width:30px;height:30px;border-radius:50%;border:1px solid var(--n12);background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--night);flex-shrink:0;}
+.cat-detail-back:hover{background:var(--sky);border-color:var(--sky);color:#fff;}
+.cat-detail-info{flex:1;}
+.cat-detail-name{font-size:14px;font-weight:600;color:var(--ink);}
+.cat-detail-sub{font-size:11px;color:rgba(30,42,68,0.45);margin-top:1px;}
+/* Editable budget in detail view */
+.cat-detail-budget{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.cat-detail-budget-label{font-size:10px;color:rgba(30,42,68,0.4);}
+.cat-budget-inline{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--sky);cursor:pointer;border-bottom:1px dashed rgba(74,144,226,0.4);padding-bottom:1px;}
+.cat-budget-inline:hover{border-color:var(--sky);}
+.cat-budget-input{font-family:'Fraunces',serif;font-size:13px;font-weight:400;color:var(--night);border:none;border-bottom:1.5px solid var(--sky);outline:none;width:80px;background:transparent;padding-bottom:1px;}
+.cat-detail-summary{background:var(--night);border-radius:12px;padding:11px 14px;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;}
+
+/* FAB */
+.fab{position:absolute;bottom:16px;right:14px;width:48px;height:48px;border-radius:50%;background:var(--sky);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(74,144,226,0.4);z-index:20;}
+.fab i{color:#fff;font-size:22px;}
+.dash-fab{position:absolute;bottom:20px;right:14px;width:48px;height:48px;border-radius:50%;background:var(--sky);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(74,144,226,0.4);z-index:20;}
+.dash-fab i{color:#fff;font-size:22px;}
+
+/* ─── SHEET (tightened) ─── */
+.overlay{position:absolute;inset:0;background:rgba(10,18,36,0.5);z-index:30;display:none;}
+.overlay.show{display:block;}
+.sheet{position:absolute;bottom:0;left:0;right:0;background:var(--white);border-radius:18px 18px 0 0;z-index:31;transform:translateY(100%);transition:transform 0.26s cubic-bezier(.4,0,.2,1);}
+.sheet.show{transform:translateY(0);}
+.sheet-inner{overflow-y:auto;max-height:88vh;padding-bottom:24px;}
+/* Sheet header row: title + trash icon when editing */
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 10px;}
+.sheet-drag-wrap{display:flex;justify-content:center;padding-top:10px;}
+.sheet-drag{width:36px;height:4px;background:var(--n12);border-radius:2px;}
+.sheet-title{font-family:'Fraunces',serif;font-size:17px;font-weight:400;color:var(--night);}
+.sheet-trash{width:32px;height:32px;border-radius:8px;border:1.5px solid rgba(255,122,107,0.3);background:rgba(255,122,107,0.06);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.12s;}
+.sheet-trash:hover{background:rgba(255,122,107,0.15);}
+.sheet-trash i{font-size:15px;color:var(--coral);}
+/* Compact fields */
+.field{margin:0 16px 9px;}
+.field-lbl{font-size:10px;font-weight:600;color:rgba(30,42,68,0.5);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.amt-wrap{display:flex;align-items:center;gap:5px;background:var(--n04);border:1.5px solid var(--n12);border-radius:10px;padding:8px 12px;}
+.amt-wrap:focus-within{border-color:var(--sky);}
+.amt-pre{font-family:'Fraunces',serif;font-size:20px;font-weight:400;color:rgba(30,42,68,0.3);}
+.amt-inp{border:none;background:transparent;font-family:'Fraunces',serif;font-size:22px;font-weight:400;color:var(--night);width:100%;outline:none;}
+.text-inp{width:100%;border:1.5px solid var(--n12);background:var(--white);border-radius:10px;padding:8px 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--ink);outline:none;}
+.text-inp:focus{border-color:var(--sky);}
+/* Compact seg buttons */
+.seg{display:grid;gap:5px;}
+.seg2{grid-template-columns:1fr 1fr;}
+.seg3{grid-template-columns:1fr 1fr 1fr;}
+.seg4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.seg-btn{padding:6px 4px;border-radius:8px;border:1.5px solid var(--n12);background:var(--white);font-family:'Inter',sans-serif;font-size:10px;font-weight:500;color:rgba(30,42,68,0.5);cursor:pointer;text-align:center;transition:all 0.12s;line-height:1.25;}
+.seg-btn.sel{border-color:var(--sky);background:rgba(74,144,226,0.08);color:var(--sky);}
+.save-btn{margin:8px 16px 0;width:calc(100% - 32px);padding:11px;background:var(--sky);border:none;border-radius:11px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.save-btn i{font-size:14px;}
+
+
+
+.status-toggle{flex:1;padding:8px 12px;border-radius:20px;border:1.5px solid var(--n12);background:var(--white);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:rgba(30,42,68,0.5);cursor:pointer;transition:all 0.15s;}
+.status-toggle.active-confirmed{border-color:var(--sky);background:rgba(74,144,226,0.1);color:var(--sky);}
+.status-toggle.active-waitlist{border-color:var(--gold);background:rgba(246,184,75,0.12);color:#8a5a00;}
+
+/* TOAST */
+.toast{position:absolute;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--night);color:#fff;font-size:12px;font-weight:500;padding:8px 16px;border-radius:20px;opacity:0;transition:opacity 0.2s,transform 0.2s;pointer-events:none;white-space:nowrap;z-index:50;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- ══ PAGE 1: DASHBOARD ══ -->
+  <div class="page" id="page-dashboard">
+    <div class="pk-header">
+      <div class="pk-hdr-top">
+        <div class="pk-logo"><i class="ti ti-map-2"></i></div>
+        <div style="flex:1;"><div class="pk-title">Parkday</div><div class="pk-sub">Orlando 2026</div></div>
+        <button class="hdr-btn"><i class="ti ti-settings"></i> Trip</button>
+      </div>
+      <div class="countdown-strip">
+        <div style="display:flex;align-items:baseline;gap:5px;">
+          <div class="cd-num">47</div>
+          <div style="margin-left:6px;"><div class="cd-unit">days to go</div><div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:1px;">2 adults · 1 child</div></div>
+        </div>
+        <div style="text-align:right;"><div class="cd-dates">Aug 10 – 15, 2026</div><div class="cd-resort">Caribbean Beach · 5 nights · 4 park days</div></div>
+      </div>
+      <div class="cd-progress"><div class="cd-progress-fill"></div></div>
+    </div>
+    <div class="urgency-strip">
+      <div class="urgency-dot"></div>
+      <div class="urgency-text"><span>ADR window opens in 17 days</span> — Jun 23 at midnight ET</div>
+      <i class="ti ti-chevron-right" style="font-size:12px;color:rgba(30,42,68,0.35);"></i>
+    </div>
+    <div class="scroll">
+      <div class="budget-card" style="margin-top:10px;">
+        <div class="bc-header" onclick="navToTracker('cat-overview',null)">
+          <div class="bc-top">
+            <div><div class="bc-lbl">Trip budget</div><div class="bc-num" id="dash-total">—</div></div>
+            <div class="bc-right"><div class="bc-remaining-lbl">Remaining</div><div class="bc-remaining" id="dash-remaining">—</div></div>
+          </div>
+          <div class="bc-bar-track"><div class="bc-bar-fill" id="dash-bar" style="width:0%;"></div></div>
+          <div class="bc-sub" id="dash-sub"></div>
+        </div>
+        <div class="bc-body" id="dash-cat-rows"></div>
+        <div class="bc-footer">
+          <div class="bc-footer-stat"><div class="bc-footer-lbl">Budgeted</div><div class="bc-footer-val" style="color:var(--night);" id="dash-foot-budget">—</div></div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat"><div class="bc-footer-lbl">Planned</div><div class="bc-footer-val" style="color:var(--sky);" id="dash-foot-planned">—</div></div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat"><div class="bc-footer-lbl">Spent</div><div class="bc-footer-val" style="color:var(--coral);" id="dash-foot-spent">—</div></div>
+          <div class="bc-divider"></div>
+          <div class="bc-footer-stat"><div class="bc-footer-lbl">Remaining</div><div class="bc-footer-val" style="color:var(--mint);" id="dash-foot-remaining">—</div></div>
+        </div>
+        <div class="bc-view" onclick="navToTracker('cat-overview',null)">View full budget <i class="ti ti-chevron-right" style="font-size:12px;"></i></div>
+      </div>
+      <div class="itin-card">
+        <div class="itin-hdr">
+          <div class="itin-hdr-l"><div class="itin-icon"><i class="ti ti-calendar"></i></div><div><div class="itin-title">Itinerary & spending</div><div class="itin-sub">5 days · $1,695 planned across 3 days</div></div></div>
+          <div class="itin-view" onclick="navToTracker('day',null)">View <i class="ti ti-chevron-right"></i></div>
+        </div>
+        <div class="day-row" onclick="navToTracker('day',0)"><div class="day-chip"><div class="day-chip-num">1</div><div class="day-chip-lbl">Mon</div></div><div class="day-info"><div class="day-park">Magic Kingdom</div><div class="day-date">Aug 10 · 5 entries</div></div><div class="day-status"><span class="pill pg">Planned</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$550 planned</div></div></div>
+        <div class="day-row" onclick="navToTracker('day',1)"><div class="day-chip"><div class="day-chip-num">2</div><div class="day-chip-lbl">Tue</div></div><div class="day-info"><div class="day-park">EPCOT</div><div class="day-date">Aug 11 · 4 entries</div></div><div class="day-status"><span class="pill pg">Planned</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$400 planned</div></div></div>
+        <div class="day-row" onclick="navToTracker('day',2)"><div class="day-chip"><div class="day-chip-num">3</div><div class="day-chip-lbl">Wed</div></div><div class="day-info"><div class="day-park">Hollywood Studios</div><div class="day-date">Aug 12 · 4 entries</div></div><div class="day-status"><span class="pill pb">Partial</span><div style="font-size:11px;color:rgba(30,42,68,0.45);">$545 planned</div></div></div>
+        <div class="day-row" onclick="navToTracker('day',3)"><div class="day-chip empty"><div class="day-chip-num">4</div><div class="day-chip-lbl">Thu</div></div><div class="day-info"><div class="day-park empty">Animal Kingdom</div><div class="day-date">Aug 13 · no entries yet</div></div><div class="day-status"><span class="pill pz">Not started</span></div></div>
+        <div class="day-row" onclick="navToTracker('day',4)"><div class="day-chip empty"><div class="day-chip-num">5</div><div class="day-chip-lbl">Fri</div></div><div class="day-info"><div class="day-park empty">Resort / Pool day</div><div class="day-date">Aug 14 · no entries yet</div></div><div class="day-status"><span class="pill pz">Not started</span></div></div>
+      </div>
+      <div class="ai-cta">
+        <div class="ai-icon"><i class="ti ti-sparkles"></i></div>
+        <div style="flex:1;"><div class="ai-title">Get personalised planning advice</div><div class="ai-sub">47 days out · ADR window approaching</div></div>
+        <i class="ti ti-arrow-right" style="font-size:14px;color:rgba(255,255,255,0.3);"></i>
+      </div>
+    </div>
+    <button class="dash-fab" onclick="navToTracker('day',null);openSheet(null);" title="Add expense"><i class="ti ti-plus"></i></button>
+  </div>
+
+
+  <!-- ══ PAGE 2: TRACKER ══ -->
+  <div class="page hidden" id="page-tracker">
+    <div class="pk-header">
+      <div class="pk-hdr-top">
+        <div class="pk-logo"><i class="ti ti-map-2"></i></div>
+        <div style="flex:1;"><div class="pk-title">Parkday</div><div class="pk-sub">Orlando 2026 · Budget & Itinerary</div></div>
+        <button class="back-btn" onclick="navBack()"><i class="ti ti-arrow-left"></i> Dashboard</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active" id="tab-cat" onclick="switchTab('cat-overview')">By category</div>
+      <div class="tab" id="tab-day" onclick="switchTab('day')">By day</div>
+    </div>
+    <div class="screens">
+
+      <!-- CATEGORY OVERVIEW -->
+      <div class="tscreen" id="tscreen-cat">
+        <div class="tscroll">
+          <div class="cat-hero" id="cat-hero"></div>
+          <div id="cat-list"></div>
+        </div>
+        <button class="fab" onclick="openSheet(null)"><i class="ti ti-plus"></i></button>
+      </div>
+
+      <!-- CATEGORY DETAIL -->
+      <div class="tscreen hidden" id="tscreen-cat-detail">
+        <div class="cat-detail-hdr">
+          <button class="cat-detail-back" onclick="switchTab('cat-overview')"><i class="ti ti-arrow-left"></i></button>
+          <div class="cat-detail-info">
+            <div class="cat-detail-name" id="cat-detail-name">Dining</div>
+
+          </div>
+          <div id="cat-detail-icon-wrap" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+        </div>
+        <div class="tscroll" id="cat-detail-scroll">
+          <div class="cat-detail-summary" id="cat-detail-summary"></div>
+          <div id="cat-detail-entries"></div>
+        </div>
+        <button class="fab" onclick="openSheet(null,currentCat)"><i class="ti ti-plus"></i></button>
+      </div>
+
+      <!-- DAY VIEW -->
+      <div class="tscreen hidden" id="tscreen-day">
+        <div class="day-nav">
+          <button class="day-nav-btn" id="prev-day" onclick="changeDay(-1)"><i class="ti ti-chevron-left"></i></button>
+          <div class="day-label">
+            <div class="day-label-title" id="day-title">Day 1 · Aug 10</div>
+            <div class="day-label-sub" id="day-park-lbl">Magic Kingdom</div>
+          </div>
+          <button class="day-nav-btn" id="next-day" onclick="changeDay(1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="tscroll" id="day-scroll">
+          <div class="day-summary" id="day-summary"></div>
+          <div id="day-entries"></div>
+        </div>
+        <button class="fab" onclick="openSheet(null)"><i class="ti ti-plus"></i></button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ OVERLAY ══ -->
+  <div class="overlay" id="overlay" onclick="closeSheet()"></div>
+
+  <!-- ══ EXPENSE SHEET (tightened) ══ -->
+  <div class="sheet" id="sheet">
+    <div class="sheet-inner">
+      <div class="sheet-drag-wrap"><div class="sheet-drag"></div></div>
+      <div class="sheet-hdr">
+        <div class="sheet-title" id="sheet-title">Add expense</div>
+        <button class="sheet-trash" id="sheet-trash" onclick="deleteEditing()" style="display:none;" title="Delete expense">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>
+
+            <div class="field">
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:end;">
+          <div>
+            <div class="field-lbl" style="margin-bottom:4px;">Planned</div>
+            <div class="amt-wrap"><div class="amt-pre" style="font-size:15px;">$</div><input class="amt-inp" id="s-planned-amt" type="number" placeholder="0" min="0" style="font-size:18px;"></div>
+          </div>
+          <button onclick="copyPlannedToActual()" title="Copy planned to actual" style="width:30px;height:38px;border-radius:8px;border:1.5px solid var(--n12);background:var(--cream);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-bottom:0;transition:background 0.12s,border-color 0.12s;" onmouseover="this.style.background='#4A90E2';this.style.borderColor='#4A90E2';" onmouseout="this.style.background='var(--cream)';this.style.borderColor='var(--n12)';"><i class="ti ti-arrow-right" style="font-size:13px;color:var(--ink);"></i></button>
+          <div>
+            <div class="field-lbl" style="margin-bottom:4px;">Actual <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;">(leave blank until spent)</span></div>
+            <div class="amt-wrap"><div class="amt-pre" style="font-size:15px;">$</div><input class="amt-inp" id="s-actual-amt" type="number" placeholder="—" min="0" style="font-size:18px;" oninput="mirrorActualToPlanned(this.value)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-lbl">Category</div>
+        <div class="seg seg4" style="margin-bottom:5px;">
+          <button class="seg-btn sel" data-cat="dining">🍽<br>Dining</button>
+          <button class="seg-btn" data-cat="snacks">🍦<br>Snacks</button>
+          <button class="seg-btn" data-cat="souvenirs">🎁<br>Souvenirs</button>
+          <button class="seg-btn" data-cat="experience">✨<br>Experience</button>
+        </div>
+        <div class="seg seg4" style="margin-bottom:5px;">
+          <button class="seg-btn" data-cat="ll">⚡<br>Lightning Lane</button>
+          <button class="seg-btn" data-cat="transport">🚕<br>Transport</button>
+          <button class="seg-btn" data-cat="misc">···<br>Misc</button>
+          <div></div>
+        </div>
+        <div style="margin:8px 0 6px;border-top:1px solid rgba(30,42,68,0.08);padding-top:8px;">
+          <div style="font-size:9px;font-weight:600;color:rgba(30,42,68,0.35);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px;">Trip costs</div>
+        </div>
+        <div class="seg seg1" style="margin-bottom:5px;">
+          <button class="seg-btn" data-cat="travel" style="width:100%;">✈️ Travel — flights, transfers, parking</button>
+        </div>
+        <div class="seg seg2" id="s-cat-resort-row" style="margin-bottom:5px;">
+          <button class="seg-btn" data-cat="resort">🏨<br>Resort</button>
+          <button class="seg-btn" data-cat="tickets">🎟<br>Tickets</button>
+        </div>
+        <div class="seg seg1" id="s-cat-package-row">
+          <button class="seg-btn" data-cat="package" style="width:100%;">📦 Vacation Package — lodging, tickets &amp; more</button>
+        </div>
+      </div>
+
+      <div class="field" id="s-ll-type-field" style="display:none;">
+        <div class="field-lbl">LL type</div>
+        <div class="seg seg2">
+          <button class="seg-btn sel" data-lltype="multipass">🎢 Multi Pass</button>
+          <button class="seg-btn" data-lltype="singlepass">⚡ Single Pass</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="field-lbl">Label</div>
+        <input class="text-inp" id="s-label" type="text" placeholder="e.g. Be Our Guest dinner">
+      </div>
+
+      <div class="field" id="s-day-field">
+        <div class="field-lbl">Day</div>
+        <div class="seg seg3" id="s-day-grid"></div>
+      </div>
+
+      <div class="field" id="s-time-field">
+        <div class="field-lbl">Time <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></div>
+        <input class="text-inp" id="s-time" type="time">
+      </div>
+
+      <div class="field" id="s-status-field">
+        <div class="field-lbl">Reservation status</div>
+        <div style="display:flex;gap:8px;">
+          <button id="toggle-confirmed" onclick="toggleStatus('confirmed')" class="status-toggle">✓ Confirmed</button>
+          <button id="toggle-waitlist" onclick="toggleStatus('waitlist')" class="status-toggle">⏳ Waitlist</button>
+        </div>
+      </div>
+
+
+
+      <button class="save-btn" onclick="saveEntry()"><i class="ti ti-check"></i> <span id="save-btn-label">Save expense</span></button>
+    </div>
+  </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ─── DATA ──────────────────────────────────────────────────────────────
+const DAYS=[
+  {num:1,date:'Aug 10',day:'Mon',park:'Magic Kingdom',      abbr:'MK'},
+  {num:2,date:'Aug 11',day:'Tue',park:'EPCOT',               abbr:'EP'},
+  {num:3,date:'Aug 12',day:'Wed',park:'Hollywood Studios',   abbr:'HS'},
+  {num:4,date:'Aug 13',day:'Thu',park:'Animal Kingdom',      abbr:'AK'},
+  {num:5,date:'Aug 14',day:'Fri',park:'Resort / Pool day',   abbr:'·'},
+];
+
+// budgeted is now mutable
+const CATS={
+  // Trip-level: never shown in By Day view
+  package:   {label:'Vacation Package',       icon:'ti-package',        color:'#7B5EA7', prog:'#9B7EC8',bgCls:'rgba(123,94,167,0.12)', icCls:'#7B5EA7',          budgeted:4000, scope:'trip'},
+  resort:    {label:'Lodging',        icon:'ti-building-castle',color:'#1E2A44', prog:'#1E2A44',bgCls:'rgba(30,42,68,0.1)',   icCls:'var(--night)',      budgeted:2200, scope:'trip'},
+  tickets:   {label:'Park Tickets',  icon:'ti-ticket',         color:'#c47c00', prog:'#F6B84B',bgCls:'rgba(246,184,75,0.15)',icCls:'#c47c00',           budgeted:1800, scope:'trip'},
+  travel:    {label:'Travel',        icon:'ti-plane',           color:'#4A90E2', prog:'#4A90E2',bgCls:'rgba(74,144,226,0.12)', icCls:'var(--sky)',        budgeted:1500, scope:'trip'},
+  // Day-level: shown in By Day view
+  dining:    {label:'Dining',        icon:'ti-tools-kitchen-2',color:'#FF7A6B', prog:'#FF7A6B',bgCls:'rgba(255,122,107,0.12)',icCls:'var(--coral)',      budgeted:900,  scope:'day'},
+  snacks:    {label:'Snacks',        icon:'ti-ice-cream',      color:'#FF7A6B', prog:'#FF7A6B',bgCls:'rgba(255,122,107,0.08)',icCls:'#d45f00',           budgeted:200,  scope:'day'},
+  experience:{label:'Experiences',   icon:'ti-stars',           color:'#c47c00', prog:'#F6B84B',bgCls:'rgba(246,184,75,0.15)',icCls:'#c47c00',           budgeted:600,  scope:'day'},
+  ll:        {label:'Lightning Lane',icon:'ti-bolt',            color:'#0f7a67', prog:'#7ED6C4',bgCls:'rgba(126,214,196,0.18)',icCls:'#0f7a67',          budgeted:400,  scope:'day'},
+  souvenirs: {label:'Souvenirs',     icon:'ti-gift',            color:'#FF7A6B', prog:'#FF7A6B',bgCls:'rgba(255,122,107,0.12)',icCls:'var(--coral)',      budgeted:300,  scope:'day'},
+  transport: {label:'Transport',     icon:'ti-car',            color:'#4A90E2', prog:'#4A90E2',bgCls:'rgba(74,144,226,0.12)', icCls:'var(--sky)',        budgeted:150,  scope:'day'},
+  misc:      {label:'Misc',          icon:'ti-dots',            color:'#aaa',    prog:'#aaa',   bgCls:'rgba(30,42,68,0.07)',  icCls:'rgba(30,42,68,0.5)',budgeted:100,  scope:'day'},
+};
+
+const CATS_WITH_TIME=new Set(['dining','experience','transport','travel']);
+const CATS_WITH_STATUS=new Set(['dining','experience']);
+const STATUS_PILL={confirmed:'pb',waitlist:'po',paid:'pg'};
+const STATUS_LABEL={confirmed:'Confirmed',waitlist:'Waitlist',paid:'Paid'};
+
+// Souvenir budget placeholder entry REMOVED — budget is managed via CATS.budgeted
+let entries=[
+  {id:1, day:0,cat:'package',   label:'Caribbean Beach + Park Hopper · Vacation Package', time:null, status:'confirmed',plannedAmt:4000,actualAmt:1620},
+  {id:4, day:0,cat:'travel',    label:'Flights (round trip)',              time:null,   status:'confirmed',plannedAmt:900, actualAmt:900},
+  {id:5, day:0,cat:'travel',    label:'Mears Connect transfer',            time:null,   status:'confirmed',plannedAmt:110, actualAmt:110},
+  {id:6, day:1,cat:'dining',    label:"Be Our Guest — Lunch",            time:'12:30',status:'confirmed',plannedAmt:180, actualAmt:214},
+  {id:7, day:1,cat:'experience',label:'Tron LL Single',                  time:null,   status:'confirmed',plannedAmt:140, actualAmt:140},
+  {id:8, day:1,cat:'ll',        label:'Lightning Lane Multi Pass',        time:null,   status:'planned',  plannedAmt:75,  actualAmt:null, llType:'multipass'},
+  {id:9, day:1,cat:'dining',    label:"Casey's Corner — Dinner",         time:'19:30',status:'planned',  plannedAmt:55,  actualAmt:null},
+  {id:10,day:2,cat:'dining',    label:'Space 220 — Dinner',              time:'19:00',status:'confirmed',plannedAmt:220, actualAmt:null},
+  {id:11,day:2,cat:'ll',        label:'Lightning Lane Multi Pass',        time:null,   status:'planned',  plannedAmt:75,  actualAmt:null, llType:'multipass'},
+  {id:12,day:2,cat:'dining',    label:'Quick service — Lunch',           time:'12:00',status:'planned',  plannedAmt:45,  actualAmt:null},
+  {id:13,day:3,cat:'experience',label:'Bibbidi Bobbidi Boutique',        time:'10:00',status:'confirmed',plannedAmt:325, actualAmt:null},
+  {id:14,day:3,cat:'dining',    label:"50's Prime Time — Lunch",         time:'12:00',status:'confirmed',plannedAmt:90,  actualAmt:null},
+  {id:15,day:3,cat:'ll',        label:'Lightning Lane Multi Pass',        time:null,   status:'planned',  plannedAmt:75,  actualAmt:null, llType:'multipass'},
+  {id:16,day:3,cat:'dining',    label:'Quick service — Dinner',          time:'18:30',status:'planned',  plannedAmt:55,  actualAmt:null},
+];
+let nextId=17;
+
+// ─── STATE ─────────────────────────────────────────────────────────────
+let currentDay=0,currentTab='cat-overview',currentCat=null;
+let editingId=null;
+let selectedCat='dining',selectedStatus=null,selectedLLType='multipass',selectedSheetDay=0;
+let activeSwipeEl=null;
+
+// ─── UTILS ─────────────────────────────────────────────────────────────
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+function formatTime(t){if(!t)return'';const[h,m]=t.split(':');const hr=parseInt(h);return`${hr%12||12}:${m} ${hr>=12?'PM':'AM'}`;}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+function rerender(){
+  renderDashboard();
+  if(currentTab==='day') renderDayView();
+  else if(currentTab==='cat-overview') renderCatView();
+  else if(currentTab==='cat-detail') renderCatDetail();
+}
+
+// ─── SUMMARIES ─────────────────────────────────────────────────────────
+function totalSummary(){
+  return{planned:entries.reduce((a,e)=>a+e.plannedAmt,0),actual:entries.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0)};
+}
+function catSummary(cat){
+  const es=entries.filter(e=>e.cat===cat);
+  return{planned:es.reduce((a,e)=>a+e.plannedAmt,0),actual:es.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0),count:es.length};
+}
+function dayEntries(d){return entries.filter(e=>e.day===d+1||e.day===0);}
+function hasPackage(){return entries.some(e=>e.cat==='package');}
+
+// ─── NAVIGATION ────────────────────────────────────────────────────────
+function navToTracker(dest,param){
+  const db=document.getElementById('page-dashboard'),tr=document.getElementById('page-tracker');
+  db.classList.add('slide-left');tr.classList.remove('hidden');
+  if(dest==='day'){if(param!==null)currentDay=param;switchTab('day');}
+  else if(dest==='cat-detail'){currentCat=param;switchTab('cat-detail');}
+  else switchTab('cat-overview');
+  setTimeout(()=>db.classList.add('hidden'),280);
+}
+function navBack(){
+  const db=document.getElementById('page-dashboard'),tr=document.getElementById('page-tracker');
+  db.classList.remove('hidden','slide-left');
+  setTimeout(()=>tr.classList.add('hidden'),280);
+}
+
+// ─── TAB SWITCHING ─────────────────────────────────────────────────────
+function switchTab(tab){
+  currentTab=tab;
+  const isCat=tab==='cat-overview'||tab==='cat-detail';
+  document.getElementById('tab-cat').classList.toggle('active',isCat);
+  document.getElementById('tab-day').classList.toggle('active',tab==='day');
+  document.getElementById('tscreen-cat').classList.toggle('hidden',tab!=='cat-overview');
+  document.getElementById('tscreen-cat-detail').classList.toggle('hidden',tab!=='cat-detail');
+  document.getElementById('tscreen-day').classList.toggle('hidden',tab!=='day');
+  if(tab==='cat-overview') renderCatView();
+  if(tab==='cat-detail')   renderCatDetail();
+  if(tab==='day')          renderDayView();
+  closeAnySwipe();
+}
+
+// ─── ICON HELPER ───────────────────────────────────────────────────────
+function catIconEl(key){
+  const c=CATS[key];
+  return`<div style="width:26px;height:26px;border-radius:8px;background:${c.bgCls};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ${c.icon}" style="font-size:13px;color:${c.icCls};"></i></div>`;
+}
+
+// ─── CATEGORY OVERVIEW ─────────────────────────────────────────────────
+function renderCatView(){
+  const tot=totalSummary();
+  const totalBudget=Object.values(CATS).reduce((a,c)=>a+c.budgeted,0);
+  const pct=totalBudget>0?Math.round((tot.actual/totalBudget)*100):0;
+  const remaining=totalBudget-tot.actual;
+  document.getElementById('cat-hero').innerHTML=`
+    <div class="ch-hdr">
+      <div class="ch-top">
+        <div><div class="ch-lbl">Total budget</div><div class="ch-num">${fmt(totalBudget)}</div></div>
+        <div class="ch-right"><div class="ch-remaining-lbl">Remaining</div><div class="ch-remaining">${fmt(remaining)}</div></div>
+      </div>
+      <div class="ch-bar"><div class="ch-bar-fill" style="width:${Math.min(100,pct)}%;"></div></div>
+      <div class="ch-sub">${fmt(tot.planned)} planned · ${fmt(tot.actual)} spent · ${pct}% of budget used</div>
+    </div>
+    <div class="ch-footer">
+      <div class="ch-footer-stat"><div class="ch-footer-lbl">Budgeted</div><div class="ch-footer-val" style="color:var(--gold);">${fmt(totalBudget)}</div></div>
+      <div class="ch-divider"></div>
+      <div class="ch-footer-stat"><div class="ch-footer-lbl">Planned</div><div class="ch-footer-val" style="color:var(--sky);">${fmt(tot.planned)}</div></div>
+      <div class="ch-divider"></div>
+      <div class="ch-footer-stat"><div class="ch-footer-lbl">Spent</div><div class="ch-footer-val" style="color:var(--coral);">${fmt(tot.actual)}</div></div>
+      <div class="ch-divider"></div>
+      <div class="ch-footer-stat"><div class="ch-footer-lbl">Remaining</div><div class="ch-footer-val" style="color:var(--mint);">${fmt(remaining)}</div></div>
+    </div>`;
+
+  document.getElementById('cat-list').innerHTML=`<div class="cat-card">${
+    Object.entries(CATS).filter(([key])=>{
+      if(key==='resort'||key==='tickets') return !hasPackage();
+      if(key==='package') return hasPackage();
+      return true;
+    }).map(([key,cat])=>{
+      const s=catSummary(key);
+      const p=cat.budgeted>0?Math.round((s.actual/cat.budgeted)*100):0;
+      const over=s.actual>cat.budgeted;
+      return`<div class="cat-row">
+        <div class="cat-row-tap" onclick="currentCat='${key}';switchTab('cat-detail');">
+          ${catIconEl(key)}
+          <div class="cat-info">
+            <div class="cat-name">${cat.label}</div>
+            <div class="cat-sub">${fmt(s.actual)} spent · ${fmt(s.planned)} planned · ${s.count} entr${s.count===1?'y':'ies'}</div>
+            <div class="cat-prog"><div class="cat-prog-fill" style="width:${Math.min(100,p)}%;background:${over?'var(--coral)':cat.prog};"></div></div>
+          </div>
+          <div class="cat-vals" style="min-width:70px;">
+            <div id="cat-bgt-disp-${key}" class="cat-budgeted" style="color:${over?'var(--coral)':' var(--ink)'};border-bottom:1px dashed ${over?'rgba(255,122,107,0.5)':' rgba(30,42,68,0.2)'};cursor:pointer;" onclick="event.stopPropagation();startInlineBudget('${key}')" title="Tap to edit">${fmt(cat.budgeted)} <i class="ti ti-pencil" style="font-size:9px;opacity:0.4;margin-left:2px;"></i></div>
+            <input id="cat-bgt-inp-${key}" type="number" min="0" value="${cat.budgeted}" style="display:none;font-family:'Fraunces',serif;font-size:14px;font-weight:400;color:var(--ink);background:transparent;border:none;border-bottom:1.5px solid var(--sky);outline:none;width:70px;text-align:right;" onblur="commitInlineRowBudget('${key}')" onkeydown="if(event.key==='Enter')this.blur();event.stopPropagation();">
+            <div class="cat-pct">${p}% spent</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('')
+  }</div>`;
+}
+
+// ─── CATEGORY DETAIL ───────────────────────────────────────────────────
+function renderCatDetail(){
+  const cat=CATS[currentCat];
+  const s=catSummary(currentCat);
+  const es=entries.filter(e=>e.cat===currentCat);
+
+  document.getElementById('cat-detail-name').textContent=cat.label;
+  // Fixed icon using inline styles — no class dependency
+  document.getElementById('cat-detail-icon-wrap').innerHTML=`<div style="width:28px;height:28px;border-radius:8px;background:${cat.bgCls};display:flex;align-items:center;justify-content:center;"><i class="ti ${cat.icon}" style="font-size:14px;color:${cat.icCls};"></i></div>`;
+
+  const hasPaid=es.some(e=>e.actualAmt!=null);
+  document.getElementById('cat-detail-summary').innerHTML=`
+    <div class="ds-item" style="cursor:pointer;" onclick="openInlineBudgetEdit()" title="Tap to edit budget">
+      <div class="ds-lbl">Budgeted <i class="ti ti-pencil" style="font-size:9px;opacity:0.5;"></i></div>
+      <div class="ds-val" style="color:var(--gold);" id="cat-budget-display">${fmt(cat.budgeted)}</div>
+      <input id="cat-budget-input" type="number" min="0" value="${cat.budgeted}"
+        style="display:none;font-family:'Fraunces',serif;font-size:16px;font-weight:400;color:var(--gold);background:transparent;border:none;border-bottom:1.5px solid var(--gold);outline:none;width:80px;text-align:center;"
+        onblur="commitInlineBudget()" onkeydown="if(event.key==='Enter')this.blur()">
+    </div>
+    <div class="ds-item"><div class="ds-lbl">Planned</div><div class="ds-val planned">${fmt(s.planned)}</div></div>
+    <div class="ds-item"><div class="ds-lbl">Spent</div><div class="ds-val actual">${hasPaid?fmt(s.actual):'—'}</div></div>`;
+
+  const tripLevel=es.filter(e=>e.day===0);
+  const byDay=DAYS.map((_,i)=>{
+    const dayEs=es.filter(e=>e.day===i+1);
+    const timed=dayEs.filter(e=>e.time).sort((a,b)=>a.time.localeCompare(b.time));
+    const untimed=dayEs.filter(e=>!e.time);
+    return [...timed,...untimed];
+  });
+  let html='';
+  if(tripLevel.length) html+=`<div class="section-lbl"><i class="ti ti-calendar-event"></i> Trip total</div>`+tripLevel.map(entryHtml).join('');
+  byDay.forEach((dayEs,i)=>{
+    if(!dayEs.length)return;
+    html+=`<div class="section-lbl"><i class="ti ti-sun"></i> Day ${i+1} · ${DAYS[i].date}</div>`+dayEs.map(entryHtml).join('');
+  });
+  if(!es.length) html=`<div style="text-align:center;padding:40px 0 20px;font-size:13px;color:rgba(30,42,68,0.35);">No ${cat.label.toLowerCase()} expenses yet.<br>Tap + to add one.</div>`;
+  document.getElementById('cat-detail-entries').innerHTML=html;
+  attachSwipeListeners();
+}
+
+
+// ─── DAY VIEW ──────────────────────────────────────────────────────────
+function renderDayView(){
+  const d=DAYS[currentDay];
+  document.getElementById('day-title').textContent=`Day ${d.num} · ${d.date}`;
+  document.getElementById('day-park-lbl').textContent=d.park;
+  document.getElementById('prev-day').disabled=currentDay===0;
+  document.getElementById('next-day').disabled=currentDay===DAYS.length-1;
+  const dayEs=entries.filter(e=>e.day===currentDay+1);
+  const planned=dayEs.reduce((a,e)=>a+e.plannedAmt,0);
+  const actual=dayEs.filter(e=>e.actualAmt!=null).reduce((a,e)=>a+e.actualAmt,0);
+  const hasPaid=dayEs.some(e=>e.actualAmt!=null);
+  const delta=planned-actual;
+  const dc=hasPaid?(delta>=0?'under':'over'):'';
+  document.getElementById('day-summary').innerHTML=`
+    <div style="text-align:center;">
+      <div class="ds-lbl">Spent today</div>
+      <div class="ds-val actual" style="font-size:28px;">${hasPaid?fmt(actual):'—'}</div>
+      ${hasPaid?`<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px;">${entries.filter(e=>e.day===currentDay+1&&e.actualAmt!=null).length} of ${dayEs.length} paid</div>`:''}
+    </div>`;
+  const timed=dayEs.filter(e=>e.time).sort((a,b)=>a.time.localeCompare(b.time));
+  const untimed=dayEs.filter(e=>!e.time);
+  let html='';
+  if(timed.length)     html+=`<div class="section-lbl"><i class="ti ti-clock"></i> Scheduled</div>`+timed.map(entryHtml).join('');
+  if(untimed.length)   html+=`<div class="section-lbl"><i class="ti ti-list"></i> Day costs</div>`+untimed.map(entryHtml).join('');
+  if(!dayEs.length)    html=`<div style="text-align:center;padding:40px 0 20px;font-size:13px;color:rgba(30,42,68,0.35);">No expenses planned for this day yet.<br>Tap + to add one.</div>`;
+  document.getElementById('day-entries').innerHTML=html;
+  attachSwipeListeners();
+}
+
+// ─── ENTRY HTML ────────────────────────────────────────────────────────
+function entryHtml(e){
+  const cat=CATS[e.cat];
+  const borderClass=e.status==='confirmed'?'confirmed':e.status==='waitlist'?'waitlist':e.actualAmt!=null?'paid':'';
+  const llSubLabel=e.cat==='ll'?`<span style="font-size:9px;background:rgba(126,214,196,0.15);color:#0f7a67;border-radius:3px;padding:1px 4px;">${e.llType==='singlepass'?'Single Pass':'Multi Pass'}</span>`:'';
+  const statusPill=(e.status==='confirmed'||e.status==='waitlist')?`<span class="pill ${STATUS_PILL[e.status]}">${STATUS_LABEL[e.status]}</span>`:'';
+  const timeStr=formatTime(e.time);
+  let amtHtml='';
+  if(e.actualAmt!=null){
+    const delta=e.plannedAmt-e.actualAmt,dc=delta>=0?'delta-under':'delta-over',ds=delta>=0?`-${fmt(Math.abs(delta))}`:`+${fmt(Math.abs(delta))}`;
+    amtHtml=`<div class="entry-paid-row"><span class="entry-strike">${fmt(e.plannedAmt)}</span></div>
+      <div class="entry-paid-row"><span class="entry-actual-amt" style="color:${delta>=0?'#0f7a67':'var(--coral)'};">${fmt(e.actualAmt)}</span><span class="entry-delta ${dc}">${ds}</span></div>`;
+  } else {
+    amtHtml=`<div class="entry-planned">${fmt(e.plannedAmt)}</div><div class="entry-actual">planned</div>`;
+  }
+  const iconHtml=`<div style="width:26px;height:26px;border-radius:8px;background:${cat.bgCls};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="ti ${cat.icon}" style="font-size:13px;color:${cat.icCls};"></i></div>`;
+  return`<div class="entry-wrap" data-id="${e.id}">
+    <div class="entry-delete-reveal"><i class="ti ti-trash"></i><span>Delete</span></div>
+    <div class="entry ${borderClass}" onclick="openSheet(${e.id})">
+      ${iconHtml}
+      <div class="entry-body">
+        <div class="entry-name">${e.label}</div>
+        <div class="entry-meta">${timeStr?`<span>${timeStr}</span>`:''}${llSubLabel}${statusPill}</div>
+      </div>
+      <div class="entry-amts">${amtHtml}</div>
+    </div>
+  </div>`;
+}
+
+function changeDay(d){
+  currentDay=Math.max(0,Math.min(DAYS.length-1,currentDay+d));
+  selectedSheetDay=currentDay;
+  renderDayView();
+  document.getElementById('day-scroll').scrollTop=0;
+}
+
+// ─── SWIPE TO DELETE ───────────────────────────────────────────────────
+function attachSwipeListeners(){
+  document.querySelectorAll('.entry-wrap').forEach(wrap=>{
+    const card=wrap.querySelector('.entry');
+    let startX=0,startY=0,isDragging=false,hasMoved=false;
+    function onStart(x,y){startX=x;startY=y;isDragging=true;hasMoved=false;}
+    function onMove(x,y){
+      if(!isDragging)return;
+      const dx=x-startX,dy=y-startY;
+      if(Math.abs(dx)>4||Math.abs(dy)>4)hasMoved=true;
+      if(Math.abs(dx)>Math.abs(dy)&&dx<0){
+        card.style.transition='none';
+        card.style.transform=`translateX(${Math.max(-80,dx)}px)`;
+        card.classList.remove('swiped');
+      }
+    }
+    function onEnd(x){
+      if(!isDragging)return;
+      isDragging=false;
+      card.style.transition='';
+      if(x-startX<-50){
+        card.classList.add('swiped');card.style.transform='';
+        if(activeSwipeEl&&activeSwipeEl!==card)closeAnySwipe();
+        activeSwipeEl=card;
+      } else {
+        card.style.transform='';card.classList.remove('swiped');
+        if(activeSwipeEl===card)activeSwipeEl=null;
+      }
+    }
+    card.addEventListener('mousedown',e=>{onStart(e.clientX,e.clientY);});
+    document.addEventListener('mousemove',e=>{if(isDragging&&card.closest('.entry-wrap')===wrap)onMove(e.clientX,e.clientY);});
+    document.addEventListener('mouseup',e=>{if(isDragging&&card.closest('.entry-wrap')===wrap)onEnd(e.clientX);});
+    card.addEventListener('touchstart',e=>{onStart(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+    card.addEventListener('touchmove',e=>{
+      const dx=e.touches[0].clientX-startX,dy=e.touches[0].clientY-startY;
+      if(Math.abs(dx)>Math.abs(dy)&&dx<0)e.preventDefault();
+      onMove(e.touches[0].clientX,e.touches[0].clientY);
+    },{passive:false});
+    card.addEventListener('touchend',e=>{onEnd(e.changedTouches[0].clientX);});
+    wrap.querySelector('.entry-delete-reveal').addEventListener('click',()=>deleteEntry(parseInt(wrap.dataset.id)));
+  });
+}
+
+function closeAnySwipe(){
+  if(activeSwipeEl){activeSwipeEl.style.transition='';activeSwipeEl.classList.remove('swiped');activeSwipeEl.style.transform='';activeSwipeEl=null;}
+}
+document.addEventListener('click',e=>{if(activeSwipeEl&&!e.target.closest('.entry-wrap'))closeAnySwipe();});
+
+// ─── DASHBOARD ─────────────────────────────────────────────────────────
+function renderDashboard(){
+  const tot=totalSummary();
+  const totalBudget=Object.values(CATS).reduce((a,c)=>a+c.budgeted,0);
+  const pct=Math.round((tot.actual/totalBudget)*100);
+  document.getElementById('dash-bar').style.width=Math.min(100,pct)+'%';
+  document.getElementById('dash-sub').textContent=`${fmt(tot.planned)} planned · ${fmt(tot.actual)} spent · ${pct}% of budget used`;
+  document.getElementById('dash-foot-budget').textContent=fmt(totalBudget);
+  document.getElementById('dash-foot-planned').textContent=fmt(tot.planned);
+  document.getElementById('dash-foot-spent').textContent=fmt(tot.actual);
+  document.getElementById('dash-foot-remaining').textContent=fmt(totalBudget-tot.actual);
+  document.getElementById('dash-total').textContent=fmt(totalBudget);
+  document.getElementById('dash-remaining').textContent=fmt(totalBudget-tot.actual);
+  document.getElementById('dash-cat-rows').innerHTML=Object.keys(CATS).filter(key=>{
+    if(key==='resort'||key==='tickets') return !hasPackage();
+    if(key==='package') return hasPackage();
+    return true;
+  }).map(key=>{
+    const cat=CATS[key],s=catSummary(key);
+    const p=cat.budgeted>0?Math.min(100,Math.round((s.actual/cat.budgeted)*100)):0;
+    return`<div class="bc-cat-row" onclick="navToTracker('cat-detail','${key}')">
+      <div class="bc-cat-left"><div class="bc-cat-dot" style="background:${cat.color};"></div><div class="bc-cat-name">${cat.label}</div></div>
+      <div class="bc-cat-right"><span class="bc-cat-spent">${fmt(s.actual)} / ${fmt(cat.budgeted)}</span><div class="bc-cat-prog"><div class="bc-cat-prog-fill" style="width:${p}%;background:${cat.prog};"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── BUDGET SHEET ──────────────────────────────────────────────────────
+function startInlineBudget(key){
+  const disp=document.getElementById('cat-bgt-disp-'+key);
+  const inp=document.getElementById('cat-bgt-inp-'+key);
+  if(!disp||!inp)return;
+  disp.style.display='none';
+  inp.style.display='inline-block';
+  inp.value=CATS[key].budgeted;
+  inp.focus();inp.select();
+}
+function commitInlineRowBudget(key){
+  const disp=document.getElementById('cat-bgt-disp-'+key);
+  const inp=document.getElementById('cat-bgt-inp-'+key);
+  if(!inp||!disp)return;
+  const val=parseFloat(inp.value);
+  if(!isNaN(val)&&val>=0){
+    const changed=Math.round(val)!==CATS[key].budgeted;
+    CATS[key].budgeted=Math.round(val);
+    if(changed)showToast('Budget updated');
+    rerender();
+  } else {
+    inp.style.display='none';
+    disp.style.display='block';
+  }
+}
+
+// openBudgetSheet removed — inline editing used instead
+// saveBudgetSheet removed — inline editing used instead
+
+// ─── EXPENSE SHEET ─────────────────────────────────────────────────────
+function openSheet(entryId,presetCat){
+  closeAnySwipe();
+  editingId=entryId;
+  const isEdit=entryId!==null;
+  const entry=isEdit?entries.find(e=>e.id===entryId):null;
+  document.getElementById('sheet-title').textContent=isEdit?'Edit expense':'Add expense';
+  document.getElementById('save-btn-label').textContent=isEdit?'Save changes':'Save expense';
+  document.getElementById('sheet-trash').style.display=isEdit?'flex':'none';
+  if(isEdit&&entry){
+    plannedManuallySet=true;
+    selectedCat=entry.cat;selectedStatus=(entry.status==='planned'||!entry.status)?null:entry.status;
+    selectedLLType=entry.llType||'multipass';
+    selectedSheetDay=entry.day===0?0:entry.day-1;
+    document.getElementById('s-planned-amt').value=entry.plannedAmt;
+    document.getElementById('s-actual-amt').value=entry.actualAmt!=null?entry.actualAmt:'';
+    document.getElementById('s-label').value=entry.label;
+    document.getElementById('s-time').value=entry.time||'';
+  } else {
+    selectedCat=presetCat||'dining';selectedStatus=null;selectedLLType='multipass';
+    selectedSheetDay=currentDay;
+    plannedManuallySet=false;
+    document.getElementById('s-planned-amt').value='';
+    document.getElementById('s-actual-amt').value='';
+    document.getElementById('s-label').value='';
+    document.getElementById('s-time').value='';
+  }
+  document.querySelectorAll('[data-cat]').forEach(b=>b.classList.toggle('sel',b.dataset.cat===selectedCat));
+  syncStatusToggles();
+  document.querySelectorAll('[data-lltype]').forEach(b=>b.classList.toggle('sel',b.dataset.lltype===selectedLLType));
+  renderSheetDays();updateSheetFields();
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('sheet').classList.add('show');
+  setTimeout(()=>document.getElementById('s-planned-amt').focus(),300);
+}
+
+function renderSheetDays(){
+  document.getElementById('s-day-grid').innerHTML=DAYS.map((d,i)=>
+    `<button class="seg-btn${i===selectedSheetDay?' sel':''}" data-day="${i}" style="line-height:1.2;">Day ${d.num}<br><span style="font-size:9px;opacity:0.6;">${d.abbr}</span></button>`
+  ).join('');
+  document.querySelectorAll('[data-day]').forEach(b=>{
+    b.onclick=()=>{selectedSheetDay=parseInt(b.dataset.day);document.querySelectorAll('[data-day]').forEach(x=>x.classList.toggle('sel',x===b));};
+  });
+}
+function updateSheetFields(){
+  // Resort/tickets vs package rows — mutually exclusive based on booking type
+  const pkg=hasPackage();
+  document.getElementById('s-cat-resort-row').style.display=pkg?'none':'grid';
+  document.getElementById('s-cat-package-row').style.display=pkg?'grid':'none';
+  // Day picker: hide for trip-level categories
+  const isTripLevel=selectedCat&&CATS[selectedCat]?.scope==='trip';
+  document.getElementById('s-day-field').style.display=isTripLevel?'none':'block';
+  // LL sub-type row: only when LL selected
+  const isLL=selectedCat==='ll';
+  document.getElementById('s-ll-type-field').style.display=isLL?'block':'none';
+  // Time: dining, experience, transport always; LL only when singlepass
+  const showTime=CATS_WITH_TIME.has(selectedCat)||(isLL&&selectedLLType==='singlepass');
+  document.getElementById('s-time-field').style.display=showTime?'block':'none';
+  // Status: dining and experience only
+  document.getElementById('s-status-field').style.display=CATS_WITH_STATUS.has(selectedCat)?'block':'none';
+}
+function closeSheet(){
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('sheet').classList.remove('show');
+  editingId=null;
+}
+
+// ─── SAVE / DELETE ─────────────────────────────────────────────────────
+function saveEntry(){
+  let plannedAmt=parseFloat(document.getElementById('s-planned-amt').value);
+  let actualAmt=parseFloat(document.getElementById('s-actual-amt').value);
+  const hasPlanned=!isNaN(plannedAmt)&&plannedAmt>0;
+  const hasActual=!isNaN(actualAmt)&&actualAmt>0;
+  // Validation: at least one amount required
+  if(!hasPlanned&&!hasActual){
+    document.getElementById('s-planned-amt').parentElement.parentElement.style.outline='1.5px solid var(--coral)';
+    setTimeout(()=>document.getElementById('s-planned-amt').parentElement.parentElement.style.outline='',1400);return;
+  }
+  // Rule: actual only → copy to planned
+  if(!hasPlanned&&hasActual) plannedAmt=actualAmt;
+  // Rule: planned only → actual stays null
+  if(!hasActual) actualAmt=null;
+  const label=document.getElementById('s-label').value.trim()||CATS[selectedCat].label;
+  const isLL=selectedCat==='ll';
+  const llType=isLL?selectedLLType:undefined;
+  const showTime=CATS_WITH_TIME.has(selectedCat)||(isLL&&selectedLLType==='singlepass');
+  const time=showTime?(document.getElementById('s-time').value||null):null;
+  let status=CATS_WITH_STATUS.has(selectedCat)?(selectedStatus||'planned'):'planned';
+  // Auto-promote waitlist → confirmed when actual amount is recorded
+  if(status==='waitlist'&&hasActual) status='confirmed';
+  const dayVal=CATS[selectedCat]?.scope==='trip'?0:selectedSheetDay+1;
+  if(editingId!==null){
+    const idx=entries.findIndex(e=>e.id===editingId);
+    if(idx!==-1)entries[idx]={...entries[idx],cat:selectedCat,label,time,status,llType,plannedAmt,actualAmt,day:dayVal};
+    closeSheet();showToast('Changes saved');
+  } else {
+    entries.push({id:nextId++,day:dayVal,cat:selectedCat,label,time,status,llType,plannedAmt,actualAmt});
+    closeSheet();showToast('Expense added');
+  }
+  rerender();
+}
+function deleteEditing(){if(editingId!==null)deleteEntry(editingId);}
+function deleteEntry(id){entries=entries.filter(e=>e.id!==id);closeSheet();showToast('Expense deleted');rerender();}
+
+
+// ─── INLINE BUDGET EDIT (summary card) ────────────────────────────────
+function openInlineBudgetEdit(){
+  const disp=document.getElementById('cat-budget-display');
+  const inp=document.getElementById('cat-budget-input');
+  if(!disp||!inp)return;
+  disp.style.display='none';
+  inp.style.display='inline-block';
+  inp.value=CATS[currentCat].budgeted;
+  inp.focus();inp.select();
+}
+function commitInlineBudget(){
+  const inp=document.getElementById('cat-budget-input');
+  const disp=document.getElementById('cat-budget-display');
+  if(!inp||!disp)return;
+  const val=parseFloat(inp.value);
+  if(!isNaN(val)&&val>=0){
+    const changed=Math.round(val)!==CATS[currentCat].budgeted;
+    CATS[currentCat].budgeted=Math.round(val);
+    if(changed)showToast('Budget updated');
+    rerender();
+  }
+  // rerender() will rebuild the summary card, so no need to toggle manually
+}
+
+// ─── MIRROR ACTUAL → PLANNED ───────────────────────────────────────────────
+let plannedManuallySet=false;
+document.getElementById('s-planned-amt').addEventListener('input',()=>{
+  plannedManuallySet=true;
+});
+function copyPlannedToActual(){
+  const planned=document.getElementById('s-planned-amt').value;
+  if(!planned)return;
+  document.getElementById('s-actual-amt').value=planned;
+  // Stop mirroring since actual is now explicitly set
+  plannedManuallySet=true;
+}
+function mirrorActualToPlanned(val){
+  const planned=document.getElementById('s-planned-amt');
+  if(!plannedManuallySet||!planned.value){
+    planned.value=val;
+  }
+}
+
+// ─── STATUS TOGGLES ────────────────────────────────────────────────────────
+function toggleStatus(val){
+  selectedStatus=selectedStatus===val?null:val;
+  syncStatusToggles();
+}
+function syncStatusToggles(){
+  const conf=document.getElementById('toggle-confirmed');
+  const wait=document.getElementById('toggle-waitlist');
+  if(!conf||!wait)return;
+  conf.classList.remove('active-confirmed','active-waitlist');
+  wait.classList.remove('active-confirmed','active-waitlist');
+  if(selectedStatus==='confirmed') conf.classList.add('active-confirmed');
+  if(selectedStatus==='waitlist')  wait.classList.add('active-waitlist');
+}
+
+// ─── WIRE BUTTONS ──────────────────────────────────────────────────────
+document.querySelectorAll('[data-lltype]').forEach(b=>{b.onclick=()=>{selectedLLType=b.dataset.lltype;document.querySelectorAll('[data-lltype]').forEach(x=>x.classList.toggle('sel',x===b));updateSheetFields();};});
+document.querySelectorAll('[data-cat]').forEach(b=>{b.onclick=()=>{selectedCat=b.dataset.cat;document.querySelectorAll('[data-cat]').forEach(x=>x.classList.toggle('sel',x===b));updateSheetFields();};});
+
+// ─── INIT ──────────────────────────────────────────────────────────────
+updateSheetFields();
+renderDashboard();
+renderDayView();
+</script>
+</body>
+</html>

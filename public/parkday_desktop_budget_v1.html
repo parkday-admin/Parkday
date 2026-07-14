@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parkday — Desktop Budget Mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;--bg:#F0EDE8;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);}
+
+.frame{display:flex;background:var(--bg);min-height:100vh;}
+
+.sidebar{width:220px;background:var(--night);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-logo{padding:18px 16px 14px;display:flex;align-items:center;gap:9px;border-bottom:0.5px solid rgba(255,255,255,.07);}
+.sb-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-mark i{color:#fff;font-size:13px;}
+.sb-name{font-size:15px;font-weight:500;color:#fff;font-family:'Fraunces',serif;}
+.sb-trip{padding:12px 14px;border-bottom:0.5px solid rgba(255,255,255,.07);}
+.sb-trip-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.sb-trip-name{font-size:13px;font-weight:500;color:#fff;margin-bottom:2px;}
+.sb-trip-dates{font-size:11px;color:rgba(255,255,255,.4);}
+.sb-trip-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;}
+.sb-nav{padding:10px 10px;flex:1;}
+.sb-section-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;padding:0 6px;margin-bottom:4px;margin-top:10px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;margin-bottom:2px;}
+.nav-item.active{background:rgba(255,255,255,.1);}
+.nav-item:hover{background:rgba(255,255,255,.06);}
+.nav-item i{font-size:15px;color:rgba(255,255,255,.4);flex-shrink:0;}
+.nav-item.active i{color:var(--mint);}
+.nav-item span{font-size:12px;font-weight:500;color:rgba(255,255,255,.4);}
+.nav-item.active span{color:#fff;}
+.nav-future{opacity:.35;}
+.sb-ai{padding:12px 14px;border-top:0.5px solid rgba(255,255,255,.07);}
+.ai-btn{background:rgba(246,184,75,.12);border:0.5px solid rgba(246,184,75,.25);border-radius:9px;padding:9px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.ai-btn i{font-size:14px;color:var(--gold);}
+.ai-btn-text{font-size:11px;font-weight:500;color:var(--gold);}
+.ai-btn-sub{font-size:10px;color:rgba(246,184,75,.55);margin-top:1px;}
+.sb-user{padding:10px 14px;border-top:0.5px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:8px;}
+.sb-avatar{width:26px;height:26px;border-radius:50%;background:rgba(74,144,226,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--mint);flex-shrink:0;}
+.sb-uname{font-size:11px;color:rgba(255,255,255,.5);flex:1;}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--white);border-bottom:0.5px solid var(--n12);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-title{font-size:15px;font-weight:500;color:var(--night);}
+.tb-sub{font-size:11px;color:rgba(30,42,68,.4);margin-top:1px;}
+.tb-btn{background:var(--sky);border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.tb-btn i{font-size:13px;}
+
+.content{padding:18px 24px 40px;max-width:760px;}
+
+.hero{background:var(--night);border-radius:12px;padding:16px 20px;margin-bottom:16px;}
+.hero-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;}
+.hc-stat{padding:0 14px;min-width:0;}
+.hc-stat:first-child{padding-left:0;}
+.hc-stat+.hc-stat{border-left:0.5px solid rgba(255,255,255,.08);}
+.hc-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;white-space:nowrap;}
+.hc-val{font-family:'Fraunces',serif;font-size:19px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.hc-val.gold{color:var(--gold);}
+.hc-val.mint{color:var(--mint);}
+.hc-val.coral{color:var(--coral);}
+.hc-val.muted{color:rgba(255,255,255,.6);}
+.hero-meta{font-size:10px;color:rgba(255,255,255,.3);margin-top:14px;}
+.hero-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:6px;}
+.hero-bar-fill{height:100%;background:var(--gold);border-radius:2px;}
+
+.cat-stack{display:flex;flex-direction:column;gap:8px;}
+.cat-card{background:var(--white);border:0.5px solid var(--n12);border-radius:12px;overflow:hidden;}
+.cat-hdr{padding:12px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.cat-hdr:hover{background:rgba(30,42,68,.015);}
+.cat-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cat-icon i{font-size:15px;}
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-size:13px;font-weight:500;color:var(--night);}
+.cat-meta{font-size:11px;color:rgba(30,42,68,.45);margin-top:2px;}
+.cat-track{height:4px;background:var(--n08);border-radius:2px;overflow:hidden;margin-top:7px;max-width:220px;}
+.cat-fill{height:100%;border-radius:2px;}
+.cat-amounts{text-align:right;flex-shrink:0;}
+.cat-budgeted{font-family:'Fraunces',serif;font-size:16px;color:var(--night);}
+.cat-pct{font-size:10px;color:rgba(30,42,68,.4);margin-top:1px;}
+.cat-chevron{color:rgba(30,42,68,.25);font-size:15px;margin-left:6px;flex-shrink:0;transition:transform 0.15s;}
+.cat-card.expanded .cat-chevron{transform:rotate(90deg);}
+
+.cat-entries{border-top:0.5px solid rgba(30,42,68,.07);}
+.entry-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:0.5px solid rgba(30,42,68,.05);}
+.entry-row:last-child{border-bottom:none;}
+.entry-row.paid{border-left:3px solid var(--mint);}
+.entry-row.confirmed{border-left:3px solid var(--sky);}
+.entry-icon{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(30,42,68,.05);}
+.entry-icon i{font-size:12px;color:rgba(30,42,68,.5);}
+.entry-name{font-size:12px;font-weight:500;color:var(--night);}
+.entry-meta{font-size:10px;color:rgba(30,42,68,.4);margin-top:2px;}
+.entry-amts{text-align:right;flex-shrink:0;margin-left:auto;}
+.entry-planned{font-size:13px;font-weight:500;color:var(--night);}
+.entry-strike{font-size:10px;color:rgba(30,42,68,.3);text-decoration:line-through;}
+.entry-actual{font-size:12px;font-weight:600;}
+.pill{display:inline-flex;align-items:center;padding:1px 6px;border-radius:20px;font-size:9px;font-weight:500;margin-left:6px;}
+.pill-blue{background:rgba(74,144,226,.12);color:#185FA5;}
+.add-entry-row{padding:9px 16px;font-size:11px;color:var(--sky);cursor:pointer;display:flex;align-items:center;gap:5px;}
+.add-entry-row i{font-size:13px;}
+.add-entry-row:hover{background:rgba(30,42,68,.02);}
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-mark"><i class="ti ti-map-2"></i></div>
+      <span class="sb-name">Parkday</span>
+    </div>
+    <div class="sb-trip">
+      <div class="sb-trip-lbl">Current trip</div>
+      <div class="sb-trip-name">Orlando 2026</div>
+      <div class="sb-trip-dates">Aug 10 – 15 · Caribbean Beach</div>
+      <div class="sb-trip-sub">2 adults · 1 child · 4 park days</div>
+    </div>
+    <div class="sb-nav">
+      <div class="nav-item"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
+      <div class="nav-item active"><i class="ti ti-chart-pie"></i><span>Budget</span></div>
+      <div class="nav-item"><i class="ti ti-calendar"></i><span>Itinerary</span></div>
+      <div class="sb-section-lbl">Planning</div>
+      <div class="nav-item nav-future"><i class="ti ti-credit-card"></i><span>Payments</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-gift"></i><span>Rewards</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-bell"></i><span>Reminders</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-backpack"></i><span>Packing list</span></div>
+      <div class="sb-section-lbl">Account</div>
+      <div class="nav-item nav-future"><i class="ti ti-settings"></i><span>Trip settings</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-user"></i><span>Profile</span></div>
+    </div>
+    <div class="sb-ai">
+      <div class="ai-btn">
+        <i class="ti ti-sparkles"></i>
+        <div><div class="ai-btn-text">Planning assistant</div><div class="ai-btn-sub">47 days out</div></div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-avatar">N</div>
+      <div class="sb-uname">Nick</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="tb-title">Budget</div>
+        <div class="tb-sub">By category · click any row to expand entries</div>
+      </div>
+      <div class="tb-btn"><i class="ti ti-plus"></i> Add expense</div>
+    </div>
+
+    <div class="content">
+
+      <div class="hero">
+        <div class="hero-cols">
+          <div class="hc-stat"><div class="hc-lbl">Budgeted</div><div class="hc-val" style="color:#fff;">$7,500</div></div>
+          <div class="hc-stat"><div class="hc-lbl">Planned</div><div class="hc-val muted">$4,320</div></div>
+          <div class="hc-stat"><div class="hc-lbl">Spent</div><div class="hc-val coral">$1,840</div></div>
+          <div class="hc-stat"><div class="hc-lbl">Remaining</div><div class="hc-val mint">$5,660</div></div>
+        </div>
+        <div class="hero-bar"><div class="hero-bar-fill" style="width:25%"></div></div>
+        <div class="hero-meta">25% of budget used</div>
+      </div>
+
+      <div class="cat-stack" id="cat-stack">
+
+        <div class="cat-card" data-cat="resort">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(74,144,226,.12)"><i class="ti ti-building-castle" style="color:#185FA5"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Resort</div>
+              <div class="cat-meta">$1,380 spent · $2,200 budgeted · 1 entry</div>
+              <div class="cat-track"><div class="cat-fill" style="width:63%;background:var(--sky)"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$2,200</div><div class="cat-pct">63% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries" style="display:none;">
+            <div class="entry-row paid">
+              <div class="entry-icon"><i class="ti ti-building-castle"></i></div>
+              <div style="flex:1;"><div class="entry-name">Caribbean Beach Resort <span class="pill pill-blue">Confirmed</span></div><div class="entry-meta">5 nights · trip total</div></div>
+              <div class="entry-amts"><div class="entry-strike">$2,200</div><div class="entry-actual" style="color:#0f7a67;">$1,380</div></div>
+            </div>
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+        <div class="cat-card expanded" data-cat="dining">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(246,184,75,.15)"><i class="ti ti-tools-kitchen-2" style="color:#7a4a00"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Dining</div>
+              <div class="cat-meta">$320 spent · $1,400 budgeted · 4 entries</div>
+              <div class="cat-track"><div class="cat-fill" style="width:23%;background:var(--gold)"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$1,400</div><div class="cat-pct">23% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries">
+            <div class="entry-row paid">
+              <div class="entry-icon"><i class="ti ti-tools-kitchen-2"></i></div>
+              <div style="flex:1;"><div class="entry-name">Be Our Guest — Lunch</div><div class="entry-meta">Day 1 · 12:30pm</div></div>
+              <div class="entry-amts"><div class="entry-strike">$180</div><div class="entry-actual" style="color:var(--coral);">$214</div></div>
+            </div>
+            <div class="entry-row confirmed">
+              <div class="entry-icon"><i class="ti ti-tools-kitchen-2"></i></div>
+              <div style="flex:1;"><div class="entry-name">Space 220 — Dinner <span class="pill pill-blue">Confirmed</span></div><div class="entry-meta">Day 2 · 7:00pm</div></div>
+              <div class="entry-amts"><div class="entry-planned">$220</div></div>
+            </div>
+            <div class="entry-row">
+              <div class="entry-icon"><i class="ti ti-tools-kitchen-2"></i></div>
+              <div style="flex:1;"><div class="entry-name">Quick service — Lunch</div><div class="entry-meta">Day 2 · 12:00pm</div></div>
+              <div class="entry-amts"><div class="entry-planned">$45</div></div>
+            </div>
+            <div class="entry-row confirmed">
+              <div class="entry-icon"><i class="ti ti-tools-kitchen-2"></i></div>
+              <div style="flex:1;"><div class="entry-name">50's Prime Time — Lunch <span class="pill pill-blue">Confirmed</span></div><div class="entry-meta">Day 3 · 12:00pm</div></div>
+              <div class="entry-amts"><div class="entry-planned">$90</div></div>
+            </div>
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+        <div class="cat-card" data-cat="tickets">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(126,214,196,.18)"><i class="ti ti-ticket" style="color:#0f7a67"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Park tickets</div>
+              <div class="cat-meta">$0 spent · $1,600 budgeted · 1 entry</div>
+              <div class="cat-track"><div class="cat-fill" style="width:0%"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$1,600</div><div class="cat-pct">0% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries" style="display:none;">
+            <div class="entry-row confirmed">
+              <div class="entry-icon"><i class="ti ti-ticket"></i></div>
+              <div style="flex:1;"><div class="entry-name">4-day Base tickets <span class="pill pill-blue">Confirmed</span></div><div class="entry-meta">3 guests · trip total</div></div>
+              <div class="entry-amts"><div class="entry-planned">$1,600</div></div>
+            </div>
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+        <div class="cat-card" data-cat="ll">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(246,184,75,.15)"><i class="ti ti-bolt" style="color:#7a4a00"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Lightning Lane</div>
+              <div class="cat-meta">$140 spent · $600 budgeted · 2 entries</div>
+              <div class="cat-track"><div class="cat-fill" style="width:23%;background:var(--gold)"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$600</div><div class="cat-pct">23% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries" style="display:none;">
+            <div class="entry-row paid">
+              <div class="entry-icon"><i class="ti ti-bolt"></i></div>
+              <div style="flex:1;"><div class="entry-name">Multi Pass — Day 1</div><div class="entry-meta">Day 1 · Magic Kingdom</div></div>
+              <div class="entry-amts"><div class="entry-strike">$75</div><div class="entry-actual" style="color:#0f7a67;">$70</div></div>
+            </div>
+            <div class="entry-row paid">
+              <div class="entry-icon"><i class="ti ti-bolt"></i></div>
+              <div style="flex:1;"><div class="entry-name">Multi Pass — Day 2</div><div class="entry-meta">Day 2 · EPCOT</div></div>
+              <div class="entry-amts"><div class="entry-strike">$75</div><div class="entry-actual" style="color:#0f7a67;">$70</div></div>
+            </div>
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+        <div class="cat-card" data-cat="travel">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(74,144,226,.1)"><i class="ti ti-plane" style="color:#185FA5"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Travel</div>
+              <div class="cat-meta">$0 spent · $900 budgeted · 1 entry</div>
+              <div class="cat-track"><div class="cat-fill" style="width:0%"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$900</div><div class="cat-pct">0% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries" style="display:none;">
+            <div class="entry-row confirmed">
+              <div class="entry-icon"><i class="ti ti-plane"></i></div>
+              <div style="flex:1;"><div class="entry-name">Round-trip flights <span class="pill pill-blue">Confirmed</span></div><div class="entry-meta">3 guests · trip total</div></div>
+              <div class="entry-amts"><div class="entry-planned">$900</div></div>
+            </div>
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+        <div class="cat-card" data-cat="experiences">
+          <div class="cat-hdr" onclick="toggleCat(this)">
+            <div class="cat-icon" style="background:rgba(255,122,107,.12)"><i class="ti ti-stars" style="color:#c03a2b"></i></div>
+            <div class="cat-info">
+              <div class="cat-name">Experiences</div>
+              <div class="cat-meta">$0 spent · $500 budgeted · 0 entries</div>
+              <div class="cat-track"><div class="cat-fill" style="width:0%"></div></div>
+            </div>
+            <div class="cat-amounts"><div class="cat-budgeted">$500</div><div class="cat-pct">0% used</div></div>
+            <i class="ti ti-chevron-right cat-chevron"></i>
+          </div>
+          <div class="cat-entries" style="display:none;">
+            <div class="add-entry-row"><i class="ti ti-plus"></i> Add entry</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleCat(hdr){
+  const card = hdr.closest('.cat-card');
+  const entries = card.querySelector('.cat-entries');
+  const isOpen = entries.style.display !== 'none';
+  entries.style.display = isOpen ? 'none' : 'block';
+  card.classList.toggle('expanded', !isOpen);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parkday — Desktop Dashboard Mockup</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --night:#1E2A44;--sky:#4A90E2;--gold:#F6B84B;--coral:#FF7A6B;--mint:#7ED6C4;
+  --cream:#FFF8EC;--white:#FFFFFF;--ink:#20242C;--bg:#F0EDE8;
+  --n12:rgba(30,42,68,0.12);--n08:rgba(30,42,68,0.07);--n04:rgba(30,42,68,0.04);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);}
+
+.frame{display:flex;background:var(--bg);min-height:100vh;}
+
+.sidebar{width:220px;background:var(--night);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-logo{padding:18px 16px 14px;display:flex;align-items:center;gap:9px;border-bottom:0.5px solid rgba(255,255,255,.07);}
+.sb-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--sky),var(--mint));border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-mark i{color:#fff;font-size:13px;}
+.sb-name{font-size:15px;font-weight:500;color:#fff;font-family:'Fraunces',serif;}
+.sb-trip{padding:12px 14px;border-bottom:0.5px solid rgba(255,255,255,.07);}
+.sb-trip-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.sb-trip-name{font-size:13px;font-weight:500;color:#fff;margin-bottom:2px;}
+.sb-trip-dates{font-size:11px;color:rgba(255,255,255,.4);}
+.sb-trip-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;}
+.sb-trip-switch{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;opacity:.4;}
+.sb-trip-switch i{font-size:11px;}
+.sb-nav{padding:10px 10px;flex:1;}
+.sb-section-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.08em;padding:0 6px;margin-bottom:4px;margin-top:10px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;margin-bottom:2px;}
+.nav-item.active{background:rgba(255,255,255,.1);}
+.nav-item:hover{background:rgba(255,255,255,.06);}
+.nav-item i{font-size:15px;color:rgba(255,255,255,.4);flex-shrink:0;}
+.nav-item.active i{color:var(--mint);}
+.nav-item span{font-size:12px;font-weight:500;color:rgba(255,255,255,.4);}
+.nav-item.active span{color:#fff;}
+.nav-badge{margin-left:auto;background:rgba(255,122,107,.3);border-radius:20px;padding:1px 6px;font-size:9px;font-weight:500;color:var(--coral);}
+.nav-future{opacity:.35;}
+.sb-ai{padding:12px 14px;border-top:0.5px solid rgba(255,255,255,.07);}
+.ai-btn{background:rgba(246,184,75,.12);border:0.5px solid rgba(246,184,75,.25);border-radius:9px;padding:9px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.ai-btn i{font-size:14px;color:var(--gold);}
+.ai-btn-text{font-size:11px;font-weight:500;color:var(--gold);}
+.ai-btn-sub{font-size:10px;color:rgba(246,184,75,.55);margin-top:1px;}
+.sb-user{padding:10px 14px;border-top:0.5px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:8px;}
+.sb-avatar{width:26px;height:26px;border-radius:50%;background:rgba(74,144,226,.3);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--mint);flex-shrink:0;}
+.sb-uname{font-size:11px;color:rgba(255,255,255,.5);flex:1;}
+.sb-dots i{font-size:14px;color:rgba(255,255,255,.25);}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--white);border-bottom:0.5px solid var(--n12);padding:11px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.tb-title{font-size:15px;font-weight:500;color:var(--night);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-countdown{background:var(--night);border-radius:8px;padding:5px 12px;display:flex;align-items:baseline;gap:5px;}
+.tb-days{font-family:'Fraunces',serif;font-size:18px;color:var(--gold);line-height:1;}
+.tb-dlbl{font-size:10px;color:rgba(255,255,255,.4);}
+.tb-icon-btn{width:32px;height:32px;border-radius:8px;border:0.5px solid var(--n12);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.tb-icon-btn i{font-size:15px;color:rgba(30,42,68,.5);}
+.alert-bar{background:rgba(255,122,107,.08);border-bottom:0.5px solid rgba(255,122,107,.2);padding:8px 24px;display:flex;align-items:center;gap:10px;cursor:pointer;}
+.alert-dot{width:6px;height:6px;border-radius:50%;background:var(--coral);flex-shrink:0;}
+.alert-text{font-size:12px;font-weight:500;color:#c03a2b;flex:1;}
+.alert-action{font-size:11px;color:var(--coral);display:flex;align-items:center;gap:3px;white-space:nowrap;}
+.alert-action i{font-size:12px;}
+
+.content{padding:16px 24px 40px;display:flex;flex-direction:column;gap:14px;max-width:1100px;}
+
+.panel{background:var(--white);border:0.5px solid var(--n12);border-radius:12px;overflow:hidden;}
+.panel-hdr{padding:10px 14px;border-bottom:0.5px solid var(--n08);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:12px;font-weight:500;color:var(--night);display:flex;align-items:center;gap:6px;}
+.panel-title i{font-size:14px;color:rgba(30,42,68,.35);}
+.panel-action{font-size:11px;color:var(--sky);cursor:pointer;}
+.panel-future-badge{font-size:9px;font-weight:500;padding:1px 6px;border-radius:20px;background:rgba(246,184,75,.15);color:#7a4a00;}
+.future-overlay{position:relative;}
+.future-tag{position:absolute;top:9px;right:10px;background:rgba(246,184,75,.15);border:0.5px solid rgba(246,184,75,.3);border-radius:20px;padding:2px 7px;font-size:9px;font-weight:500;color:#7a4a00;z-index:1;}
+
+.budget-dark{background:var(--night);padding:14px 16px;}
+.budget-cols{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;}
+.bc-stat{padding:0 14px;}
+.bc-stat:first-child{padding-left:0;}
+.bc-stat+.bc-stat{border-left:0.5px solid rgba(255,255,255,.08);}
+.bc-lbl{font-size:9px;font-weight:500;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.bc-val{font-family:'Fraunces',serif;font-size:22px;line-height:1;}
+.bc-val.gold{color:var(--gold);}
+.bc-val.mint{color:var(--mint);}
+.bc-val.coral{color:var(--coral);}
+.bc-val.muted{color:rgba(255,255,255,.6);}
+.budget-bar{height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:12px;}
+.budget-bar-fill{height:100%;background:var(--gold);border-radius:2px;}
+.budget-cats{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px 32px;}
+.bcat-row{display:flex;align-items:center;gap:8px;}
+.bcat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.bcat-name{font-size:11px;color:var(--night);flex:1;}
+.bcat-track{width:80px;height:3px;background:var(--n08);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.bcat-fill{height:100%;border-radius:2px;}
+.bcat-amt{font-size:11px;color:rgba(30,42,68,.4);white-space:nowrap;min-width:90px;text-align:right;}
+
+.itin-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;}
+.itin-col{padding:12px 14px;border-right:0.5px solid var(--n08);}
+.itin-col:last-child{border-right:none;}
+.itin-chip{width:32px;height:32px;background:var(--night);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:8px;}
+.itin-chip.empty{background:var(--n08);}
+.itin-num{font-family:'Fraunces',serif;font-size:13px;color:#fff;line-height:1;}
+.itin-chip.empty .itin-num{color:rgba(30,42,68,.25);}
+.itin-dow{font-size:8px;color:rgba(255,255,255,.35);text-transform:uppercase;}
+.itin-park{font-size:11px;font-weight:500;color:var(--night);margin-bottom:3px;line-height:1.3;}
+.itin-park.empty{color:rgba(30,42,68,.3);}
+.itin-date{font-size:10px;color:rgba(30,42,68,.4);margin-bottom:6px;}
+.itin-amt{font-size:13px;font-weight:500;color:var(--night);margin-top:6px;}
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:500;}
+.pill-blue{background:rgba(74,144,226,.12);color:#185FA5;}
+.pill-green{background:rgba(126,214,196,.2);color:#0f7a67;}
+.pill-gray{background:var(--n08);color:rgba(30,42,68,.4);}
+
+.actions-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;}
+.action-col{padding:12px 16px;border-right:0.5px solid var(--n08);}
+.action-col:last-child{border-right:none;}
+.action-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:9px;}
+.action-icon i{font-size:15px;}
+.action-title{font-size:12px;font-weight:500;color:var(--night);margin-bottom:3px;}
+.action-sub{font-size:10px;color:rgba(30,42,68,.4);line-height:1.5;}
+.action-urgency{font-size:10px;font-weight:500;margin-top:5px;}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.payment-row{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:0.5px solid var(--n08);}
+.payment-row:last-child{border-bottom:none;}
+.pay-lbl{font-size:11px;font-weight:500;color:var(--night);}
+.pay-sub{font-size:10px;color:rgba(30,42,68,.4);margin-top:1px;}
+.pay-amt{font-size:12px;font-weight:500;color:var(--night);text-align:right;}
+.pay-status{font-size:10px;margin-top:1px;text-align:right;}
+.rewards-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:0.5px solid var(--n08);}
+.rewards-row:last-child{border-bottom:none;}
+.rewards-icon{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rewards-icon i{font-size:12px;}
+.rewards-name{font-size:11px;color:var(--night);flex:1;}
+.rewards-bal{font-size:11px;font-weight:500;color:#0f7a67;}
+.rewards-total{padding:9px 14px;border-top:0.5px solid var(--n08);display:flex;justify-content:space-between;align-items:baseline;}
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-mark"><i class="ti ti-map-2"></i></div>
+      <span class="sb-name">Parkday</span>
+    </div>
+    <div class="sb-trip">
+      <div class="sb-trip-lbl">Current trip</div>
+      <div class="sb-trip-name">Orlando 2026</div>
+      <div class="sb-trip-dates">Aug 10 – 15 · Caribbean Beach</div>
+      <div class="sb-trip-sub">2 adults · 1 child · 4 park days</div>
+      <div class="sb-trip-switch"><i class="ti ti-chevron-down"></i> Switch trip</div>
+    </div>
+    <div class="sb-nav">
+      <div class="nav-item active"><i class="ti ti-layout-dashboard"></i><span>Dashboard</span></div>
+      <div class="nav-item"><i class="ti ti-chart-pie"></i><span>Budget</span></div>
+      <div class="nav-item"><i class="ti ti-calendar"></i><span>Itinerary</span><span class="nav-badge">2</span></div>
+      <div class="sb-section-lbl">Planning</div>
+      <div class="nav-item nav-future"><i class="ti ti-credit-card"></i><span>Payments</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-gift"></i><span>Rewards</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-bell"></i><span>Reminders</span><span class="nav-badge">3</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-backpack"></i><span>Packing list</span></div>
+      <div class="sb-section-lbl">Account</div>
+      <div class="nav-item nav-future"><i class="ti ti-settings"></i><span>Trip settings</span></div>
+      <div class="nav-item nav-future"><i class="ti ti-user"></i><span>Profile</span></div>
+    </div>
+    <div class="sb-ai">
+      <div class="ai-btn">
+        <i class="ti ti-sparkles"></i>
+        <div>
+          <div class="ai-btn-text">Planning assistant</div>
+          <div class="ai-btn-sub">47 days out · ADR window soon</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-user">
+      <div class="sb-avatar">N</div>
+      <div class="sb-uname">Nick</div>
+      <div class="sb-dots"><i class="ti ti-dots"></i></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="tb-title">Dashboard</div>
+      <div class="tb-right">
+        <div class="tb-countdown"><div class="tb-days">47</div><div class="tb-dlbl">days to go</div></div>
+        <div class="tb-icon-btn"><i class="ti ti-bell"></i></div>
+        <div class="tb-icon-btn"><i class="ti ti-settings"></i></div>
+      </div>
+    </div>
+
+    <div class="alert-bar">
+      <div class="alert-dot"></div>
+      <div class="alert-text">ADR window opens Jun 23 at midnight ET — 17 days to prepare your dining reservations</div>
+      <div class="alert-action">Get ready <i class="ti ti-chevron-right"></i></div>
+    </div>
+
+    <div class="content">
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><i class="ti ti-chart-pie"></i> Budget overview</div>
+          <div class="panel-action">View full budget</div>
+        </div>
+        <div class="budget-dark">
+          <div class="budget-cols">
+            <div class="bc-stat"><div class="bc-lbl">Budgeted</div><div class="bc-val gold">$7,500</div></div>
+            <div class="bc-stat"><div class="bc-lbl">Planned</div><div class="bc-val muted">$4,320</div></div>
+            <div class="bc-stat"><div class="bc-lbl">Spent</div><div class="bc-val coral">$1,840</div></div>
+            <div class="bc-stat"><div class="bc-lbl">Remaining</div><div class="bc-val mint">$5,660</div></div>
+          </div>
+          <div class="budget-bar"><div class="budget-bar-fill" style="width:25%"></div></div>
+        </div>
+        <div class="budget-cats">
+          <div class="bcat-row"><div class="bcat-dot" style="background:var(--sky)"></div><div class="bcat-name">Resort</div><div class="bcat-track"><div class="bcat-fill" style="width:63%;background:var(--sky)"></div></div><div class="bcat-amt">$1,380 / $2,200</div></div>
+          <div class="bcat-row"><div class="bcat-dot" style="background:var(--gold)"></div><div class="bcat-name">Dining</div><div class="bcat-track"><div class="bcat-fill" style="width:23%;background:var(--gold)"></div></div><div class="bcat-amt">$320 / $1,400</div></div>
+          <div class="bcat-row"><div class="bcat-dot" style="background:var(--mint)"></div><div class="bcat-name">Tickets and LL</div><div class="bcat-track"><div class="bcat-fill" style="width:6%;background:var(--mint)"></div></div><div class="bcat-amt">$140 / $2,200</div></div>
+          <div class="bcat-row"><div class="bcat-dot" style="background:var(--coral)"></div><div class="bcat-name">Experiences</div><div class="bcat-track"><div class="bcat-fill" style="width:0%"></div></div><div class="bcat-amt">$0 / $500</div></div>
+          <div class="bcat-row"><div class="bcat-dot" style="background:rgba(30,42,68,.2)"></div><div class="bcat-name">Souvenirs</div><div class="bcat-track"><div class="bcat-fill" style="width:0%"></div></div><div class="bcat-amt">$0 / $400</div></div>
+          <div class="bcat-row"><div class="bcat-dot" style="background:rgba(30,42,68,.15)"></div><div class="bcat-name">Transport</div><div class="bcat-track"><div class="bcat-fill" style="width:0%"></div></div><div class="bcat-amt">$0 / $200</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><i class="ti ti-calendar"></i> Itinerary</div>
+          <div class="panel-action">View all days</div>
+        </div>
+        <div class="itin-grid">
+          <div class="itin-col">
+            <div class="itin-chip"><div class="itin-num">1</div><div class="itin-dow">Mon</div></div>
+            <div class="itin-park">Magic Kingdom</div>
+            <div class="itin-date">Aug 10 · 5 entries</div>
+            <div><span class="pill pill-green">Planned</span></div>
+            <div class="itin-amt">$550</div>
+          </div>
+          <div class="itin-col">
+            <div class="itin-chip"><div class="itin-num">2</div><div class="itin-dow">Tue</div></div>
+            <div class="itin-park">EPCOT</div>
+            <div class="itin-date">Aug 11 · 4 entries</div>
+            <div><span class="pill pill-green">Planned</span></div>
+            <div class="itin-amt">$400</div>
+          </div>
+          <div class="itin-col">
+            <div class="itin-chip"><div class="itin-num">3</div><div class="itin-dow">Wed</div></div>
+            <div class="itin-park">Hollywood Studios</div>
+            <div class="itin-date">Aug 12 · 4 entries</div>
+            <div><span class="pill pill-blue">Partial</span></div>
+            <div class="itin-amt">$545</div>
+          </div>
+          <div class="itin-col">
+            <div class="itin-chip empty"><div class="itin-num">4</div><div class="itin-dow">Thu</div></div>
+            <div class="itin-park empty">Animal Kingdom</div>
+            <div class="itin-date">Aug 13 · no entries</div>
+            <div><span class="pill pill-gray">Not started</span></div>
+          </div>
+          <div class="itin-col">
+            <div class="itin-chip empty"><div class="itin-num">5</div><div class="itin-dow">Fri</div></div>
+            <div class="itin-park empty">Resort / pool day</div>
+            <div class="itin-date">Aug 14 · no entries</div>
+            <div><span class="pill pill-gray">Not started</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr">
+          <div class="panel-title"><i class="ti ti-bell"></i> Upcoming actions</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="panel-future-badge">Reminders screen coming soon</div>
+            <div class="panel-action">View all</div>
+          </div>
+        </div>
+        <div class="actions-grid">
+          <div class="action-col">
+            <div class="action-icon" style="background:rgba(255,122,107,.1)"><i class="ti ti-tools-kitchen-2" style="color:var(--coral)"></i></div>
+            <div class="action-title">ADR window opens</div>
+            <div class="action-sub">Jun 23 at midnight ET · Book dining reservations via My Disney Experience</div>
+            <div class="action-urgency" style="color:var(--coral)">17 days · urgent</div>
+          </div>
+          <div class="action-col">
+            <div class="action-icon" style="background:rgba(246,184,75,.12)"><i class="ti ti-credit-card" style="color:#7a4a00"></i></div>
+            <div class="action-title">Final payment due</div>
+            <div class="action-sub">Jul 11 · Disney auto-charges the remaining balance 30 days before check-in</div>
+            <div class="action-urgency" style="color:var(--gold)">12 days · soon</div>
+          </div>
+          <div class="action-col">
+            <div class="action-icon" style="background:rgba(74,144,226,.1)"><i class="ti ti-bolt" style="color:#185FA5"></i></div>
+            <div class="action-title">Lightning Lane booking</div>
+            <div class="action-sub">Opens Aug 3 · Disney resort guests can book 7 days before each park day</div>
+            <div class="action-urgency" style="color:var(--sky)">35 days · upcoming</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel future-overlay">
+          <div class="future-tag">Coming soon</div>
+          <div class="panel-hdr">
+            <div class="panel-title"><i class="ti ti-credit-card"></i> Reservation payments</div>
+          </div>
+          <div class="payment-row">
+            <div><div class="pay-lbl">Deposit paid</div><div class="pay-sub">Booked Jun 1, 2026</div></div>
+            <div><div class="pay-amt">$530</div><div class="pay-status" style="color:#0f7a67">Paid</div></div>
+          </div>
+          <div class="payment-row">
+            <div><div class="pay-lbl">Balance due</div><div class="pay-sub">Auto-charged Jul 11 · 30 days out</div></div>
+            <div><div class="pay-amt">$3,820</div><div class="pay-status" style="color:var(--coral)">Due in 12 days</div></div>
+          </div>
+          <div class="payment-row">
+            <div><div class="pay-lbl">Total package</div><div class="pay-sub">Resort + tickets · Vacation Package</div></div>
+            <div><div class="pay-amt">$4,350</div><div class="pay-status" style="color:rgba(30,42,68,.35)">Disney booking</div></div>
+          </div>
+        </div>
+
+        <div class="panel future-overlay">
+          <div class="future-tag">Coming soon</div>
+          <div class="panel-hdr">
+            <div class="panel-title"><i class="ti ti-gift"></i> Rewards and gift cards</div>
+          </div>
+          <div class="rewards-row">
+            <div class="rewards-icon" style="background:rgba(126,214,196,.15)"><i class="ti ti-building-store" style="color:#0f7a67"></i></div>
+            <div class="rewards-name">Disney gift cards</div>
+            <div class="rewards-bal">$320 available</div>
+          </div>
+          <div class="rewards-row">
+            <div class="rewards-icon" style="background:rgba(74,144,226,.12)"><i class="ti ti-credit-card" style="color:#185FA5"></i></div>
+            <div class="rewards-name">Disney Visa rewards</div>
+            <div class="rewards-bal">$87 available</div>
+          </div>
+          <div class="rewards-row">
+            <div class="rewards-icon" style="background:rgba(246,184,75,.12)"><i class="ti ti-plane" style="color:#7a4a00"></i></div>
+            <div class="rewards-name">Travel miles (United)</div>
+            <div class="rewards-bal">~$140 value</div>
+          </div>
+          <div class="rewards-total">
+            <div style="font-size:11px;color:rgba(30,42,68,.45);">Total available</div>
+            <div style="font-size:13px;font-weight:500;color:#0f7a67;">$547 equiv.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
