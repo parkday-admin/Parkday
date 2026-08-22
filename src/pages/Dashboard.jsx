@@ -33,12 +33,12 @@ export default function Dashboard({ session }) {
       departure_date: '2026-10-07',
       adults: 2,
       children: 1,
-      accommodations_tier: 'moderate',
+      accommodation: 'moderate',
       booking_type: 'separate',
-      dining_plan_tier: 'none',
-      memory_maker: false,
-      season: 'regular',
-      status: 'planning',
+      ticket_type: 'base',
+      lightning_lane: 'none',
+      travel_mode: 'car',
+      status: 'active',
     })
 
     if (error) setError(error.message)
