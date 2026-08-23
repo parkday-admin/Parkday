@@ -2,114 +2,193 @@
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  background: var(--bg);
+  background: var(--cream);
 }
 
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(240, 237, 226, 0.88);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.headerInner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  height: 56px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
-}
-
-.logo {
-  font-family: var(--heading);
-  font-size: 20px;
-  font-weight: 500;
-  color: var(--text-h);
-  letter-spacing: -0.3px;
-}
-
-.headerRight {
-  display: flex;
-  align-items: center;
   gap: 16px;
 }
 
-.email {
-  font-size: 13px;
-  color: var(--text-muted);
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
-.signOut {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
+.logoImg {
+  height: 40px;
+  width: auto;
+  flex-shrink: 0;
+  display: block;
+}
+
+.brandText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.wordmark {
+  font-family: var(--heading);
+  font-size: 22px;
+  line-height: 1.1;
+  color: var(--night);
+}
+
+.tripName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sky);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settingsPill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  padding: 7px 14px;
   font-size: 13px;
-  color: var(--text);
+  font-weight: 500;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
+  flex-shrink: 0;
 }
 
-.signOut:hover {
-  border-color: var(--text-muted);
-  color: var(--text-h);
+.settingsPill:hover {
+  border-color: var(--sky);
+  color: var(--night);
 }
 
 .main {
   max-width: 720px;
   width: 100%;
   margin: 0 auto;
-  padding: 40px 24px;
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.titleRow h1 {
-  font-size: 28px;
-  letter-spacing: -0.5px;
-}
-
-.createBtn {
-  padding: 9px 16px;
-  background: var(--accent);
-  color: var(--accent-text);
-  border: none;
-  border-radius: var(--radius-sm);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.createBtn:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
-
-.createBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  padding: 32px 18px 60px;
+  flex: 1;
 }
 
 .error {
-  font-size: 13px;
-  color: var(--danger);
+  font-size: 12.5px;
+  color: var(--coral);
   padding: 10px 12px;
-  background: rgba(214, 63, 63, 0.08);
+  background: rgba(224, 83, 63, 0.08);
   border-radius: var(--radius-sm);
   margin-bottom: 16px;
 }
 
 .muted {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
+/* Empty state */
 .empty {
-  padding: 48px 0;
-  text-align: center;
+  min-height: 50vh;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 48px 18px;
+}
+
+.emptyIcon {
+  font-size: 46px;
+  color: var(--teal);
+  margin-bottom: 10px;
+}
+
+.emptyHeadline {
+  font-family: var(--heading);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--night);
+}
+
+.emptySubhead {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+}
+
+.planBtn {
+  padding: 12px 24px;
+  background: var(--sky);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.planBtn:hover:not(:disabled) {
+  background: var(--sky-dark);
+}
+
+.planBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Trip list */
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-family: var(--heading);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--night);
+}
+
+.createBtn {
+  padding: 9px 16px;
+  background: var(--gold);
+  color: var(--night);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.createBtn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.createBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .tripList {
@@ -125,55 +204,57 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  gap: 16px;
+  padding: 20px 22px;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
 
 .tripInfo {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  min-width: 0;
 }
 
-.tripInfo h2 {
+.tripCardName {
+  font-family: var(--heading);
   font-size: 17px;
-  font-weight: 500;
+  font-weight: 400;
+  color: var(--night);
 }
 
 .meta {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .status {
+  align-self: flex-start;
   text-transform: capitalize;
-  color: var(--accent);
-  font-weight: 500;
-}
-
-.idMuted {
-  font-size: 11px;
-  color: var(--border);
-  font-family: var(--mono);
-  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--teal);
+  background: rgba(44, 165, 141, 0.1);
+  padding: 3px 10px;
+  border-radius: 999px;
 }
 
 .deleteBtn {
   background: none;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 5px 12px;
+  padding: 6px 13px;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
   flex-shrink: 0;
 }
 
 .deleteBtn:hover {
-  border-color: var(--danger);
-  color: var(--danger);
+  border-color: var(--coral);
+  color: var(--coral);
 }

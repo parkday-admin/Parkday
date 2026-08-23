@@ -56,50 +56,64 @@ export default function Dashboard({ session }) {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <span className={styles.logo}>parkday</span>
-        <div className={styles.headerRight}>
-          <span className={styles.email}>{session.user.email}</span>
-          <button className={styles.signOut} onClick={signOut}>Sign out</button>
+        <div className={styles.headerInner}>
+          <span className={styles.brand}>
+            <img className={styles.logoImg} src="/assets/logos/parkday-icon.svg" alt="Parkday" />
+            <span className={styles.brandText}>
+              <span className={styles.wordmark}>Parkday</span>
+              {trips && trips.length > 0 && (
+                <span className={styles.tripName}>{trips[0].name ?? 'Your trip'}</span>
+              )}
+            </span>
+          </span>
+          <button className={styles.settingsPill} onClick={signOut}>
+            <i className="ti ti-settings" />
+            Sign out
+          </button>
         </div>
       </header>
 
       <main className={styles.main}>
-        <div className={styles.titleRow}>
-          <h1>Your trips</h1>
-          <button className={styles.createBtn} onClick={createSampleTrip} disabled={creating}>
-            {creating ? 'Creating…' : '+ New trip'}
-          </button>
-        </div>
-
         {error && <p className={styles.error}>{error}</p>}
 
         {trips === null && <p className={styles.muted}>Loading…</p>}
 
         {trips !== null && trips.length === 0 && (
           <div className={styles.empty}>
-            <p>No trips yet.</p>
-            <p className={styles.muted}>Hit "New trip" to create a sample trip and confirm the full round trip works.</p>
+            <i className={`ti ti-map-pin ${styles.emptyIcon}`} />
+            <h1 className={styles.emptyHeadline}>Ready to plan your park day?</h1>
+            <p className={styles.emptySubhead}>Set up your first trip to get started.</p>
+            <button className={styles.planBtn} onClick={createSampleTrip} disabled={creating}>
+              {creating ? 'Creating…' : 'Plan a trip'}
+            </button>
           </div>
         )}
 
         {trips !== null && trips.length > 0 && (
-          <ul className={styles.tripList}>
-            {trips.map(trip => (
-              <li key={trip.id} className={styles.tripCard}>
-                <div className={styles.tripInfo}>
-                  <h2>{trip.name ?? 'Untitled trip'}</h2>
-                  <p className={styles.meta}>
-                    {trip.arrival_date} → {trip.departure_date}
-                    &nbsp;·&nbsp;{trip.adults} adult{trip.adults !== 1 ? 's' : ''}
-                    {trip.children > 0 && `, ${trip.children} child${trip.children !== 1 ? 'ren' : ''}`}
-                    &nbsp;·&nbsp;<span className={styles.status}>{trip.status}</span>
-                  </p>
-                  <p className={styles.idMuted}>id: {trip.id}</p>
-                </div>
-                <button className={styles.deleteBtn} onClick={() => deleteTrip(trip.id)}>Delete</button>
-              </li>
-            ))}
-          </ul>
+          <>
+            <div className={styles.titleRow}>
+              <h1 className={styles.title}>Your trips</h1>
+              <button className={styles.createBtn} onClick={createSampleTrip} disabled={creating}>
+                {creating ? 'Creating…' : '+ New trip'}
+              </button>
+            </div>
+            <ul className={styles.tripList}>
+              {trips.map(trip => (
+                <li key={trip.id} className={styles.tripCard}>
+                  <div className={styles.tripInfo}>
+                    <h2 className={styles.tripCardName}>{trip.name ?? 'Untitled trip'}</h2>
+                    <p className={styles.meta}>
+                      {trip.arrival_date} → {trip.departure_date}
+                      &nbsp;·&nbsp;{trip.adults} adult{trip.adults !== 1 ? 's' : ''}
+                      {trip.children > 0 && `, ${trip.children} child${trip.children !== 1 ? 'ren' : ''}`}
+                    </p>
+                    <span className={styles.status}>{trip.status}</span>
+                  </div>
+                  <button className={styles.deleteBtn} onClick={() => deleteTrip(trip.id)}>Delete</button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </main>
     </div>
