@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { onAuthStateChange } from './lib/auth'
 import { getProfile } from './lib/profile'
+import Home from './pages/Home'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Paywall from './pages/Paywall'
@@ -46,6 +47,14 @@ export default function App() {
       <Routes>
         <Route
           path="/"
+          element={
+            !session
+              ? <Home />
+              : <Navigate to={status === 'active' ? '/dashboard' : '/paywall'} replace />
+          }
+        />
+        <Route
+          path="/login"
           element={
             !session
               ? <Auth />

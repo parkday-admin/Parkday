@@ -3,46 +3,45 @@
   --heading: 'Fraunces', Georgia, serif;
   --mono: ui-monospace, Consolas, monospace;
 
-  /* Colors — placeholder tokens; swap with design system */
-  --bg: #faf9f7;
-  --bg-card: #ffffff;
-  --text: #4b4553;
-  --text-h: #0d0b14;
-  --text-muted: #8a8394;
-  --border: #e8e6eb;
-  --accent: #2d5be3;
-  --accent-hover: #1e47cc;
-  --accent-text: #ffffff;
-  --accent-bg: rgba(45, 91, 227, 0.08);
-  --danger: #d63f3f;
-  --success: #2a8a5a;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --radius: 10px;
-  --radius-sm: 6px;
+  /* Parkday design system */
+  --night: #0D2340;
+  --night-card: #132B4D;
+  --sky: #2A6FE0;
+  --sky-dark: #1E5AC4;
+  --gold: #F5B536;
+  --gold-dark: #C68A12;
+  --coral: #E0533F;
+  --teal: #2CA58D;
+  --teal-dark: #1B7D68;
+  --cream: #F0EDE8;
+  --cream-light: #FFF6E7;
+  --bg: #F3EEE3;
+  --white: #FFFFFF;
+  --ink: #20242C;
+  --border: rgba(13, 35, 64, 0.28);
+  --border-light: rgba(13, 35, 64, 0.1);
+  --text-primary: #20242C;
+  --text-secondary: rgba(13, 35, 64, 0.6);
+  --text-tertiary: rgba(13, 35, 64, 0.42);
+  --sky-bg: rgba(42, 111, 224, 0.1);
+  --gold-bg: rgba(245, 181, 54, 0.15);
+  --teal-bg: rgba(44, 165, 141, 0.15);
+  --coral-bg: rgba(224, 83, 63, 0.1);
+  --radius: 11px;
+  --radius-sm: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 3px rgba(13, 35, 64, 0.05);
+  --shadow: 0 4px 18px rgba(13, 35, 64, 0.1);
+  --shadow-card: 0 1px 2px rgba(13, 35, 64, 0.06), 0 8px 24px -12px rgba(13, 35, 64, 0.12);
+  --shadow-panel: 0 20px 40px -12px rgba(13, 35, 64, 0.25);
 
   font: 15px/150% var(--sans);
-  letter-spacing: 0.01em;
-  color: var(--text);
-  background: var(--bg);
+  color: var(--text-primary);
+  background: var(--cream);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f0e13;
-    --bg-card: #1a1820;
-    --text: #a09aab;
-    --text-h: #f0eef5;
-    --text-muted: #5e5869;
-    --border: #2a2730;
-    --accent: #5b82f5;
-    --accent-hover: #7095f7;
-    --accent-bg: rgba(91, 130, 245, 0.12);
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
-    --shadow: 0 4px 12px rgba(0,0,0,0.3);
-  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -57,8 +56,8 @@ body { margin: 0; }
 
 h1, h2, h3 {
   font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+  font-weight: 400;
+  color: var(--night);
   margin: 0;
 }
 

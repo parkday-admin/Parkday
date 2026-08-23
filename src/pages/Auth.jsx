@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { signIn, signUp, signInWithGoogle } from '../lib/auth'
 import styles from './Auth.module.css'
 
@@ -13,8 +14,17 @@ function GoogleIcon() {
   )
 }
 
+function readSavedEstimate() {
+  try {
+    return JSON.parse(localStorage.getItem('pkd_estimate') ?? 'null')
+  } catch {
+    return null
+  }
+}
+
 export default function Auth() {
-  const [mode, setMode] = useState('login') // 'login' | 'signup'
+  const [estimate] = useState(readSavedEstimate)
+  const [mode, setMode] = useState(estimate ? 'signup' : 'login') // 'login' | 'signup'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -57,65 +67,92 @@ export default function Auth() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.card}>
-        <h1 className={styles.logo}>parkday</h1>
-        <p className={styles.tagline}>Plan your Disney World trip.</p>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <Link to="/" className={styles.brand}>
+            <img className={styles.logoImg} src="/assets/logos/parkday-icon.svg" alt="Parkday" />
+            <span className={styles.wordmark}>Parkday</span>
+          </Link>
+        </div>
+      </header>
 
-        <button
-          type="button"
-          className={styles.googleBtn}
-          onClick={handleGoogle}
-          disabled={googleLoading || loading}
-        >
-          <GoogleIcon />
-          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
-        </button>
+      <div className={styles.layout}>
+        <div className={styles.card}>
+          <h1 className={styles.headline}>
+            {mode === 'signup' ? 'Create your account' : 'Sign in to plan your park day'}
+          </h1>
+          <p className={styles.subhead}>
+            {mode === 'signup' ? 'Start planning your park day.' : 'Welcome back.'}
+          </p>
 
-        <div className={styles.divider}><span>or</span></div>
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.field}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              autoComplete="email"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
-              required
-              minLength={6}
-              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-            />
-          </div>
-
-          {error && <p className={styles.error}>{error}</p>}
-          {notice && <p className={styles.notice}>{notice}</p>}
-
-          <button type="submit" className={styles.submit} disabled={loading}>
-            {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}
-          </button>
-        </form>
-
-        <p className={styles.toggle}>
-          {mode === 'login' ? (
-            <>No account? <button onClick={() => { setMode('signup'); setError(null); setNotice(null) }}>Sign up</button></>
-          ) : (
-            <>Have an account? <button onClick={() => { setMode('login'); setError(null); setNotice(null) }}>Sign in</button></>
+          {estimate && (
+            <div className={styles.estimateChip}>
+              <i className="ti ti-ticket" />
+              <div className={styles.estimateChipText}>
+                Your estimate is saved — <strong>
+                  {estimate.adults} adult{estimate.adults !== 1 ? 's' : ''}
+                  {estimate.children > 0 ? ` + ${estimate.children} kids` : ''}, {estimate.nights === 0 ? 'day trip' : `${estimate.nights} nights`}
+                </strong>
+              </div>
+            </div>
           )}
-        </p>
+
+          <button
+            type="button"
+            className={styles.googleBtn}
+            onClick={handleGoogle}
+            disabled={googleLoading || loading}
+          >
+            <GoogleIcon />
+            {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+          </button>
+
+          <div className={styles.divider}><span>or</span></div>
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.field}>
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                autoComplete="email"
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="password">Password</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
+                required
+                minLength={6}
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              />
+            </div>
+
+            {error && <p className={styles.error}>{error}</p>}
+            {notice && <p className={styles.notice}>{notice}</p>}
+
+            <button type="submit" className={styles.submit} disabled={loading}>
+              {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}
+            </button>
+          </form>
+
+          <p className={styles.toggle}>
+            {mode === 'login' ? (
+              <>New to Parkday? <button onClick={() => { setMode('signup'); setError(null); setNotice(null) }}>Create an account</button></>
+            ) : (
+              <>Already have an account? <button onClick={() => { setMode('login'); setError(null); setNotice(null) }}>Sign in</button></>
+            )}
+          </p>
+        </div>
       </div>
     </div>
   )
