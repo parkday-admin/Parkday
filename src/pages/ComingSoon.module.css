@@ -1,0 +1,28 @@
+.wrap {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 48px 18px;
+}
+
+.icon {
+  font-size: 44px;
+  color: var(--sky);
+  margin-bottom: 6px;
+}
+
+.title {
+  font-family: var(--heading);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--night);
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+}

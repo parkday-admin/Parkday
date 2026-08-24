@@ -1,0 +1,101 @@
+.section {
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 11px;
+}
+
+.sectionHdr {
+  background: var(--bg);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionLbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.editLink {
+  font-size: 11px;
+  color: var(--sky);
+  cursor: pointer;
+  font-weight: 500;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.editLink:hover { color: var(--sky-dark); text-decoration: underline; }
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+  gap: 12px;
+}
+.row:last-child { border-bottom: none; }
+
+.rowLbl { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; }
+.rowVal {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  max-width: 60%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: flex-end;
+}
+.rowVal i { font-size: 10px; color: var(--text-tertiary); }
+
+@media (min-width: 1024px) {
+  .list { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-content: start; }
+  .section { margin-bottom: 0; }
+}
+
+/* Skeleton */
+.skeleton { display: flex; flex-direction: column; gap: 11px; }
+.skelBlock {
+  height: 140px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--white) 25%, var(--bg) 37%, var(--white) 63%);
+  background-size: 400% 100%;
+  animation: skelShimmer 1.4s ease infinite;
+  border: 1px solid var(--border-light);
+}
+@keyframes skelShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+/* Empty state */
+.empty {
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 48px 18px;
+}
+.emptyIcon { font-size: 46px; color: var(--teal); margin-bottom: 10px; }
+.emptyHeadline { font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--night); }
+.emptySubhead { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
+.planBtn {
+  padding: 12px 24px;
+  background: var(--sky);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.planBtn:hover { background: var(--sky-dark); }

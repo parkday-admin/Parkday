@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { onAuthStateChange } from './lib/auth'
 import { getProfile } from './lib/profile'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import Paywall from './pages/Paywall'
+import Configurator from './components/Configurator/Configurator'
+import AppShell from './components/Layout/AppShell'
+import ComingSoon from './pages/ComingSoon'
+import EstimatorPage from './pages/EstimatorPage'
+import Account from './pages/Account'
+import TripSettings from './pages/TripSettings'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
@@ -13,34 +19,48 @@ function useSession() {
   return session
 }
 
-function useSubscriptionStatus(session) {
-  const [status, setStatus] = useState(undefined) // undefined = loading, null = no active plan
+function useProfile(session) {
+  const [profile, setProfile] = useState(undefined) // undefined = loading, null = no active plan
 
   useEffect(() => {
+    // session === undefined means the session itself hasn't resolved yet —
+    // leave profile alone (still loading) rather than treating "unknown" the
+    // same as "confirmed signed out", which would flash status:null and
+    // misroute protected routes through the paywall before the real profile
+    // ever loads.
+    if (session === undefined) return
+
     if (!session) {
-      setStatus(null)
+      setProfile(null)
       return
     }
 
     let cancelled = false
-    setStatus(undefined)
+    setProfile(undefined)
 
     getProfile(session.user.id).then(({ data }) => {
-      if (!cancelled) setStatus(data?.subscription_status ?? null)
+      if (!cancelled) setProfile(data ? { status: data.subscription_status ?? null, planType: data.plan_type ?? null } : null)
     })
 
     return () => { cancelled = true }
   }, [session])
 
-  return status
+  return profile
+}
+
+function RequirePaidAuth({ session, status }) {
+  if (!session) return <Navigate to="/login" replace />
+  if (status !== 'active') return <Navigate to="/paywall" replace />
+  return <Outlet />
 }
 
 export default function App() {
   const session = useSession()
-  const status = useSubscriptionStatus(session)
+  const profile = useProfile(session)
+  const status = profile?.status ?? null
 
   // Still resolving session, or resolving a signed-in user's plan.
-  if (session === undefined || (session && status === undefined)) return null
+  if (session === undefined || (session && profile === undefined)) return null
 
   return (
     <BrowserRouter>
@@ -71,16 +91,27 @@ export default function App() {
                 : <Paywall session={session} />
           }
         />
-        <Route
-          path="/dashboard"
-          element={
-            !session
-              ? <Navigate to="/" replace />
-              : status !== 'active'
-                ? <Navigate to="/paywall" replace />
-                : <Dashboard session={session} />
-          }
-        />
+
+        <Route element={<RequirePaidAuth session={session} status={status} />}>
+          <Route element={<AppShell session={session} />}>
+            <Route
+              path="/configurator"
+              element={<Configurator session={session} planType={profile?.planType ?? null} />}
+            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/trip-settings" element={<TripSettings />} />
+            <Route path="/estimator" element={<EstimatorPage />} />
+            <Route path="/account" element={<Account />} />
+            <Route path="/budget" element={<ComingSoon title="Budget" icon="ti-chart-pie" />} />
+            <Route path="/itinerary" element={<ComingSoon title="Itinerary" icon="ti-calendar" />} />
+            <Route path="/wishlist" element={<ComingSoon title="Wish list" icon="ti-heart" />} />
+            <Route path="/payments" element={<ComingSoon title="Payments" icon="ti-credit-card" />} />
+            <Route path="/gifts" element={<ComingSoon title="Gift Cards & Rewards" icon="ti-gift" />} />
+            <Route path="/packing" element={<ComingSoon title="Packing list" icon="ti-backpack" />} />
+            <Route path="/reminders" element={<ComingSoon title="Reminders" icon="ti-bell" />} />
+          </Route>
+        </Route>
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
