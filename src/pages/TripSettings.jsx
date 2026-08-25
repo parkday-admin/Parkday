@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
+import { supabase } from '../supabase'
 import { fetchExpenses } from '../lib/expenses'
 import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS } from '../components/Configurator/configuratorData'
 import styles from './TripSettings.module.css'
@@ -46,8 +47,10 @@ function Row({ label, value, locked }) {
 export default function TripSettings() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, refetchTrips, showToast } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
+  const [editingName, setEditingName] = useState(false)
+  const [nameDraft, setNameDraft] = useState('')
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -55,6 +58,21 @@ export default function TripSettings() {
     fetchExpenses(activeTrip.id).then(({ data }) => { if (!cancelled) setExpenses(data) })
     return () => { cancelled = true }
   }, [activeTrip])
+
+  function startEditName() {
+    setNameDraft(activeTrip.name || '')
+    setEditingName(true)
+  }
+
+  async function commitName() {
+    setEditingName(false)
+    const name = nameDraft.trim()
+    if (!name || name === activeTrip.name) return
+    const { error } = await supabase.from('trips').update({ name }).eq('id', activeTrip.id)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Trip name updated')
+    refetchTrips?.()
+  }
 
   if (loading || (activeTrip && expenses === null)) {
     return <div className={styles.skeleton}><div className={styles.skelBlock} /><div className={styles.skelBlock} /><div className={styles.skelBlock} /></div>
@@ -81,7 +99,24 @@ export default function TripSettings() {
   return (
     <div className={styles.list}>
       <Section title="Dates & party" editStep={0} tripId={activeTrip.id} navigate={navigate}>
-        <Row label="Trip name" value={activeTrip.name} />
+        <div className={styles.row}>
+          <span className={styles.rowLbl}>Trip name</span>
+          {editingName ? (
+            <input
+              className={styles.nameInput}
+              type="text"
+              autoFocus
+              value={nameDraft}
+              onChange={e => setNameDraft(e.target.value)}
+              onBlur={commitName}
+              onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+            />
+          ) : (
+            <span className={`${styles.rowVal} ${styles.editableName}`} onClick={startEditName} title="Tap to edit">
+              {activeTrip.name} <i className="ti ti-pencil" />
+            </span>
+          )}
+        </div>
         <Row label="Travel dates" value={dayTrip ? fmtDate(activeTrip.arrival_date) : `${fmtDate(activeTrip.arrival_date)} – ${fmtDate(activeTrip.departure_date)}`} />
         <Row label="Length of stay" value={dayTrip ? `Day trip · ${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''}` : `${nights} night${nights !== 1 ? 's' : ''} · ${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''}`} />
         <Row label="Adults" value={activeTrip.adults} />

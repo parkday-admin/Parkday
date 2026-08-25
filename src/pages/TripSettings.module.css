@@ -57,6 +57,20 @@
 }
 .rowVal i { font-size: 10px; color: var(--text-tertiary); }
 
+.editableName { cursor: pointer; }
+
+.nameInput {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+  border: 1px solid var(--sky);
+  border-radius: var(--radius-sm, 6px);
+  padding: 3px 6px;
+  max-width: 60%;
+  font-family: inherit;
+}
+
 @media (min-width: 1024px) {
   .list { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-content: start; }
   .section { margin-bottom: 0; }
