@@ -17,7 +17,15 @@ import CategoryDetail from './pages/CategoryDetail'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
-  useEffect(() => onAuthStateChange(setSession), [])
+  useEffect(() => onAuthStateChange(s => {
+    // The saved-estimate chip on the login page is a one-time nudge to
+    // create an account — once a session exists (any sign-in path,
+    // including the Google OAuth redirect), its job is done. Without this
+    // it lingers in localStorage forever and resurfaces on every future
+    // login, unrelated to what the user is currently doing.
+    if (s) localStorage.removeItem('pkd_estimate')
+    setSession(s)
+  }), [])
   return session
 }
 
