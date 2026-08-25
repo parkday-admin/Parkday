@@ -89,9 +89,8 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
 
     const fields = {
       cat,
-      // Trip-level categories store their budget target as the day=null,
-      // label=null row (see findBudgetRow) — real trip-level entries must
-      // always carry a label so they aren't mistaken for that row.
+      // Trip-level entries have no day to fall back on for display, so
+      // default to the category name when left blank.
       label: label.trim() || (tripLevel ? meta.label : null),
       planned_amt: finalPlanned,
       actual_amt: actualNum,

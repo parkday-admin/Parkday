@@ -33,14 +33,12 @@ export function categoryMeta(cat) {
 }
 
 // Identifies the configurator-seeded "budget target" row for a category —
-// the one whose planned_amt the inline budget editor updates. Day-scope
-// categories can only ever have one day=null row, so that alone is enough;
-// trip-level categories can also hold real day=null expense entries (e.g.
-// a flight under Travel), so those are distinguished by having no label.
+// the one whose planned_amt the inline budget editor updates. Flagged
+// explicitly via is_budget rather than inferred from day/label, since a
+// real expense entry can otherwise look identical to a budget row (e.g. a
+// flight under Travel also has day=null).
 export function findBudgetRow(rows, cat) {
-  const scope = categoryMeta(cat).scope
-  if (scope === 'day') return rows.find(r => r.day === null) || null
-  return rows.find(r => r.day === null && !r.label) || null
+  return rows.find(r => r.cat === cat && r.is_budget) || null
 }
 
 // Aggregates a category's rows into { budgetRow, budgeted, planned, actual, count }.

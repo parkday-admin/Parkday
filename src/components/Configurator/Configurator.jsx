@@ -88,7 +88,7 @@ export default function Configurator({ session, planType }) {
     async function load() {
       const [{ data: trip, error: tripErr }, { data: expenseRows }] = await Promise.all([
         supabase.from('trips').select('*').eq('id', tripId).single(),
-        supabase.from('expenses').select('cat, planned_amt, day, label').eq('trip_id', tripId),
+        supabase.from('expenses').select('cat, planned_amt, day, label, is_budget').eq('trip_id', tripId),
       ])
       if (cancelled) return
       if (tripErr || !trip) {
@@ -282,10 +282,10 @@ export default function Configurator({ session, planType }) {
       const { error: updErr } = await supabase.from('trips').update(tripFields).eq('id', tripId)
       if (updErr) { setError(updErr.message); setSaving(false); return }
       // Only clear the rows this save regenerates — category budget targets
-      // (day=null, label=null) and park-day placeholders. Real logged
-      // expenses (dining, experiences, etc.) must survive a trip edit.
+      // and park-day placeholders. Real logged expenses (dining,
+      // experiences, etc.) must survive a trip edit.
       await supabase.from('expenses').delete().eq('trip_id', tripId).eq('cat', 'park_day')
-      await supabase.from('expenses').delete().eq('trip_id', tripId).is('day', null).is('label', null)
+      await supabase.from('expenses').delete().eq('trip_id', tripId).eq('is_budget', true)
     } else {
       const { data: inserted, error: insErr } = await supabase.from('trips').insert(tripFields).select('id').single()
       if (insErr) { setError(insErr.message); setSaving(false); return }
@@ -306,6 +306,7 @@ export default function Configurator({ session, planType }) {
         cat,
         label: null,
         planned_amt: amt,
+        is_budget: true,
       }))
     const parkDayRows = S.parkDays
       .filter(d => d.isPark && d.park)

@@ -50,6 +50,7 @@ create table expenses (
   ll_type text,
   planned_amt numeric,
   actual_amt numeric,
+  is_budget boolean default false,
   created_at timestamptz default now()
 );
 
@@ -132,3 +133,22 @@ alter table trips
   add column if not exists dep_airline text,
   add column if not exists dep_flight text,
   add column if not exists memory_maker boolean default false;
+
+-- ── Migration: explicit budget-row flag on expenses ─────────────────
+-- Previously the "budget target" row for a category was inferred from
+-- day/label being null, which a real expense entry could coincidentally
+-- match. This flags it explicitly instead. The backfill marks existing
+-- rows that match the old inference rule, so current data keeps working.
+alter table expenses
+  add column if not exists is_budget boolean default false;
+
+update expenses
+set is_budget = true
+where day is null
+  and cat in ('dining', 'snacks', 'experience', 'll', 'souvenirs', 'transport', 'misc');
+
+update expenses
+set is_budget = true
+where day is null
+  and label is null
+  and cat in ('resort', 'tickets', 'travel', 'package');
