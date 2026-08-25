@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import styles from './Configurator.module.css'
 import {
   RESORTS, TOTAL_STEPS, STEP_NAMES, PARK_NAMES, TIER_ORDER, TIER_LABELS, TIER_BADGE,
-  BIG_DATE_JUMP_DAYS, FAMILY_MEMBERS, DEFAULT_S, BOOKING_LABELS, DINING_LABELS,
+  BIG_DATE_JUMP_DAYS, DEFAULT_S, BOOKING_LABELS, DINING_LABELS,
   TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS, BUDGET_CATEGORIES,
 } from './configuratorData'
 import {
@@ -12,17 +12,17 @@ import {
   generateParkDays, dayStatusLabel, PARKS,
 } from './configuratorLogic'
 import { findBudgetRow, isPackageBooking } from '../../lib/categories'
+import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
 
 function makeDefaultS() {
   return JSON.parse(JSON.stringify(DEFAULT_S))
 }
 
-function computeParty(S) {
+function computeParty(S, familyMembers) {
   let adults = 0, children = 0
-  S.selectedFamily.forEach(i => {
-    const m = FAMILY_MEMBERS[i]
-    if (!m) return
-    if (m.isAdult) adults++; else children++
+  ;(familyMembers || []).forEach(m => {
+    if (!S.selectedFamily.includes(m.id)) return
+    if (familyMemberIsAdult(m)) adults++; else children++
   })
   return { adults: adults + (S.extraAdults || 0), children: children + (S.extraChildren || 0) }
 }
@@ -63,6 +63,8 @@ export default function Configurator({ session, planType }) {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
   const showToast = outletContext?.showToast
+  const familyMembers = outletContext?.familyMembers
+  const openFamilySheet = outletContext?.openFamilySheet
   const [searchParams] = useSearchParams()
   const tripId = searchParams.get('tripId')
 
@@ -76,9 +78,11 @@ export default function Configurator({ session, planType }) {
   const [error, setError] = useState(null)
   const [dateAlert, setDateAlert] = useState(null)
   const [originalArrival, setOriginalArrival] = useState(null)
+  const [famSeeded, setFamSeeded] = useState(false)
+  const editTripPartyRef = useRef(null)
 
   const setField = (key, value) => setS(prev => ({ ...prev, [key]: value }))
-  const { adults, children } = computeParty(S)
+  const { adults, children } = computeParty(S, familyMembers)
   const dayTrip = isDayTrip(S)
 
   // --- Load existing trip for edit mode ---
@@ -100,9 +104,11 @@ export default function Configurator({ session, planType }) {
       const next = makeDefaultS()
       next.arrival = trip.arrival_date ?? ''
       next.departure = trip.departure_date ?? ''
-      next.selectedFamily = FAMILY_MEMBERS.map((_, i) => i)
-      next.extraAdults = Math.max(0, (trip.adults ?? 0) - 2)
-      next.extraChildren = Math.max(0, (trip.children ?? 0) - 1)
+      // Which family members were selected isn't persisted per trip — the
+      // seeding effect below re-selects everyone once family data loads, and
+      // reconciles extraAdults/extraChildren against these saved totals so
+      // the party count stays correct even though the exact selection isn't.
+      editTripPartyRef.current = { adults: trip.adults ?? 0, children: trip.children ?? 0 }
       next.booking = trip.booking_type || 'separate'
       next.ticketType = trip.ticket_type || 'base'
       next.lightningLane = trip.lightning_lane || 'none'
@@ -172,6 +178,30 @@ export default function Configurator({ session, planType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId])
 
+  // --- Family picker: select everyone by default once real family data has
+  // loaded. For an edit, wait until the trip itself has finished loading
+  // first, then reconcile extra guest counts against the trip's saved
+  // adults/children totals (per-member selection isn't persisted).
+  useEffect(() => {
+    if (!familyMembers || famSeeded) return
+    if (tripId && loading) return
+    setFamSeeded(true)
+    setS(prev => {
+      if (prev.selectedFamily.length > 0) return prev
+      const selectedFamily = familyMembers.map(m => m.id)
+      const saved = editTripPartyRef.current
+      if (!saved) return { ...prev, selectedFamily }
+      const selAdults = familyMembers.filter(familyMemberIsAdult).length
+      const selChildren = familyMembers.length - selAdults
+      return {
+        ...prev,
+        selectedFamily,
+        extraAdults: Math.max(0, saved.adults - selAdults),
+        extraChildren: Math.max(0, saved.children - selChildren),
+      }
+    })
+  }, [familyMembers, famSeeded, tripId, loading])
+
   // --- Park days: generate on entering step 4, or when dates change ---
   useEffect(() => {
     if (step !== 4 || !S.arrival) return
@@ -196,14 +226,19 @@ export default function Configurator({ session, planType }) {
     if (prev >= 0) goTo(prev)
   }
 
-  function toggleFamMember(i) {
+  function toggleFamMember(id) {
     setS(prev => {
-      const idx = prev.selectedFamily.indexOf(i)
+      const idx = prev.selectedFamily.indexOf(id)
       const selectedFamily = idx > -1
-        ? prev.selectedFamily.filter(x => x !== i)
-        : [...prev.selectedFamily, i]
+        ? prev.selectedFamily.filter(x => x !== id)
+        : [...prev.selectedFamily, id]
       return { ...prev, selectedFamily }
     })
+  }
+
+  function onFamilyMemberAdded(member) {
+    if (!member) return
+    setS(prev => ({ ...prev, selectedFamily: [...prev.selectedFamily, member.id] }))
   }
 
   function selectResort(resort) {
@@ -381,19 +416,40 @@ export default function Configurator({ session, planType }) {
                   <div className={styles.secDesc}>Tell us about your party and how long you're staying</div>
                   <div className={styles.screenSectionLbl}>Who's coming</div>
                   <div style={{ marginBottom: 14 }}>
-                    {FAMILY_MEMBERS.map((m, i) => {
-                      const sel = S.selectedFamily.includes(i)
-                      return (
-                        <div key={m.name} className={`${styles.famSelectRow} ${sel ? styles.sel : ''}`} onClick={() => toggleFamMember(i)}>
-                          <div className={styles.famAvatar}>{m.name.charAt(0)}</div>
-                          <div className={styles.famInfo}>
-                            <div className={styles.famName}>{m.name}</div>
-                            <div className={styles.famSub}>{m.isAdult ? 'Adult' : 'Child (ages 3–9)'}</div>
-                          </div>
-                          <div className={styles.famSelectCheck}><i className="ti ti-check" /></div>
+                    {!familyMembers ? null : familyMembers.length === 0 ? (
+                      <div className={styles.famEmptyPrompt}>
+                        <i className="ti ti-users" />
+                        <div className={styles.famEmptyTitle}>No family members yet</div>
+                        <div className={styles.famEmptySub}>Add your family once and skip this step on future trips.</div>
+                        <button type="button" className={styles.famAddBtn} onClick={() => openFamilySheet?.({ onSaved: onFamilyMemberAdded })}>
+                          <i className="ti ti-plus" /> Add family member
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        {familyMembers.map(m => {
+                          const sel = S.selectedFamily.includes(m.id)
+                          const age = familyMemberAge(m.birthdate)
+                          const ageLabel = age === null ? '' : age >= 18 ? `Age ${age}` : 'Child'
+                          return (
+                            <div key={m.id} className={`${styles.famSelectRow} ${sel ? styles.sel : ''}`} onClick={() => toggleFamMember(m.id)}>
+                              <div className={styles.famAvatar}>{m.name.charAt(0)}</div>
+                              <div className={styles.famInfo}>
+                                <div className={styles.famName}>
+                                  {m.name.split(' ')[0]}
+                                  {m.annual_pass && <span className={styles.famApPill}>AP</span>}
+                                </div>
+                                <div className={styles.famSub}>{ageLabel}</div>
+                              </div>
+                              <div className={styles.famSelectCheck}><i className="ti ti-check" /></div>
+                            </div>
+                          )
+                        })}
+                        <div className={styles.famAddInline} onClick={() => openFamilySheet?.({ onSaved: onFamilyMemberAdded })}>
+                          <i className="ti ti-plus" /> Add another family member
                         </div>
-                      )
-                    })}
+                      </>
+                    )}
                   </div>
                   <div className={styles.screenSectionLbl}>Additional guests <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9 }}>(not in your family list — friends, cousins, etc.)</span></div>
                   <div className={styles.steppers} style={{ marginBottom: 14 }}>

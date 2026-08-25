@@ -4,8 +4,10 @@ import styles from './AppShell.module.css'
 import { signOut } from '../../lib/auth'
 import { fetchActiveTrips } from '../../lib/trips'
 import { createExpense } from '../../lib/expenses'
+import { fetchFamilyMembers } from '../../lib/familyMembers'
 import { categoryMeta } from '../../lib/categories'
 import ExpenseSheet from '../ExpenseSheet/ExpenseSheet'
+import FamilyMemberSheet from '../FamilyMemberSheet/FamilyMemberSheet'
 import Toast from '../Toast/Toast'
 
 const ACTIVE_TRIP_KEY = 'pkd_active_trip_id'
@@ -61,6 +63,8 @@ export default function AppShell({ session }) {
   const [activeTripId, setActiveTripIdState] = useState(() => localStorage.getItem(ACTIVE_TRIP_KEY))
   const [sheetState, setSheetState] = useState(null)
   const [expensesVersion, setExpensesVersion] = useState(0)
+  const [familyMembers, setFamilyMembers] = useState(null)
+  const [famSheetState, setFamSheetState] = useState(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -111,10 +115,42 @@ export default function AppShell({ session }) {
     }
   }
 
+  async function loadFamilyMembers() {
+    const { data } = await fetchFamilyMembers(session.user.id)
+    setFamilyMembers(data)
+  }
+
   useEffect(() => {
     loadTrips()
+    loadFamilyMembers()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  function openFamilySheet(opts) {
+    setFamSheetState(opts ?? {})
+  }
+
+  function closeFamilySheet() {
+    setFamSheetState(null)
+  }
+
+  async function handleFamilySaved(message, savedMember) {
+    const opts = famSheetState
+    closeFamilySheet()
+    await loadFamilyMembers()
+    showToast(message)
+    opts?.onSaved?.(savedMember)
+  }
+
+  function handleFamilyDeleted() {
+    closeFamilySheet()
+    loadFamilyMembers()
+    showToast('Family member removed')
+  }
+
+  function handleFamilyError(message) {
+    showToast(message)
+  }
 
   function setActiveTripId(id) {
     setActiveTripIdState(id)
@@ -227,7 +263,8 @@ export default function AppShell({ session }) {
           <div className={styles.scroll}>
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
-              openExpenseSheet, expensesVersion, userId: session.user.id, showToast,
+              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session,
+              familyMembers, openFamilySheet,
             }} />
           </div>
         </div>
@@ -244,6 +281,14 @@ export default function AppShell({ session }) {
           onError={handleExpenseError}
         />
       )}
+      <FamilyMemberSheet
+        userId={session.user.id}
+        state={famSheetState}
+        onClose={closeFamilySheet}
+        onSaved={handleFamilySaved}
+        onDeleted={handleFamilyDeleted}
+        onError={handleFamilyError}
+      />
       <Toast toast={toast} />
     </div>
   )

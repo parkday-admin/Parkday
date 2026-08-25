@@ -12,16 +12,9 @@ export const TIER_BADGE = { value: 'bg', moderate: 'bb', deluxe: 'bo', villa: 'b
 
 export const BIG_DATE_JUMP_DAYS = 21
 
-// Placeholder family list — stands in for a real family-profile feature.
-export const FAMILY_MEMBERS = [
-  { name: 'Adult 1', isAdult: true },
-  { name: 'Adult 2', isAdult: true },
-  { name: 'Child 1', isAdult: false },
-]
-
 export const DEFAULT_S = {
   arrival: '', departure: '',
-  selectedFamily: FAMILY_MEMBERS.map((_, i) => i), extraAdults: 0, extraChildren: 0,
+  selectedFamily: [], extraAdults: 0, extraChildren: 0,
   tier: '', accName: '', isOffProperty: false,
   booking: 'separate', dining: 'quick_service', memoryMaker: false,
   ticketType: 'base', lightningLane: 'none',

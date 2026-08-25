@@ -10,6 +10,16 @@ export async function fetchActiveTrips() {
   return { data: data ?? [], error }
 }
 
+export async function fetchArchivedTrips() {
+  const { data, error } = await supabase
+    .from('trips')
+    .select('id, name, arrival_date, departure_date, accommodation, status, created_at')
+    .eq('status', 'archived')
+    .order('created_at', { ascending: false })
+
+  return { data: data ?? [], error }
+}
+
 function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number)
   return new Date(y, m - 1, d)

@@ -14,3 +14,16 @@ export async function createCheckoutSession(priceId, userId, email) {
 
   return { data, error }
 }
+
+export async function createPortalSession(customerId) {
+  const { data, error } = await supabase.functions.invoke('create-portal-session', {
+    body: { customerId },
+  })
+
+  if (error) {
+    const body = await error.context?.json?.().catch(() => null)
+    return { data, error: { message: body?.error ?? error.message } }
+  }
+
+  return { data, error }
+}

@@ -6,9 +6,15 @@
 create table profiles (
   id uuid references auth.users primary key,
   email text,
+  full_name text,
+  timezone text default 'America/New_York',
   stripe_customer_id text,
   subscription_status text check (subscription_status in ('active', 'inactive', 'trialing')),
   plan_type text check (plan_type in ('trip_pass', 'plus_pass')),
+  notif_deadlines boolean default true,
+  notif_checkin boolean default true,
+  notif_budget boolean default false,
+  notif_marketing boolean default false,
   created_at timestamptz default now()
 );
 
@@ -152,3 +158,35 @@ set is_budget = true
 where day is null
   and label is null
   and cat in ('resort', 'tickets', 'travel', 'package');
+
+-- ── Migration: account settings fields on profiles ──────────────────
+alter table profiles
+  add column if not exists full_name text,
+  add column if not exists timezone text default 'America/New_York',
+  add column if not exists notif_deadlines boolean default true,
+  add column if not exists notif_checkin boolean default true,
+  add column if not exists notif_budget boolean default false,
+  add column if not exists notif_marketing boolean default false;
+
+-- ── Migration: family members ────────────────────────────────────────
+-- Account-level (not trip-specific) — reused across every trip a user
+-- plans. annual_pass_tier/annual_pass_expiry are schema-only for now;
+-- no UI reads or writes them yet.
+create table if not exists family_members (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  name text not null,
+  birthdate date,
+  annual_pass boolean default false,
+  annual_pass_tier text check (annual_pass_tier in ('incredi-pass','sorcerer','pirate','pixie-dust')),
+  annual_pass_expiry date,
+  created_at timestamptz default now()
+);
+
+alter table family_members enable row level security;
+
+drop policy if exists "Users manage own family members" on family_members;
+create policy "Users manage own family members"
+  on family_members for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
