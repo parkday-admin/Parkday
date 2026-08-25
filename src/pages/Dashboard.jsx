@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import { fetchExpenses } from '../lib/trips'
-import { CATEGORY_ORDER, categoryMeta } from '../lib/categories'
+import { fetchExpenses } from '../lib/expenses'
+import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
+import Fab from '../components/Fab/Fab'
 import styles from './Dashboard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -39,7 +40,7 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [error, setError] = useState(null)
 
@@ -53,7 +54,7 @@ export default function Dashboard() {
       else setExpenses(data)
     })
     return () => { cancelled = true }
-  }, [activeTrip])
+  }, [activeTrip, expensesVersion])
 
   if (loading) {
     return (
@@ -88,17 +89,21 @@ export default function Dashboard() {
     )
   }
 
-  const catRows = expenses.filter(e => e.day === null)
-  const dayRows = expenses.filter(e => e.day !== null).sort((a, b) => a.day - b.day)
+  const dayRows = expenses.filter(e => e.cat === 'park_day').sort((a, b) => a.day - b.day)
 
-  const budgeted = catRows.reduce((s, e) => s + (e.planned_amt || 0), 0)
-  const spent = catRows.reduce((s, e) => s + (e.actual_amt || 0), 0)
+  const cats = categoriesForTrip(activeTrip)
+    .map(cat => {
+      const es = expenses.filter(e => e.cat === cat)
+      const { budgeted, planned, actual } = categoryTotals(es, cat)
+      return { cat, budgeted, planned, actual }
+    })
+    .filter(c => c.budgeted > 0 || c.planned > 0)
+
+  const budgeted = cats.reduce((s, c) => s + c.budgeted, 0)
+  const planned = cats.reduce((s, c) => s + c.planned, 0)
+  const spent = cats.reduce((s, c) => s + c.actual, 0)
   const remaining = budgeted - spent
   const pct = budgeted > 0 ? Math.min(100, Math.round((spent / budgeted) * 100)) : 0
-
-  const cats = CATEGORY_ORDER
-    .map(cat => ({ cat, row: catRows.find(r => r.cat === cat) }))
-    .filter(({ row }) => row)
 
   const cd = countdown(activeTrip)
   const plannedCount = expenses.filter(e => e.actual_amt > 0).length
@@ -136,11 +141,11 @@ export default function Dashboard() {
             </div>
           </div>
           <div className={styles.bcBarTrack}><div className={styles.bcBarFill} style={{ width: `${pct}%` }} /></div>
-          <div className={styles.bcSub}>{fmt(budgeted)} planned · {fmt(spent)} spent · {pct}% of budget spent</div>
+          <div className={styles.bcSub}>{fmt(planned)} planned · {fmt(spent)} spent · {pct}% of budget spent</div>
           <div className={styles.bcFooter}>
             <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Budgeted</div><div className={styles.bcFooterVal} style={{ color: 'var(--gold)' }}>{fmt(budgeted)}</div></div>
             <div className={styles.bcDivider} />
-            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Planned</div><div className={styles.bcFooterVal} style={{ color: 'var(--sky)' }}>{fmt(budgeted)}</div></div>
+            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Planned</div><div className={styles.bcFooterVal} style={{ color: 'var(--sky)' }}>{fmt(planned)}</div></div>
             <div className={styles.bcDivider} />
             <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Spent</div><div className={styles.bcFooterVal} style={{ color: 'var(--coral)' }}>{fmt(spent)}</div></div>
             <div className={styles.bcDivider} />
@@ -150,17 +155,17 @@ export default function Dashboard() {
         <div className={styles.bcBody}>
           {cats.length === 0 ? (
             <div className={styles.bcEmpty}>No budget categories yet.</div>
-          ) : cats.map(({ cat, row }) => {
-            const meta = categoryMeta(cat)
-            const rowPct = row.planned_amt > 0 ? Math.min(100, Math.round(((row.actual_amt || 0) / row.planned_amt) * 100)) : 0
+          ) : cats.map(c => {
+            const meta = categoryMeta(c.cat)
+            const rowPct = c.budgeted > 0 ? Math.min(100, Math.round((c.actual / c.budgeted) * 100)) : 0
             return (
-              <div key={cat} className={styles.bcCatRow} onClick={() => navigate('/budget')}>
+              <div key={c.cat} className={styles.bcCatRow} onClick={() => navigate(`/budget/${c.cat}`)}>
                 <div className={styles.bcCatLeft}>
                   <div className={styles.bcCatDot} style={{ background: meta.color }} />
                   <div className={styles.bcCatName}>{meta.label}</div>
                 </div>
                 <div className={styles.bcCatRight}>
-                  <span className={styles.bcCatSpent}>{fmt(row.actual_amt)} / {fmt(row.planned_amt)}</span>
+                  <span className={styles.bcCatSpent}>{fmt(c.actual)} / {fmt(c.budgeted)}</span>
                   <div className={styles.bcCatProg}><div className={styles.bcCatProgFill} style={{ width: `${rowPct}%`, background: meta.color }} /></div>
                 </div>
               </div>
@@ -206,6 +211,8 @@ export default function Dashboard() {
           })}
         </div>
       </div>
+
+      <Fab onClick={() => openExpenseSheet?.({ presetCat: 'dining', presetDay: 1 })} />
     </div>
   )
 }

@@ -39,15 +39,18 @@ export const LL_LABELS = { none: 'None — standby only', multipass: 'Lightning 
 export const TRANSFER_LABELS = { mears: 'Mears Connect', rideshare: 'Rideshare (Uber/Lyft)', rental: 'Rental Car' }
 export const PARKING_LABELS = { dropoff: 'Drop-off', parking: 'Parking', rideshare: 'Rideshare both ways' }
 
+// cat keys match src/lib/categories.js exactly. Accommodations + Tickets
+// collapse into a single `package` row when the trip is booked as a
+// Vacation Package (see doSave() in Configurator.jsx).
 export const BUDGET_CATEGORIES = [
-  { key: 'budgetTravel', cat: 'travel', label: 'Travel' },
-  { key: 'budgetAccommodations', cat: 'accommodations', label: 'Accommodations' },
-  { key: 'budgetTickets', cat: 'tickets', label: 'Tickets' },
-  { key: 'budgetLightningLane', cat: 'lightning_lane', label: 'Lightning Lane' },
-  { key: 'budgetDining', cat: 'dining', label: 'Dining' },
-  { key: 'budgetSnacks', cat: 'snacks', label: 'Snacks' },
-  { key: 'budgetExperiences', cat: 'experiences', label: 'Experiences' },
-  { key: 'budgetSouvenirs', cat: 'souvenirs', label: 'Souvenirs' },
-  { key: 'budgetTransport', cat: 'transport', label: 'Transport' },
-  { key: 'budgetMisc', cat: 'misc', label: 'Misc' },
+  { key: 'budgetTravel', cat: 'travel' },
+  { key: 'budgetAccommodations', cat: 'resort' },
+  { key: 'budgetTickets', cat: 'tickets' },
+  { key: 'budgetLightningLane', cat: 'll' },
+  { key: 'budgetDining', cat: 'dining' },
+  { key: 'budgetSnacks', cat: 'snacks' },
+  { key: 'budgetExperiences', cat: 'experience' },
+  { key: 'budgetSouvenirs', cat: 'souvenirs' },
+  { key: 'budgetTransport', cat: 'transport' },
+  { key: 'budgetMisc', cat: 'misc' },
 ]

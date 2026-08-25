@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styles from './AppShell.module.css'
 import { signOut } from '../../lib/auth'
 import { fetchActiveTrips } from '../../lib/trips'
+import { createExpense } from '../../lib/expenses'
+import { categoryMeta } from '../../lib/categories'
+import ExpenseSheet from '../ExpenseSheet/ExpenseSheet'
+import Toast from '../Toast/Toast'
 
 const ACTIVE_TRIP_KEY = 'pkd_active_trip_id'
 
@@ -55,6 +59,48 @@ export default function AppShell({ session }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [trips, setTrips] = useState(null)
   const [activeTripId, setActiveTripIdState] = useState(() => localStorage.getItem(ACTIVE_TRIP_KEY))
+  const [sheetState, setSheetState] = useState(null)
+  const [expensesVersion, setExpensesVersion] = useState(0)
+  const [toast, setToast] = useState(null)
+  const toastTimer = useRef(null)
+
+  function showToast(message, opts) {
+    clearTimeout(toastTimer.current)
+    setToast({ message, ...opts })
+    toastTimer.current = setTimeout(() => setToast(null), opts?.actionLabel ? 5000 : 2600)
+  }
+
+  function openExpenseSheet(opts) {
+    setSheetState(opts ?? {})
+  }
+
+  function closeExpenseSheet() {
+    setSheetState(null)
+  }
+
+  function handleExpenseSaved(message) {
+    closeExpenseSheet()
+    setExpensesVersion(v => v + 1)
+    showToast(message)
+  }
+
+  function handleExpenseDeleted(deletedExpense) {
+    closeExpenseSheet()
+    setExpensesVersion(v => v + 1)
+    showToast('Expense deleted', {
+      actionLabel: 'Undo',
+      onAction: async () => {
+        const { cat, label, time, status, ll_type, planned_amt, actual_amt, day } = deletedExpense
+        await createExpense(session.user.id, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day })
+        setExpensesVersion(v => v + 1)
+        setToast(null)
+      },
+    })
+  }
+
+  function handleExpenseError(message) {
+    showToast(message)
+  }
 
   async function loadTrips() {
     const { data } = await fetchActiveTrips()
@@ -78,7 +124,10 @@ export default function AppShell({ session }) {
   }
 
   const activeTrip = trips?.find(t => t.id === activeTripId) ?? trips?.[0] ?? null
-  const title = PAGE_TITLES[location.pathname] ?? 'Parkday'
+  const budgetCatMatch = location.pathname.match(/^\/budget\/(.+)$/)
+  const title = budgetCatMatch
+    ? categoryMeta(budgetCatMatch[1]).label
+    : PAGE_TITLES[location.pathname] ?? 'Parkday'
 
   function closeAll() {
     setDrawerOpen(false)
@@ -176,10 +225,26 @@ export default function AppShell({ session }) {
 
         <div className={styles.pagesViewport}>
           <div className={styles.scroll}>
-            <Outlet context={{ trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips }} />
+            <Outlet context={{
+              trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
+              openExpenseSheet, expensesVersion, userId: session.user.id, showToast,
+            }} />
           </div>
         </div>
       </div>
+
+      {activeTrip && (
+        <ExpenseSheet
+          trip={activeTrip}
+          userId={session.user.id}
+          state={sheetState}
+          onClose={closeExpenseSheet}
+          onSaved={handleExpenseSaved}
+          onDeleted={handleExpenseDeleted}
+          onError={handleExpenseError}
+        />
+      )}
+      <Toast toast={toast} />
     </div>
   )
 }
