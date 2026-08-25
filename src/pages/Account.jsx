@@ -4,7 +4,7 @@ import { supabase } from '../supabase'
 import { getFullProfile, updateProfile, deleteAccount } from '../lib/profile'
 import { fetchArchivedTrips } from '../lib/trips'
 import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
-import { createPortalSession } from '../lib/stripe'
+import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
 import { signOut } from '../lib/auth'
 import styles from './Account.module.css'
 
@@ -102,6 +102,7 @@ export default function Account() {
   const [archivedTrips, setArchivedTrips] = useState(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState(undefined) // undefined = not fetched yet, null = none on file
 
   useEffect(() => {
     if (!userId) return
@@ -117,6 +118,16 @@ export default function Account() {
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
+
+  useEffect(() => {
+    if (!profile?.stripe_customer_id) return
+    let cancelled = false
+    fetchPaymentMethod(profile.stripe_customer_id).then(({ data, error }) => {
+      if (cancelled) return
+      setPaymentMethod(error ? null : (data?.paymentMethod ?? null))
+    })
+    return () => { cancelled = true }
+  }, [profile?.stripe_customer_id])
 
   if (!session || profile === null) {
     return (
@@ -313,10 +324,25 @@ export default function Account() {
       </Card>
 
       <Card icon="ti-credit-card" iconBg="rgba(42,111,224,0.12)" iconColor="var(--sky-dark)" title="Payment method">
-        <div className={styles.rowInline}>
-          <div className={styles.val}>No payment method on file.</div>
-          <button type="button" className={styles.linkBtn} disabled={portalLoading} onClick={handleManageSubscription}>Update</button>
-        </div>
+        {paymentMethod === undefined && profile.stripe_customer_id ? (
+          <div className={styles.rowInline}>
+            <div className={styles.val}>Loading…</div>
+          </div>
+        ) : paymentMethod ? (
+          <div className={styles.pmRow}>
+            <div className={styles.cardBrand}>{paymentMethod.brand}</div>
+            <div className={styles.pmInfo}>
+              <div className={styles.pmNum}>•••• {paymentMethod.last4}</div>
+              <div className={styles.pmExp}>Expires {String(paymentMethod.expMonth).padStart(2, '0')}/{String(paymentMethod.expYear).slice(-2)}</div>
+            </div>
+            <button type="button" className={styles.linkBtn} disabled={portalLoading} onClick={handleManageSubscription}>Update</button>
+          </div>
+        ) : (
+          <div className={styles.rowInline}>
+            <div className={styles.val}>No payment method on file.</div>
+            <button type="button" className={styles.linkBtn} disabled={portalLoading} onClick={handleManageSubscription}>Update</button>
+          </div>
+        )}
       </Card>
 
       <Card icon="ti-bell" iconBg="rgba(44,165,141,0.16)" iconColor="var(--teal-dark)" title="Notifications">

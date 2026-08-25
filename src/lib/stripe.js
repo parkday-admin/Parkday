@@ -27,3 +27,16 @@ export async function createPortalSession(customerId) {
 
   return { data, error }
 }
+
+export async function fetchPaymentMethod(customerId) {
+  const { data, error } = await supabase.functions.invoke('get-payment-method', {
+    body: { customerId },
+  })
+
+  if (error) {
+    const body = await error.context?.json?.().catch(() => null)
+    return { data, error: { message: body?.error ?? error.message } }
+  }
+
+  return { data, error }
+}
