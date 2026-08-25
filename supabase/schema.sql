@@ -26,6 +26,15 @@ create table trips (
   ticket_type text,
   lightning_lane text,
   travel_mode text,
+  transfer text,
+  departure_transfer text,
+  parking text,
+  park_transport text,
+  arr_airline text,
+  arr_flight text,
+  dep_airline text,
+  dep_flight text,
+  memory_maker boolean default false,
   created_at timestamptz default now()
 );
 
@@ -106,3 +115,20 @@ $$;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- ── Migration: getting-there fields on trips ────────────────────────
+-- Run this against an existing database that was created before these
+-- columns were added to the trips table above.
+alter table trips
+  add column if not exists transfer text,
+  add column if not exists departure_transfer text,
+  add column if not exists parking text,
+  add column if not exists park_transport text;
+
+-- ── Migration: flight details + Memory Maker on trips ───────────────
+alter table trips
+  add column if not exists arr_airline text,
+  add column if not exists arr_flight text,
+  add column if not exists dep_airline text,
+  add column if not exists dep_flight text,
+  add column if not exists memory_maker boolean default false;

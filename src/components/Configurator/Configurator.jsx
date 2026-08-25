@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import styles from './Configurator.module.css'
 import {
@@ -11,6 +11,7 @@ import {
   isDayTrip, parseLocalDate, fmtDate, fmtDOW, fmt, nightsBetween, budgetTotal,
   generateParkDays, dayStatusLabel, PARKS,
 } from './configuratorLogic'
+import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 
 function makeDefaultS() {
   return JSON.parse(JSON.stringify(DEFAULT_S))
@@ -60,6 +61,8 @@ function Stepper({ label, hint, value, onDec, onInc }) {
 
 export default function Configurator({ session, planType }) {
   const navigate = useNavigate()
+  const outletContext = useOutletContext()
+  const showToast = outletContext?.showToast
   const [searchParams] = useSearchParams()
   const tripId = searchParams.get('tripId')
 
@@ -85,7 +88,7 @@ export default function Configurator({ session, planType }) {
     async function load() {
       const [{ data: trip, error: tripErr }, { data: expenseRows }] = await Promise.all([
         supabase.from('trips').select('*').eq('id', tripId).single(),
-        supabase.from('expenses').select('cat, planned_amt').eq('trip_id', tripId),
+        supabase.from('expenses').select('cat, planned_amt, day, label').eq('trip_id', tripId),
       ])
       if (cancelled) return
       if (tripErr || !trip) {
@@ -104,6 +107,15 @@ export default function Configurator({ session, planType }) {
       next.ticketType = trip.ticket_type || 'base'
       next.lightningLane = trip.lightning_lane || 'none'
       next.travel = trip.travel_mode || 'flying'
+      next.transfer = trip.transfer || 'mears'
+      next.departureTransfer = trip.departure_transfer || 'mears'
+      next.parking = trip.parking || 'dropoff'
+      next.parkTransport = trip.park_transport || ''
+      next.arrAirline = trip.arr_airline || ''
+      next.arrFlight = trip.arr_flight || ''
+      next.depAirline = trip.dep_airline || ''
+      next.depFlight = trip.dep_flight || ''
+      next.memoryMaker = trip.memory_maker || false
 
       if (trip.accommodation) {
         const resort = RESORTS.find(r => r.name === trip.accommodation)
@@ -113,11 +125,40 @@ export default function Configurator({ session, planType }) {
         if (resort) setSelectedResort(resort)
       }
 
-      const byCat = {}
-      ;(expenseRows || []).forEach(row => { byCat[row.cat] = row.planned_amt })
-      BUDGET_CATEGORIES.forEach(({ key, cat }) => { next[key] = byCat[cat] || 0 })
+      // Read each category's saved budget target — not just any row with
+      // that cat, since a trip-level cat (e.g. travel) can also hold real
+      // labeled entries (a flight) alongside its budget-target row.
+      BUDGET_CATEGORIES.forEach(({ key, cat }) => {
+        const rowsForCat = (expenseRows || []).filter(r => r.cat === cat)
+        next[key] = findBudgetRow(rowsForCat, cat)?.planned_amt || 0
+      })
+      // A Vacation Package collapses Accommodations + Tickets into a single
+      // `package` budget row — read it back into the Accommodations field so
+      // editing the trip doesn't reset that budget to $0.
+      if (isPackageBooking(trip)) {
+        const packageRows = (expenseRows || []).filter(r => r.cat === 'package')
+        next.budgetAccommodations = findBudgetRow(packageRows, 'package')?.planned_amt || 0
+      }
 
-      next.parkDaysSig = null // regenerate best-guess park days for this date range
+      // Rebuild park days from what was actually saved (cat: 'park_day' rows),
+      // rather than re-guessing — otherwise editing overwrites the user's
+      // real selections with a generic middle-days-only default.
+      const parkNameToCode = Object.fromEntries(Object.entries(PARK_NAMES).map(([code, name]) => [name, code]))
+      const savedParkDayByDayNum = {}
+      ;(expenseRows || []).forEach(row => {
+        if (row.cat === 'park_day' && row.day != null) savedParkDayByDayNum[row.day] = row.label
+      })
+      if (next.arrival && (isDayTrip(next) || next.departure)) {
+        const skeleton = generateParkDays(next)
+        next.parkDays = skeleton.map(day => {
+          const label = savedParkDayByDayNum[day.dayNum]
+          return label
+            ? { ...day, isPark: true, park: parkNameToCode[label] || day.park || 'MK' }
+            : { ...day, isPark: false, park: '' }
+        })
+        next.parkDaysSig = next.arrival + '|' + next.departure
+      }
+
       setS(next)
       setEditingTrip(true)
       setOriginalArrival(trip.arrival_date ?? null)
@@ -225,27 +266,46 @@ export default function Configurator({ session, planType }) {
       ticket_type: S.ticketType,
       lightning_lane: S.lightningLane,
       travel_mode: S.travel,
+      transfer: S.travel === 'flying' ? S.transfer : null,
+      departure_transfer: S.travel === 'flying' ? S.departureTransfer : null,
+      parking: S.travel === 'flying' ? S.parking : null,
+      park_transport: S.travel === 'driving' ? S.parkTransport : null,
+      arr_airline: S.travel === 'flying' ? (S.arrAirline || null) : null,
+      arr_flight: S.travel === 'flying' ? (S.arrFlight || null) : null,
+      dep_airline: S.travel === 'flying' ? (S.depAirline || null) : null,
+      dep_flight: S.travel === 'flying' ? (S.depFlight || null) : null,
+      memory_maker: S.memoryMaker,
     }
 
     let savedTripId = tripId
     if (editingTrip && tripId) {
       const { error: updErr } = await supabase.from('trips').update(tripFields).eq('id', tripId)
       if (updErr) { setError(updErr.message); setSaving(false); return }
-      await supabase.from('expenses').delete().eq('trip_id', tripId)
+      // Only clear the rows this save regenerates — category budget targets
+      // (day=null, label=null) and park-day placeholders. Real logged
+      // expenses (dining, experiences, etc.) must survive a trip edit.
+      await supabase.from('expenses').delete().eq('trip_id', tripId).eq('cat', 'park_day')
+      await supabase.from('expenses').delete().eq('trip_id', tripId).is('day', null).is('label', null)
     } else {
       const { data: inserted, error: insErr } = await supabase.from('trips').insert(tripFields).select('id').single()
       if (insErr) { setError(insErr.message); setSaving(false); return }
       savedTripId = inserted.id
     }
 
+    const isPackage = S.booking === 'package' || S.booking === 'package_dining'
     const budgetRows = BUDGET_CATEGORIES
-      .filter(({ key }) => (S[key] || 0) > 0)
-      .map(({ cat, label, key }) => ({
+      .filter(({ cat }) => !(isPackage && cat === 'tickets'))
+      .map(({ cat, key }) => ({
+        cat: isPackage && cat === 'resort' ? 'package' : cat,
+        amt: isPackage && cat === 'resort' ? (S.budgetAccommodations || 0) : (S[key] || 0),
+      }))
+      .filter(({ amt }) => amt > 0)
+      .map(({ cat, amt }) => ({
         user_id: session.user.id,
         trip_id: savedTripId,
         cat,
-        label,
-        planned_amt: S[key],
+        label: null,
+        planned_amt: amt,
       }))
     const parkDayRows = S.parkDays
       .filter(d => d.isPark && d.park)
@@ -264,6 +324,7 @@ export default function Configurator({ session, planType }) {
     }
 
     setSaving(false)
+    if (editingTrip) showToast?.('Trip updated')
     navigate('/dashboard')
   }
 
@@ -282,6 +343,11 @@ export default function Configurator({ session, planType }) {
             {!editingTrip && (
               <button type="button" className={styles.resetBtn} onClick={() => { setS(makeDefaultS()); setStep(0); setSelectedResort(null); setResortQuery('') }}>
                 <i className="ti ti-rotate-2" />Reset
+              </button>
+            )}
+            {editingTrip && (
+              <button type="button" className={styles.quickSaveBtn} onClick={saveTrip} disabled={saving}>
+                <i className="ti ti-check" />{saving ? 'Saving…' : 'Save'}
               </button>
             )}
           </div>

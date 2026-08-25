@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import { fetchExpenses } from '../lib/trips'
-import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS } from '../components/Configurator/configuratorData'
+import { fetchExpenses } from '../lib/expenses'
+import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS } from '../components/Configurator/configuratorData'
 import styles from './TripSettings.module.css'
 
 function parseLocalDate(str) {
@@ -75,7 +75,7 @@ export default function TripSettings() {
   const nights = !dayTrip && activeTrip.arrival_date && activeTrip.departure_date
     ? Math.round((parseLocalDate(activeTrip.departure_date) - parseLocalDate(activeTrip.arrival_date)) / 86400000)
     : 0
-  const dayRows = (expenses || []).filter(e => e.day !== null).sort((a, b) => a.day - b.day)
+  const dayRows = (expenses || []).filter(e => e.cat === 'park_day').sort((a, b) => a.day - b.day)
   const resort = RESORTS.find(r => r.name === activeTrip.accommodation)
 
   return (
@@ -90,6 +90,24 @@ export default function TripSettings() {
 
       <Section title="Getting there" editStep={1} tripId={activeTrip.id} navigate={navigate}>
         <Row label="Travel method" value={activeTrip.travel_mode === 'driving' ? 'Driving' : 'Flying into MCO'} />
+        {activeTrip.travel_mode === 'driving' ? (
+          <Row
+            label="Park transport"
+            value={activeTrip.park_transport === 'drive' ? 'Drive each day' : activeTrip.park_transport === 'disney_transport' ? 'Disney transport' : 'Not set'}
+          />
+        ) : (
+          <>
+            <Row label="MCO arrival transfer" value={TRANSFER_LABELS[activeTrip.transfer] || 'Not set'} />
+            <Row label="MCO departure transfer" value={TRANSFER_LABELS[activeTrip.departure_transfer] || 'Not set'} />
+            <Row label="Airport parking" value={PARKING_LABELS[activeTrip.parking] || 'Not set'} />
+            {(activeTrip.arr_airline || activeTrip.arr_flight) && (
+              <Row label="Arrival flight" value={[activeTrip.arr_airline, activeTrip.arr_flight].filter(Boolean).join(' ')} />
+            )}
+            {(activeTrip.dep_airline || activeTrip.dep_flight) && (
+              <Row label="Departure flight" value={[activeTrip.dep_airline, activeTrip.dep_flight].filter(Boolean).join(' ')} />
+            )}
+          </>
+        )}
       </Section>
 
       {!dayTrip && (
@@ -97,6 +115,7 @@ export default function TripSettings() {
           <Row label="Resort" value={activeTrip.accommodation || 'Off Property'} />
           {resort && <Row label="Tier" value={TIER_LABELS[resort.tier]} />}
           <Row label="Booking type" value={BOOKING_LABELS[activeTrip.booking_type] || activeTrip.booking_type} locked />
+          <Row label="Memory Maker" value={activeTrip.memory_maker ? 'Yes' : 'No'} />
         </Section>
       )}
 
