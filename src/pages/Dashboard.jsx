@@ -90,6 +90,10 @@ export default function Dashboard() {
   }
 
   const dayRows = expenses.filter(e => e.cat === 'park_day').sort((a, b) => a.day - b.day)
+  const dayTotals = dayNum => {
+    const es = expenses.filter(e => e.day === dayNum && e.cat !== 'park_day')
+    return { planned: es.reduce((s, e) => s + (e.planned_amt || 0), 0), count: es.length }
+  }
 
   const cats = categoriesForTrip(activeTrip)
     .map(cat => {
@@ -184,16 +188,16 @@ export default function Dashboard() {
               <div className={styles.itinSub}>{dayRows.length} park day{dayRows.length !== 1 ? 's' : ''} planned</div>
             </div>
           </div>
-          <div className={styles.itinView} onClick={() => navigate('/itinerary')}>View <i className="ti ti-chevron-right" /></div>
+          <div className={styles.itinView} onClick={() => navigate('/itinerary?day=1')}>View all <i className="ti ti-chevron-right" /></div>
         </div>
         <div className={styles.dashDayRows}>
           {dayRows.length === 0 ? (
             <div className={styles.bcEmpty}>No park days planned yet.</div>
           ) : dayRows.map(d => {
             const date = dateForDay(activeTrip.arrival_date, d.day)
-            const hasSpend = d.actual_amt > 0
+            const { planned: dayPlanned, count } = dayTotals(d.day)
             return (
-              <div key={d.id} className={styles.dayRow}>
+              <div key={d.id} className={styles.dayRow} onClick={() => navigate(`/itinerary?day=${d.day}`)}>
                 <div className={styles.dayChip}>
                   <div className={styles.dayChipNum}>{d.day}</div>
                   <div className={styles.dayChipLbl}>{fmtDOW(date)}</div>
@@ -203,8 +207,8 @@ export default function Dashboard() {
                   <div className={styles.dayDate}>{fmtDayDate(date)}</div>
                 </div>
                 <div className={styles.dayStatus}>
-                  <span className={`${styles.pill} ${hasSpend ? styles.pg : styles.pz}`}>{hasSpend ? 'Logged' : 'Planned'}</span>
-                  {d.planned_amt > 0 && <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{fmt(d.planned_amt)} planned</div>}
+                  <span className={styles.pill}>{dayPlanned > 0 ? fmt(dayPlanned) : '—'}</span>
+                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{count} {count === 1 ? 'entry' : 'entries'}</div>
                 </div>
               </div>
             )

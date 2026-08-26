@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, setCategoryBudget } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
 import Fab from '../components/Fab/Fab'
+import ViewTabs from '../components/ViewTabs/ViewTabs'
 import styles from './Budget.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -86,6 +87,8 @@ export default function Budget() {
   return (
     <div>
       {error && <p className={styles.error}>{error}</p>}
+
+      <ViewTabs active="category" />
 
       <div className={styles.hero}>
         <div className={styles.heroHdr}>

@@ -1,0 +1,22 @@
+.tabs {
+  display: flex;
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin-bottom: 11px;
+  gap: 3px;
+}
+.tab {
+  flex: 1;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.tab.active { background: var(--sky-bg); color: var(--sky); }

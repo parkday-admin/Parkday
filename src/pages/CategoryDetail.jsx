@@ -1,90 +1,13 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense, createExpense, setCategoryBudget } from '../lib/expenses'
 import { categoryMeta, categoryTotals } from '../lib/categories'
 import { tripDays } from '../lib/trips'
 import Fab from '../components/Fab/Fab'
+import EntryCard from '../components/EntryCard/EntryCard'
 import styles from './CategoryDetail.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
-
-function fmtTime(t) {
-  return t || ''
-}
-
-const STATUS_STYLE = {
-  confirmed: { label: 'Confirmed', cls: 'pillConfirmed' },
-  waitlist: { label: 'Waitlist', cls: 'pillWaitlist' },
-}
-
-function EntryRow({ entry, meta, onEdit, onDelete }) {
-  const [dx, setDx] = useState(0)
-  const [swiped, setSwiped] = useState(false)
-  const dragging = useRef(false)
-  const start = useRef({ x: 0, y: 0 })
-
-  function onPointerDown(e) {
-    dragging.current = true
-    start.current = { x: e.clientX, y: e.clientY }
-  }
-  function onPointerMove(e) {
-    if (!dragging.current) return
-    const deltaX = e.clientX - start.current.x
-    const deltaY = e.clientY - start.current.y
-    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX < 0) {
-      setDx(Math.max(-80, deltaX))
-      setSwiped(false)
-    }
-  }
-  function onPointerUp(e) {
-    if (!dragging.current) return
-    dragging.current = false
-    const deltaX = e.clientX - start.current.x
-    if (deltaX < -50) { setSwiped(true); setDx(0) } else { setSwiped(false); setDx(0) }
-  }
-
-  const statusInfo = entry.status && STATUS_STYLE[entry.status]
-
-  return (
-    <div className={styles.entryWrap}>
-      <div className={styles.entryDeleteReveal} onClick={() => onDelete(entry)}>
-        <i className="ti ti-trash" /><span>Delete</span>
-      </div>
-      <div
-        className={`${styles.entry} ${entry.status ? styles[entry.status] : entry.actual_amt != null ? styles.paid : ''} ${swiped ? styles.swiped : ''}`}
-        style={dx ? { transform: `translateX(${dx}px)`, transition: 'none' } : undefined}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onClick={() => !swiped && dx === 0 && onEdit(entry)}
-      >
-        <div className={styles.entryIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
-        <div className={styles.entryBody}>
-          <div className={styles.entryName}>{entry.label || meta.label}</div>
-          <div className={styles.entryMeta}>
-            {entry.day != null && <span>Day {entry.day}</span>}
-            {entry.time && <span>{fmtTime(entry.time)}</span>}
-            {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{entry.ll_type === 'singlepass' ? 'Single Pass' : 'Multi Pass'}</span>}
-            {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
-          </div>
-        </div>
-        <div className={styles.entryAmts}>
-          {entry.actual_amt != null ? (
-            <>
-              <div className={styles.entryStrike}>{fmt(entry.planned_amt)}</div>
-              <div className={styles.entryActualAmt}>{fmt(entry.actual_amt)}</div>
-            </>
-          ) : (
-            <>
-              <div className={styles.entryPlanned}>{fmt(entry.planned_amt)}</div>
-              <div className={styles.entryPlannedLbl}>planned</div>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export default function CategoryDetail() {
   const navigate = useNavigate()
@@ -219,13 +142,13 @@ export default function CategoryDetail() {
             {tripLevelEntries.length > 0 && (
               <>
                 <div className={styles.sectionLbl}><i className="ti ti-calendar-event" /> Trip total</div>
-                {tripLevelEntries.map(e => <EntryRow key={e.id} entry={e} meta={meta} onEdit={en => openExpenseSheet?.({ editingExpense: en })} onDelete={handleDelete} />)}
+                {tripLevelEntries.map(e => <EntryCard key={e.id} entry={e} meta={meta} dayLabel={e.day != null ? `Day ${e.day}` : null} onEdit={en => openExpenseSheet?.({ editingExpense: en })} onDelete={handleDelete} />)}
               </>
             )}
             {byDay.map(g => (
               <div key={g.day}>
                 <div className={styles.sectionLbl}><i className="ti ti-sun" /> Day {g.day} · {g.dow}</div>
-                {g.es.map(e => <EntryRow key={e.id} entry={e} meta={meta} onEdit={en => openExpenseSheet?.({ editingExpense: en })} onDelete={handleDelete} />)}
+                {g.es.map(e => <EntryCard key={e.id} entry={e} meta={meta} dayLabel={e.day != null ? `Day ${e.day}` : null} onEdit={en => openExpenseSheet?.({ editingExpense: en })} onDelete={handleDelete} />)}
               </div>
             ))}
           </>
