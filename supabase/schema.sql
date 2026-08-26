@@ -190,3 +190,73 @@ create policy "Users manage own family members"
   on family_members for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ── Migration: wish list ─────────────────────────────────────────────
+-- catalog_items is a static-ish, admin-maintained catalog; wish_list_items
+-- is the user's personal list, scoped per trip. Seed data for
+-- catalog_items lives in supabase/migrations/20260826000330_wishlist.sql
+-- (not duplicated here — see that file for the full catalog insert).
+create table if not exists catalog_items (
+  id text primary key,
+  name text not null,
+  park text,
+  category text not null,
+  description text,
+  price_label text,
+  price_mid numeric default 0,
+  active boolean default true
+);
+
+create table if not exists wish_list_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  trip_id uuid references trips(id) on delete cascade,
+  catalog_id text references catalog_items(id),
+  name text not null,
+  park text,
+  category text not null,
+  price_label text,
+  price_mid numeric default 0,
+  notes text,
+  custom boolean default false,
+  planned_expense_id uuid references expenses(id),
+  planned_day int,
+  created_at timestamptz default now()
+);
+
+alter table catalog_items enable row level security;
+alter table wish_list_items enable row level security;
+
+drop policy if exists "Anyone can read the catalog" on catalog_items;
+create policy "Anyone can read the catalog"
+  on catalog_items for select
+  to authenticated
+  using (true);
+
+drop policy if exists "Users manage own wish list" on wish_list_items;
+create policy "Users manage own wish list"
+  on wish_list_items for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+-- ── Migration: unlink wish list items when their expense is deleted ──
+-- Deleting an expense linked to a wish list item (e.g. from the Itinerary
+-- page, not just the wish list's own "Remove" button) must not be blocked
+-- by planned_expense_id's foreign key — it should just unlink the item,
+-- leaving it saved but un-planned.
+create or replace function wish_list_clear_planned_expense()
+returns trigger
+language plpgsql
+as $$
+begin
+  update wish_list_items
+  set planned_expense_id = null, planned_day = null
+  where planned_expense_id = old.id;
+  return old;
+end;
+$$;
+
+drop trigger if exists trg_wish_list_clear_planned_expense on expenses;
+create trigger trg_wish_list_clear_planned_expense
+  before delete on expenses
+  for each row execute function wish_list_clear_planned_expense();

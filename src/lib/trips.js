@@ -42,3 +42,17 @@ export function tripDays(trip) {
     return { day: i + 1, date, dow: d.toLocaleDateString('en-US', { weekday: 'short' }) }
   })
 }
+
+// The park/status label for a given 1-based day number: the saved park_day
+// row's label if the day has one, else Arrival/Departure/Rest day based on
+// position — shared by the itinerary day nav and the wish list's
+// "Added to Day X · ..." label so both describe a day the same way.
+export function dayParkLabel(trip, expenses, dayNum) {
+  const days = tripDays(trip)
+  const index = days.findIndex(d => d.day === dayNum)
+  const parkRow = expenses.find(e => e.cat === 'park_day' && e.day === dayNum)
+  if (parkRow) return parkRow.label
+  if (index === 0 && days.length > 1) return 'Arrival day'
+  if (index === days.length - 1) return 'Departure day'
+  return 'Rest day'
+}

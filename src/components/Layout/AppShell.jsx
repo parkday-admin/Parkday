@@ -31,7 +31,7 @@ const NAV_ITEMS = [
   { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
   { to: '/budget', icon: 'ti-chart-pie', label: 'Budget' },
   { to: '/itinerary', icon: 'ti-calendar', label: 'Itinerary' },
-  { to: '/wishlist', icon: 'ti-heart', label: 'Wish list', soon: true },
+  { to: '/wishlist', icon: 'ti-heart', label: 'Wish list' },
   { to: '/payments', icon: 'ti-credit-card', label: 'Payments', soon: true },
   { to: '/gifts', icon: 'ti-gift', label: 'Gift Cards/Rewards', soon: true },
   { to: '/packing', icon: 'ti-backpack', label: 'Packing list', soon: true },

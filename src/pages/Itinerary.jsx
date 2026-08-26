@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
 import { fetchExpenses, deleteExpense, createExpense } from '../lib/expenses'
 import { categoryMeta } from '../lib/categories'
-import { tripDays } from '../lib/trips'
+import { tripDays, dayParkLabel } from '../lib/trips'
 import Fab from '../components/Fab/Fab'
 import EntryCard from '../components/EntryCard/EntryCard'
 import ViewTabs from '../components/ViewTabs/ViewTabs'
@@ -35,13 +35,6 @@ function timeSortKey(t) {
     if (/AM/i.test(m[3]) && h === 12) h = 0
   }
   return h * 60 + Number(m[2])
-}
-
-function parkDayLabel(parkRow, index, total) {
-  if (parkRow) return parkRow.label
-  if (index === 0 && total > 1) return 'Arrival day'
-  if (index === total - 1) return 'Departure day'
-  return 'Rest day'
 }
 
 export default function Itinerary() {
@@ -104,8 +97,7 @@ export default function Itinerary() {
   const days = tripDays(activeTrip)
   const day = days[dayIndex]
   const dayNum = day.day
-  const parkRow = expenses.find(e => e.cat === 'park_day' && e.day === dayNum)
-  const parkLabel = parkDayLabel(parkRow, dayIndex, days.length)
+  const parkLabel = dayParkLabel(activeTrip, expenses, dayNum)
 
   const dayEntries = expenses.filter(e => e.day === dayNum && e.cat !== 'park_day')
   const timed = dayEntries.filter(e => e.time).sort((a, b) => timeSortKey(a.time) - timeSortKey(b.time))

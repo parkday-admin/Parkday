@@ -15,6 +15,7 @@ import TripSettings from './pages/TripSettings'
 import Budget from './pages/Budget'
 import CategoryDetail from './pages/CategoryDetail'
 import Itinerary from './pages/Itinerary'
+import Wishlist from './pages/Wishlist'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
@@ -116,7 +117,7 @@ export default function App() {
             <Route path="/budget" element={<Budget />} />
             <Route path="/budget/:cat" element={<CategoryDetail />} />
             <Route path="/itinerary" element={<Itinerary />} />
-            <Route path="/wishlist" element={<ComingSoon title="Wish list" icon="ti-heart" />} />
+            <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/payments" element={<ComingSoon title="Payments" icon="ti-credit-card" />} />
             <Route path="/gifts" element={<ComingSoon title="Gift Cards & Rewards" icon="ti-gift" />} />
             <Route path="/packing" element={<ComingSoon title="Packing list" icon="ti-backpack" />} />
