@@ -19,6 +19,7 @@ import Wishlist from './pages/Wishlist'
 import Gifts from './pages/Gifts'
 import Payments from './pages/Payments'
 import Packing from './pages/Packing'
+import Reminders from './pages/Reminders'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
@@ -124,7 +125,7 @@ export default function App() {
             <Route path="/payments" element={<Payments />} />
             <Route path="/gifts" element={<Gifts />} />
             <Route path="/packing" element={<Packing />} />
-            <Route path="/reminders" element={<ComingSoon title="Reminders" icon="ti-bell" />} />
+            <Route path="/reminders" element={<Reminders />} />
           </Route>
         </Route>
 

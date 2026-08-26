@@ -89,6 +89,11 @@
   padding: 2px 7px; line-height: 1.4; border-radius: 20px; background: rgba(245, 181, 54, 0.2); color: #8a5a00;
   text-transform: uppercase; letter-spacing: 0.04em; flex: 0 0 auto; margin-left: auto; width: fit-content;
 }
+.navBadge {
+  display: inline-flex; align-items: center; justify-content: center; background: rgba(224, 83, 63, 0.15);
+  border-radius: 20px; padding: 1px 8px; font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--coral);
+  flex: 0 0 auto; margin-left: auto; width: fit-content;
+}
 
 .navDrawerUser { padding: 11px 16px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 9px; flex-shrink: 0; cursor: pointer; position: relative; }
 .navDrawerUser:hover { background: rgba(42, 111, 224, 0.04); }

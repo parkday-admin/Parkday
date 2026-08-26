@@ -6,6 +6,8 @@ import { fetchActiveTrips } from '../../lib/trips'
 import { createExpense } from '../../lib/expenses'
 import { fetchFamilyMembers } from '../../lib/familyMembers'
 import { fetchGiftCards, fetchRewardPrograms } from '../../lib/giftFunds'
+import { fetchReminders, insertReminders, buildSystemReminders, urgencyLevel } from '../../lib/reminders'
+import { daysUntil } from '../../lib/trips'
 import { categoryMeta } from '../../lib/categories'
 import ExpenseSheet from '../ExpenseSheet/ExpenseSheet'
 import FamilyMemberSheet from '../FamilyMemberSheet/FamilyMemberSheet'
@@ -36,7 +38,7 @@ const NAV_ITEMS = [
   { to: '/payments', icon: 'ti-credit-card', label: 'Payments' },
   { to: '/gifts', icon: 'ti-gift', label: 'Gift Cards/Rewards' },
   { to: '/packing', icon: 'ti-backpack', label: 'Packing list' },
-  { to: '/reminders', icon: 'ti-bell', label: 'Reminders', soon: true },
+  { to: '/reminders', icon: 'ti-bell', label: 'Reminders' },
   { to: '/trip-settings', icon: 'ti-settings', label: 'Trip settings' },
   { to: '/estimator', icon: 'ti-calculator', label: 'Estimator' },
 ]
@@ -68,6 +70,7 @@ export default function AppShell({ session }) {
   const [famSheetState, setFamSheetState] = useState(null)
   const [giftCards, setGiftCards] = useState(null)
   const [rewardPrograms, setRewardPrograms] = useState(null)
+  const [reminders, setReminders] = useState(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -148,6 +151,25 @@ export default function AppShell({ session }) {
     loadGiftFunds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTrip?.id])
+
+  async function loadReminders() {
+    if (!activeTrip) { setReminders([]); return }
+    const { data } = await fetchReminders(session.user.id, activeTrip.id)
+    if (data.length === 0) {
+      const rows = buildSystemReminders(activeTrip, session.user.id)
+      const { data: inserted } = await insertReminders(rows)
+      setReminders(inserted)
+    } else {
+      setReminders(data)
+    }
+  }
+
+  useEffect(() => {
+    loadReminders()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTrip?.id])
+
+  const urgentReminderCount = (reminders ?? []).filter(r => !r.done && r.reminder_date != null && urgencyLevel(daysUntil(r.reminder_date)) === 'high').length
 
   function openFamilySheet(opts) {
     setFamSheetState(opts ?? {})
@@ -262,6 +284,7 @@ export default function AppShell({ session }) {
                 <i className={`ti ${item.icon}`} />
                 <span>{item.label}</span>
                 {item.soon && <span className={styles.navSoon}>Soon</span>}
+                {item.to === '/reminders' && urgentReminderCount > 0 && <span className={styles.navBadge}>{urgentReminderCount}</span>}
               </Link>
             ))}
           </div>
@@ -288,6 +311,7 @@ export default function AppShell({ session }) {
               openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session,
               familyMembers, openFamilySheet,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
+              reminders: reminders ?? [], refetchReminders: loadReminders,
             }} />
           </div>
         </div>

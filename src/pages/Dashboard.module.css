@@ -153,6 +153,27 @@
 .dprAmt { font-size: 12.5px; font-weight: 600; color: var(--ink); text-align: right; }
 .dprStatus { font-size: 10px; font-weight: 600; margin-top: 1px; text-align: right; }
 
+/* Urgency strip + reminders preview */
+.urgencyStrip {
+  background: rgba(224, 83, 63, 0.1); border: 1px solid rgba(224, 83, 63, 0.25); border-radius: var(--radius);
+  padding: 9px 13px; margin: 0 0 11px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+}
+.urgencyStrip:hover { background: rgba(224, 83, 63, 0.16); }
+.urgencyDot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); flex-shrink: 0; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.urgencyText { flex: 1; font-size: 12px; font-weight: 600; color: var(--coral); }
+
+.drrRow { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+.drrRow:last-child { border-bottom: none; }
+.drrRow:hover { background: rgba(13, 35, 64, 0.04); }
+.drrIcon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.drrIcon i { font-size: 13px; }
+
+.urgencyPill { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; }
+.upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }
+.upMed { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
+.upLow { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
+
 @media (min-width: 1024px) {
   .dashDayRows { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
   .dashDayRows .dayRow { flex-direction: column; align-items: flex-start; gap: 9px; border-bottom: none; border-right: 1px solid var(--border-light); padding: 13px 12px; border-radius: 0; }

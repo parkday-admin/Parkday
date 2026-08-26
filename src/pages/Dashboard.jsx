@@ -5,10 +5,12 @@ import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPacka
 import { giftFundsTotals } from '../lib/giftFunds'
 import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
 import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
+import { urgencyLevel as reminderUrgencyLevel, URGENCY_LABEL as REMINDER_URGENCY_LABEL } from '../lib/reminders'
 import Fab from '../components/Fab/Fab'
 import styles from './Dashboard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
+const URGENCY_CLASS = { high: 'upHigh', med: 'upMed', low: 'upLow' }
 
 function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number)
@@ -43,7 +45,7 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, userId } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
@@ -124,9 +126,23 @@ export default function Dashboard() {
   const plannedCount = expenses.filter(e => e.actual_amt > 0).length
   const planPct = expenses.length > 0 ? Math.round((plannedCount / expenses.length) * 100) : 0
 
+  const remindersWithDaysOut = (reminders ?? [])
+    .filter(r => !r.done && r.reminder_date != null)
+    .map(r => ({ ...r, daysOut: daysUntil(r.reminder_date) }))
+  const urgentReminders = remindersWithDaysOut.filter(r => r.daysOut <= 6)
+  const upcomingReminders = remindersWithDaysOut.slice().sort((a, b) => a.daysOut - b.daysOut).slice(0, 2)
+
   return (
     <div>
       {error && <p className={styles.error}>{error}</p>}
+
+      {urgentReminders.length > 0 && (
+        <div className={styles.urgencyStrip} onClick={() => navigate('/reminders')}>
+          <div className={styles.urgencyDot} />
+          <div className={styles.urgencyText}>{urgentReminders.length} urgent reminder{urgentReminders.length === 1 ? '' : 's'}</div>
+          <i className="ti ti-chevron-right" style={{ fontSize: 12, color: 'rgba(30,42,68,0.35)' }} />
+        </div>
+      )}
 
       <div className={styles.countdownCard}>
         <div className={styles.cdLeft}>
@@ -221,6 +237,33 @@ export default function Dashboard() {
                   <span className={styles.pill}>{dayPlanned > 0 ? fmt(dayPlanned) : '—'}</span>
                   <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{count} {count === 1 ? 'entry' : 'entries'}</div>
                 </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className={styles.itinCard}>
+        <div className={styles.itinHdr}>
+          <div className={styles.itinHdrL}>
+            <div className={styles.itinIcon} style={{ background: 'rgba(224,83,63,0.12)' }}><i className="ti ti-bell" style={{ color: 'var(--coral)' }} /></div>
+            <div className={styles.itinTitle}>Upcoming reminders</div>
+          </div>
+          <div className={styles.itinView} onClick={() => navigate('/reminders')}>View all <i className="ti ti-chevron-right" /></div>
+        </div>
+        <div className={styles.dashDayRows}>
+          {upcomingReminders.length === 0 ? (
+            <div className={styles.bcEmpty} style={{ padding: '16px 15px' }}>No upcoming reminders.</div>
+          ) : upcomingReminders.map(r => {
+            const lvl = reminderUrgencyLevel(r.daysOut)
+            return (
+              <div key={r.id} className={styles.drrRow} onClick={() => navigate('/reminders')}>
+                <div className={styles.drrIcon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
+                <div className={styles.dayInfo}>
+                  <div className={styles.dayPark}>{r.title}</div>
+                  <div className={styles.dayDate}>{r.daysOut > 0 ? `in ${r.daysOut} day${r.daysOut === 1 ? '' : 's'}` : r.daysOut === 0 ? 'Today' : 'Past due'}</div>
+                </div>
+                <span className={`${styles.urgencyPill} ${styles[URGENCY_CLASS[lvl]]}`}>{REMINDER_URGENCY_LABEL[lvl]}</span>
               </div>
             )
           })}
