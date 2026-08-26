@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 export async function fetchActiveTrips() {
   const { data, error } = await supabase
     .from('trips')
-    .select('id, name, arrival_date, departure_date, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, arr_airline, arr_flight, dep_airline, dep_flight, memory_maker, status, created_at')
+    .select('id, name, arrival_date, departure_date, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, arr_airline, arr_flight, dep_airline, dep_flight, memory_maker, gc_savings_goal, final_payment_date, status, created_at')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -20,9 +20,34 @@ export async function fetchArchivedTrips() {
   return { data: data ?? [], error }
 }
 
-function parseLocalDate(str) {
+export async function updateTripSavingsGoal(tripId, goal) {
+  const { error } = await supabase.from('trips').update({ gc_savings_goal: goal }).eq('id', tripId)
+  return { error }
+}
+
+export function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number)
   return new Date(y, m - 1, d)
+}
+
+// Falls back to computing 30-days-before-arrival client-side for any trip
+// saved before final_payment_date existed on the row (a one-time DB backfill
+// covers existing trips, but this keeps the page correct even if that ever
+// gets bypassed — e.g. a row inserted outside the configurator).
+export function effectiveFinalPaymentDate(trip) {
+  if (trip.final_payment_date) return trip.final_payment_date
+  if (!trip.arrival_date) return null
+  const d = parseLocalDate(trip.arrival_date)
+  d.setDate(d.getDate() - 30)
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+
+// Whole days from today (local, start-of-day) to a 'YYYY-MM-DD' date —
+// negative if the date has passed.
+export function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  return Math.round((parseLocalDate(dateStr) - today) / 86400000)
 }
 
 // One entry per trip day: { day, date ('YYYY-MM-DD'), dow ('Mon') }

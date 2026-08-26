@@ -42,10 +42,14 @@ export function findBudgetRow(rows, cat) {
 }
 
 // Aggregates a category's rows into { budgetRow, budgeted, planned, actual, count }.
-// `planned`/`actual`/`count` only reflect real transactions — the budget
-// target row itself isn't a transaction, so it's excluded from those sums
-// (a category with no logged expenses should show $0 planned, not the
-// budgeted amount).
+// `planned`/`count` only reflect real transactions — the budget target row
+// itself isn't a transaction, so it's excluded from those (a category with
+// no logged expenses should show $0 planned, not the budgeted amount).
+// `actual` also folds in the budget row's own actual_amt: every other
+// category's budget row never has one (only real entries carry actual_amt),
+// but the `package` category's budget row is the one place Trip Funds
+// payments sync a total-paid amount directly onto (see supabase payments
+// triggers) — there's no separate "entry" to log a package payment against.
 export function categoryTotals(rows, cat) {
   const budgetRow = findBudgetRow(rows, cat)
   const entries = rows.filter(r => r !== budgetRow)
@@ -53,7 +57,7 @@ export function categoryTotals(rows, cat) {
     budgetRow,
     budgeted: budgetRow?.planned_amt || 0,
     planned: entries.reduce((s, e) => s + (e.planned_amt || 0), 0),
-    actual: entries.filter(e => e.actual_amt != null).reduce((s, e) => s + e.actual_amt, 0),
+    actual: entries.filter(e => e.actual_amt != null).reduce((s, e) => s + e.actual_amt, 0) + (budgetRow?.actual_amt || 0),
     count: entries.length,
   }
 }

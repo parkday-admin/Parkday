@@ -260,3 +260,112 @@ drop trigger if exists trg_wish_list_clear_planned_expense on expenses;
 create trigger trg_wish_list_clear_planned_expense
   before delete on expenses
   for each row execute function wish_list_clear_planned_expense();
+
+-- ── Migration: Trip Funds (gift cards & rewards) ─────────────────────
+-- Full detail (comments on each function) lives in
+-- supabase/migrations/20260826154056_trip_funds.sql — kept in sync here
+-- for reference only; the migrations directory is the source of truth.
+create table if not exists gift_cards (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  trip_id uuid references trips(id) on delete cascade,
+  source text not null,
+  original_amount numeric not null default 0,
+  balance numeric not null default 0,
+  last4 text,
+  date_added date default current_date,
+  depleted boolean default false,
+  created_at timestamptz default now()
+);
+
+create table if not exists reward_programs (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  trip_id uuid references trips(id) on delete cascade,
+  type text not null check (type in ('visa', 'insiders', 'travel', 'other')),
+  program text not null,
+  detail text,
+  value numeric not null default 0,
+  created_at timestamptz default now()
+);
+
+alter table gift_cards enable row level security;
+alter table reward_programs enable row level security;
+
+drop policy if exists "Users manage own gift cards" on gift_cards;
+create policy "Users manage own gift cards"
+  on gift_cards for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users manage own reward programs" on reward_programs;
+create policy "Users manage own reward programs"
+  on reward_programs for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table trips add column if not exists gc_savings_goal numeric default 0;
+alter table expenses add column if not exists payment_source text;
+
+-- Unlinks expenses from a card/reward that gets deleted, and auto-deducts
+-- or restores gift card balance / reward value as expenses log, change, or
+-- remove an actual_amt against a "gift:<uuid>" / "reward:<uuid>" payment
+-- source. See the migration file for the full function bodies.
+
+-- ── Migration: Payments (Vacation Package installment plan) ─────────
+-- Full detail lives in supabase/migrations/20260826161014_payments.sql —
+-- kept in sync here for reference only.
+create table if not exists payments (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  trip_id uuid references trips(id) on delete cascade,
+  amount numeric not null,
+  date date not null default current_date,
+  method text,
+  payment_source text,
+  note text,
+  created_at timestamptz default now()
+);
+
+alter table payments enable row level security;
+
+drop policy if exists "Users manage own payments" on payments;
+create policy "Users manage own payments"
+  on payments for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+alter table trips add column if not exists final_payment_date date;
+
+-- Auto-deducts/restores gift card & reward balances as payments log, change,
+-- or are removed; keeps the package expense's actual_amt equal to total
+-- paid; and extends the gift/reward delete-cleanup triggers to also unlink
+-- payments. See the migration file for the full function bodies.
+
+-- One-time backfill: trips saved before this feature existed have no
+-- final_payment_date. See supabase/migrations/20260826161450_backfill_final_payment_date.sql
+update trips
+set final_payment_date = arrival_date - 30
+where final_payment_date is null and arrival_date is not null;
+
+-- ── Migration: Packing list ──────────────────────────────────────────
+create table if not exists packing_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  trip_id uuid references trips(id) on delete cascade,
+  family_member_id uuid references family_members(id) on delete set null,
+  category text not null,
+  text text not null,
+  checked boolean default false,
+  custom boolean default false,
+  sort_order int default 0,
+  created_at timestamptz default now()
+);
+
+alter table packing_items enable row level security;
+
+drop policy if exists "Users manage own packing items" on packing_items;
+create policy "Users manage own packing items"
+  on packing_items for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);

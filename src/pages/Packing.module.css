@@ -1,0 +1,76 @@
+.skeleton { display: flex; flex-direction: column; gap: 11px; }
+.skelBlock { background: var(--border-light); border-radius: var(--radius-lg); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.empty { text-align: center; padding: 60px 20px; }
+.emptyIcon { font-size: 34px; color: var(--text-tertiary); margin-bottom: 12px; display: block; }
+.emptyHeadline { font-family: var(--heading); font-size: 19px; font-weight: 400; color: var(--night); margin-bottom: 4px; }
+.emptySubhead { font-size: 13px; color: var(--text-tertiary); }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 14px; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0; padding: 8px 14px 8px 8px; border-radius: 24px;
+  border: 1.5px solid var(--border); background: var(--white); cursor: pointer; font-size: 12.5px; font-weight: 600;
+  color: var(--text-secondary); white-space: nowrap; transition: border-color 0.12s, background 0.12s;
+}
+.tab:hover { border-color: rgba(42, 111, 224, 0.4); }
+.tabActive { border-color: var(--sky); background: rgba(42, 111, 224, 0.08); color: var(--sky-dark); }
+.tabAvatar { width: 22px; height: 22px; border-radius: 50%; background: rgba(42, 111, 224, 0.15); color: var(--sky-dark); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+.tabActive .tabAvatar { background: var(--sky); color: #fff; }
+.tabGroupIcon { width: 22px; height: 22px; border-radius: 50%; background: rgba(44, 165, 141, 0.18); color: var(--teal-dark); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.tabActive .tabGroupIcon { background: var(--teal); color: #fff; }
+.tabDone { font-size: 11px; color: var(--teal); flex-shrink: 0; }
+
+/* ── Family prompt ── */
+.famPrompt {
+  display: flex; align-items: flex-start; gap: 8px; background: rgba(42, 111, 224, 0.06); border: 1px solid rgba(42, 111, 224, 0.2);
+  border-radius: var(--radius); padding: 10px 13px; margin-bottom: 14px; font-size: 12px; color: var(--text-secondary); line-height: 1.5;
+}
+.famPrompt i { font-size: 15px; color: var(--sky); flex-shrink: 0; margin-top: 1px; }
+.famPromptLink { background: none; border: none; padding: 0; color: var(--sky); font-weight: 600; font-size: 12px; cursor: pointer; text-decoration: underline; }
+
+/* ── Progress ── */
+.progressCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 14px; }
+.progressTop { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+.progressLbl { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.progressCount { font-size: 11px; color: var(--text-tertiary); }
+.progressTrack { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; }
+.progressFill { height: 100%; background: var(--sky); border-radius: 3px; transition: width 0.2s; }
+.allDone {
+  display: flex; align-items: center; gap: 9px; background: rgba(44, 165, 141, 0.1); border: 1px solid rgba(44, 165, 141, 0.3);
+  border-radius: var(--radius); padding: 10px 13px; margin-bottom: 14px; font-size: 12.5px; font-weight: 600; color: var(--teal-dark);
+}
+.allDone i { font-size: 17px; }
+
+/* ── Categories ── */
+.cat { margin-bottom: 16px; }
+.cat:last-child { margin-bottom: 0; }
+.catHdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.catIcon { width: 24px; height: 24px; border-radius: 7px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: var(--sky-dark); }
+.catTitle { font-size: 12.5px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.catCount { font-size: 10.5px; color: var(--text-tertiary); margin-left: auto; }
+
+.item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+.item:last-child { border-bottom: none; }
+.check { width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.12s, border-color 0.12s; }
+.check i { font-size: 12px; color: #fff; display: none; }
+.itemChecked .check { background: var(--teal); border-color: var(--teal); }
+.itemChecked .check i { display: block; }
+.itemText { flex: 1; font-size: 13px; color: var(--text-primary); }
+.itemChecked .itemText { color: var(--text-tertiary); text-decoration: line-through; }
+.itemDel { width: 24px; height: 24px; border-radius: 50%; border: none; background: none; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+.itemDel:hover { background: rgba(224, 83, 63, 0.12); color: var(--coral); }
+
+.addRow { display: flex; gap: 7px; margin-top: 8px; }
+.addInp { flex: 1; border: 1.5px solid var(--border-light); background: var(--white); border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: var(--ink); outline: none; }
+.addInp:focus { border-color: var(--sky); }
+.addBtn { width: 36px; height: 36px; border-radius: 10px; border: none; background: var(--sky); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
+.addBtn:hover { background: var(--sky-dark); }
+
+.resetBtn {
+  display: block; margin: 6px auto 0; background: none; border: none; font-size: 11px; color: var(--text-tertiary);
+  cursor: pointer; padding: 6px 10px; text-decoration: underline;
+}
+.resetBtn:hover { color: var(--sky); }

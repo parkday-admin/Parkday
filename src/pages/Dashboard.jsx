@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
-import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
+import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPackageBooking } from '../lib/categories'
+import { giftFundsTotals } from '../lib/giftFunds'
+import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
+import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
 import Fab from '../components/Fab/Fab'
 import styles from './Dashboard.module.css'
 
@@ -40,8 +43,9 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, userId } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
+  const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
 
   useEffect(() => {
@@ -55,6 +59,13 @@ export default function Dashboard() {
     })
     return () => { cancelled = true }
   }, [activeTrip, expensesVersion])
+
+  useEffect(() => {
+    if (!activeTrip || !isPackageBooking(activeTrip)) { setPayments(null); return }
+    let cancelled = false
+    fetchPayments(userId, activeTrip.id).then(({ data }) => { if (!cancelled) setPayments(data) })
+    return () => { cancelled = true }
+  }, [activeTrip, userId])
 
   if (loading) {
     return (
@@ -215,6 +226,73 @@ export default function Dashboard() {
           })}
         </div>
       </div>
+
+      {isPackageBooking(activeTrip) && payments && (() => {
+        const packageRow = findBudgetRow(expenses.filter(e => e.cat === 'package'), 'package')
+        const totalCost = packageRow?.planned_amt || 0
+        const paid = paymentsPaidTotal(payments)
+        const remaining = Math.max(0, totalCost - paid)
+        const finalPaymentDate = effectiveFinalPaymentDate(activeTrip)
+        const daysOut = daysUntil(finalPaymentDate) ?? 0
+        const lvl = paymentUrgencyLevel(daysOut)
+        const dueColor = remaining <= 0 ? 'var(--teal-dark)' : lvl === 'high' ? 'var(--coral)' : lvl === 'med' ? '#8a5a00' : 'var(--text-tertiary)'
+        return (
+          <div className={styles.itinCard}>
+            <div className={styles.itinHdr}>
+              <div className={styles.itinHdrL}>
+                <div className={styles.itinIcon}><i className="ti ti-receipt-2" /></div>
+                <div className={styles.itinTitle}>Resort Package payments</div>
+              </div>
+              <div className={styles.itinView} onClick={() => navigate('/payments')}>View <i className="ti ti-chevron-right" /></div>
+            </div>
+            <div className={styles.dprBody}>
+              <div className={styles.dprRow}>
+                <div><div className={styles.dprLbl}>Paid to date</div><div className={styles.dprSub}>{payments.length} payment{payments.length === 1 ? '' : 's'} logged</div></div>
+                <div><div className={styles.dprAmt}>{fmt(paid)}</div><div className={styles.dprStatus} style={{ color: 'var(--teal-dark)' }}>of {fmt(totalCost)}</div></div>
+              </div>
+              <div className={styles.dprRow}>
+                <div><div className={styles.dprLbl}>{remaining <= 0 ? 'Package paid in full' : 'Remaining balance'}</div><div className={styles.dprSub}>{remaining <= 0 ? 'Nothing further will be charged' : `Final payment ${finalPaymentDate ? new Date(finalPaymentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`}</div></div>
+                <div><div className={styles.dprAmt}>{fmt(remaining)}</div><div className={styles.dprStatus} style={{ color: dueColor }}>{remaining <= 0 ? 'Paid' : `Due in ${daysOut}d`}</div></div>
+              </div>
+            </div>
+          </div>
+        )
+      })()}
+
+      {(giftCards?.length > 0 || rewardPrograms?.length > 0) && (
+        <div className={styles.itinCard}>
+          <div className={styles.itinHdr}>
+            <div className={styles.itinHdrL}>
+              <div className={styles.itinIcon}><i className="ti ti-gift" /></div>
+              <div className={styles.itinTitle}>Gift cards & rewards</div>
+            </div>
+            <div className={styles.itinView} onClick={() => navigate('/gifts')}>View <i className="ti ti-chevron-right" /></div>
+          </div>
+          <div className={styles.dashDayRows}>
+            {giftCards.map(c => (
+              <div key={c.id} className={styles.dayRow} onClick={() => navigate('/gifts')}>
+                <div className={styles.dayInfo}>
+                  <div className={styles.dayPark}>{c.source}</div>
+                  <div className={styles.dayDate}>Gift card</div>
+                </div>
+                <span className={styles.pill}>{c.balance <= 0 ? 'Depleted' : fmt(c.balance)}</span>
+              </div>
+            ))}
+            {rewardPrograms.map(r => (
+              <div key={r.id} className={styles.dayRow} onClick={() => navigate('/gifts')}>
+                <div className={styles.dayInfo}>
+                  <div className={styles.dayPark}>{r.program}</div>
+                  <div className={styles.dayDate}>Reward</div>
+                </div>
+                <span className={styles.pill}>{fmt(r.value)}</span>
+              </div>
+            ))}
+          </div>
+          <div className={styles.bcView} onClick={() => navigate('/gifts')}>
+            Total available: {fmt(giftFundsTotals(giftCards, rewardPrograms).totalAvailable)}
+          </div>
+        </div>
+      )}
 
       <Fab onClick={() => openExpenseSheet?.({ presetCat: 'dining', presetDay: 1 })} />
     </div>

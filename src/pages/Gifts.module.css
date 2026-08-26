@@ -1,0 +1,73 @@
+.skeleton { display: flex; flex-direction: column; gap: 11px; }
+.skelBlock { background: var(--border-light); border-radius: var(--radius-lg); animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.empty { text-align: center; padding: 60px 20px; }
+.emptyIcon { font-size: 34px; color: var(--text-tertiary); margin-bottom: 12px; display: block; }
+.emptyHeadline { font-family: var(--heading); font-size: 19px; font-weight: 400; color: var(--night); margin-bottom: 4px; }
+.emptySubhead { font-size: 13px; color: var(--text-tertiary); }
+
+/* ── Hero ── */
+.hero { background: var(--night); border-radius: var(--radius); overflow: hidden; margin-bottom: 11px; }
+.heroTop { padding: 13px 15px 0; display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.heroLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.goalDisp {
+  font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--gold); line-height: 1;
+  border-bottom: 1.5px dashed rgba(255, 255, 255, 0.3); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+}
+.goalDisp i { font-size: 11px; opacity: 0.5; }
+.goalInp {
+  font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--gold); line-height: 1;
+  background: transparent; border: none; border-bottom: 1.5px solid var(--gold); outline: none; width: 120px;
+}
+.heroRight { text-align: right; padding: 0 15px 0 0; }
+.heroRightLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+.heroRightVal { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--teal); }
+.heroBar { height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; margin: 0 15px; }
+.heroBarFill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.3s; }
+.heroSub { font-size: 10px; color: rgba(255, 255, 255, 0.35); margin: 6px 15px 13px; }
+.heroFooter { padding: 9px 15px; border-top: 1px solid rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: space-between; }
+.heroFooterStat { text-align: center; flex: 1; }
+.heroFooterLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.heroFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
+.heroFooterDivider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); }
+
+/* ── Cards ── */
+.card { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 11px; }
+.cardHdr { padding: 12px 15px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--border-light); }
+.cardIcon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cardIcon i { font-size: 15px; }
+.cardTitle { font-family: var(--heading); font-size: 15px; font-weight: 400; color: var(--night); }
+.cardSub { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+.cardBody { padding: 14px 15px; }
+.cardEmpty { font-size: 12px; color: var(--text-tertiary); padding: 8px 0; }
+
+/* ── Gift card / reward rows ── */
+.gcRow, .rwRow { padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+.cardBody > .gcRow:last-of-type, .cardBody > .rwRow:last-of-type { border-bottom: none; }
+.gcRowTop { display: flex; align-items: center; gap: 11px; cursor: pointer; }
+.gcIcon, .rwIcon { width: 34px; height: 34px; border-radius: 9px; background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gcIcon i, .rwIcon i { font-size: 15px; color: var(--sky-dark); }
+.gcIcon.depleted { background: rgba(13, 20, 32, 0.06); }
+.gcIcon.depleted i { color: var(--text-tertiary); }
+.gcInfo { flex: 1; min-width: 0; }
+.gcName { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+.last4Pill { font-size: 9px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: rgba(13, 20, 32, 0.06); color: var(--text-tertiary); letter-spacing: 0.02em; }
+.gcSub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.gcAmts { text-align: right; flex-shrink: 0; }
+.gcBalance { font-family: var(--heading); font-size: 15px; font-weight: 400; color: var(--teal-dark); }
+.gcBalance.depleted { color: var(--text-tertiary); }
+.gcOriginal { font-size: 10px; color: var(--text-tertiary); text-decoration: line-through; margin-top: 1px; }
+
+.viewBtn {
+  margin: 6px 0 0 45px; font-size: 11px; font-weight: 600; color: var(--sky);
+  background: none; border: none; padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+}
+.viewBtn i { font-size: 12px; }
+
+.addBtn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px;
+  padding: 10px 12px; background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25);
+  border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
+}
+.addBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }

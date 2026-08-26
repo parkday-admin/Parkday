@@ -17,6 +17,13 @@ export function fmtDOW(str) {
   return parseLocalDate(str).toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
 }
 
+// Disney requires a Vacation Package paid in full 30 days before check-in.
+export function finalPaymentDate(arrivalStr) {
+  const d = parseLocalDate(arrivalStr)
+  d.setDate(d.getDate() - 30)
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+
 export const fmt = n => '$' + Math.round(n).toLocaleString()
 
 export function nightsBetween(S) {

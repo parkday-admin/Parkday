@@ -102,6 +102,11 @@ export default function CategoryDetail() {
         <div className={styles.hdrTitle}>
           <span>{meta.label}</span>
           <div className={styles.hdrIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
+          {cat === 'package' && (
+            <button type="button" className={styles.paymentPlanPill} onClick={() => navigate('/payments')} title="View payment plan">
+              <i className="ti ti-calendar-due" /> Payment plan
+            </button>
+          )}
         </div>
       </div>
 

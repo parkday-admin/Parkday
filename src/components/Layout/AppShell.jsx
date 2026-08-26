@@ -5,6 +5,7 @@ import { signOut } from '../../lib/auth'
 import { fetchActiveTrips } from '../../lib/trips'
 import { createExpense } from '../../lib/expenses'
 import { fetchFamilyMembers } from '../../lib/familyMembers'
+import { fetchGiftCards, fetchRewardPrograms } from '../../lib/giftFunds'
 import { categoryMeta } from '../../lib/categories'
 import ExpenseSheet from '../ExpenseSheet/ExpenseSheet'
 import FamilyMemberSheet from '../FamilyMemberSheet/FamilyMemberSheet'
@@ -32,9 +33,9 @@ const NAV_ITEMS = [
   { to: '/budget', icon: 'ti-chart-pie', label: 'Budget' },
   { to: '/itinerary', icon: 'ti-calendar', label: 'Itinerary' },
   { to: '/wishlist', icon: 'ti-heart', label: 'Wish list' },
-  { to: '/payments', icon: 'ti-credit-card', label: 'Payments', soon: true },
-  { to: '/gifts', icon: 'ti-gift', label: 'Gift Cards/Rewards', soon: true },
-  { to: '/packing', icon: 'ti-backpack', label: 'Packing list', soon: true },
+  { to: '/payments', icon: 'ti-credit-card', label: 'Payments' },
+  { to: '/gifts', icon: 'ti-gift', label: 'Gift Cards/Rewards' },
+  { to: '/packing', icon: 'ti-backpack', label: 'Packing list' },
   { to: '/reminders', icon: 'ti-bell', label: 'Reminders', soon: true },
   { to: '/trip-settings', icon: 'ti-settings', label: 'Trip settings' },
   { to: '/estimator', icon: 'ti-calculator', label: 'Estimator' },
@@ -65,6 +66,8 @@ export default function AppShell({ session }) {
   const [expensesVersion, setExpensesVersion] = useState(0)
   const [familyMembers, setFamilyMembers] = useState(null)
   const [famSheetState, setFamSheetState] = useState(null)
+  const [giftCards, setGiftCards] = useState(null)
+  const [rewardPrograms, setRewardPrograms] = useState(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
 
@@ -85,18 +88,21 @@ export default function AppShell({ session }) {
   function handleExpenseSaved(message) {
     closeExpenseSheet()
     setExpensesVersion(v => v + 1)
+    loadGiftFunds()
     showToast(message)
   }
 
   function handleExpenseDeleted(deletedExpense) {
     closeExpenseSheet()
     setExpensesVersion(v => v + 1)
+    loadGiftFunds()
     showToast('Expense deleted', {
       actionLabel: 'Undo',
       onAction: async () => {
         const { cat, label, time, status, ll_type, planned_amt, actual_amt, day } = deletedExpense
         await createExpense(session.user.id, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day })
         setExpensesVersion(v => v + 1)
+        loadGiftFunds()
         setToast(null)
       },
     })
@@ -125,6 +131,23 @@ export default function AppShell({ session }) {
     loadFamilyMembers()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const activeTrip = trips?.find(t => t.id === activeTripId) ?? trips?.[0] ?? null
+
+  async function loadGiftFunds() {
+    if (!activeTrip) { setGiftCards([]); setRewardPrograms([]); return }
+    const [{ data: gc }, { data: rw }] = await Promise.all([
+      fetchGiftCards(session.user.id, activeTrip.id),
+      fetchRewardPrograms(session.user.id, activeTrip.id),
+    ])
+    setGiftCards(gc)
+    setRewardPrograms(rw)
+  }
+
+  useEffect(() => {
+    loadGiftFunds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTrip?.id])
 
   function openFamilySheet(opts) {
     setFamSheetState(opts ?? {})
@@ -159,7 +182,6 @@ export default function AppShell({ session }) {
     setDrawerOpen(false)
   }
 
-  const activeTrip = trips?.find(t => t.id === activeTripId) ?? trips?.[0] ?? null
   const budgetCatMatch = location.pathname.match(/^\/budget\/(.+)$/)
   const title = budgetCatMatch
     ? categoryMeta(budgetCatMatch[1]).label
@@ -265,6 +287,7 @@ export default function AppShell({ session }) {
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
               openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session,
               familyMembers, openFamilySheet,
+              giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
             }} />
           </div>
         </div>
@@ -275,6 +298,8 @@ export default function AppShell({ session }) {
           trip={activeTrip}
           userId={session.user.id}
           state={sheetState}
+          giftCards={giftCards ?? []}
+          rewardPrograms={rewardPrograms ?? []}
           onClose={closeExpenseSheet}
           onSaved={handleExpenseSaved}
           onDeleted={handleExpenseDeleted}

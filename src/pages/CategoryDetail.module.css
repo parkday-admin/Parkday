@@ -28,6 +28,12 @@
 .hdrTitle { display: flex; align-items: center; gap: 8px; font-family: var(--heading); font-size: 16px; color: var(--night); }
 .hdrIcon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .hdrIcon i { font-size: 14px; }
+.paymentPlanPill {
+  font-size: 9px; font-weight: 600; background: rgba(245, 181, 54, 0.18); color: #8a5a00;
+  border: none; border-radius: 20px; padding: 3px 8px; display: inline-flex; align-items: center; gap: 3px; cursor: pointer;
+}
+.paymentPlanPill:hover { background: rgba(245, 181, 54, 0.28); }
+.paymentPlanPill i { font-size: 10px; }
 
 /* Summary */
 .summary {

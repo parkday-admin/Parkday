@@ -9,7 +9,7 @@ import {
 } from './configuratorData'
 import {
   isDayTrip, parseLocalDate, fmtDate, fmtDOW, fmt, nightsBetween, budgetTotal,
-  generateParkDays, dayStatusLabel, PARKS,
+  generateParkDays, dayStatusLabel, finalPaymentDate, PARKS,
 } from './configuratorLogic'
 import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
@@ -310,6 +310,7 @@ export default function Configurator({ session, planType }) {
       dep_airline: S.travel === 'flying' ? (S.depAirline || null) : null,
       dep_flight: S.travel === 'flying' ? (S.depFlight || null) : null,
       memory_maker: S.memoryMaker,
+      final_payment_date: S.arrival ? finalPaymentDate(S.arrival) : null,
     }
 
     let savedTripId = tripId

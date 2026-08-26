@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createExpense, updateExpense, deleteExpense } from '../../lib/expenses'
 import { categoriesForTrip, categoryMeta, CATS_WITH_TIME, CATS_WITH_STATUS } from '../../lib/categories'
 import { tripDays } from '../../lib/trips'
+import { paymentSourceGroups } from '../../lib/giftFunds'
 import styles from './ExpenseSheet.module.css'
 
 function fmtTimeInput(t) {
@@ -25,7 +26,7 @@ function fmtTimeOutput(hhmm) {
   return `${h12}:${String(m).padStart(2, '0')} ${period}`
 }
 
-export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, onDeleted, onError }) {
+export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewardPrograms = [], onClose, onSaved, onDeleted, onError }) {
   const editing = state?.editingExpense ?? null
   const cats = categoriesForTrip(trip)
   const days = tripDays(trip)
@@ -38,6 +39,7 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
   const [time, setTime] = useState('')
   const [llType, setLlType] = useState('multipass')
   const [status, setStatus] = useState(null)
+  const [paymentSource, setPaymentSource] = useState('')
   const [plannedError, setPlannedError] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -52,6 +54,7 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
       setTime(fmtTimeInput(editing.time))
       setLlType(editing.ll_type || 'multipass')
       setStatus(editing.status || null)
+      setPaymentSource(editing.payment_source || '')
     } else {
       const initialCat = state.presetCat && cats.includes(state.presetCat) ? state.presetCat : cats.find(c => categoryMeta(c).scope === 'day') || cats[0]
       setCat(initialCat)
@@ -62,6 +65,7 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
       setTime('')
       setLlType('multipass')
       setStatus(null)
+      setPaymentSource('')
     }
     setPlannedError(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,6 +82,25 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
   function copyPlannedToActual() {
     if (planned) setActual(planned)
   }
+
+  const pmtGroups = paymentSourceGroups(giftCards, rewardPrograms)
+  // Keep the currently-selected source selectable even if its balance has
+  // since hit $0 or it's a manual label not in the preset list — otherwise
+  // editing an expense would silently drop the saved value from the menu.
+  const allKnownValues = new Set([...pmtGroups.other, ...pmtGroups.gift, ...pmtGroups.reward].map(o => o.value))
+  let currentSourceExtra = null
+  if (paymentSource && !allKnownValues.has(paymentSource)) {
+    if (paymentSource.startsWith('gift:')) {
+      const c = giftCards.find(g => `gift:${g.id}` === paymentSource)
+      if (c) currentSourceExtra = { group: 'gift', option: { value: paymentSource, label: `${c.source}${c.last4 ? ` •••• ${c.last4}` : ''} — Depleted` } }
+    } else if (paymentSource.startsWith('reward:')) {
+      const r = rewardPrograms.find(rw => `reward:${rw.id}` === paymentSource)
+      if (r) currentSourceExtra = { group: 'reward', option: { value: paymentSource, label: `${r.program} — $0 left` } }
+    } else {
+      currentSourceExtra = { group: 'other', option: { value: paymentSource, label: paymentSource.replace(/^manual:/, '') } }
+    }
+  }
+  if (currentSourceExtra) pmtGroups[currentSourceExtra.group] = [...pmtGroups[currentSourceExtra.group], currentSourceExtra.option]
 
   async function handleSave() {
     const plannedNum = planned === '' ? null : Number(planned)
@@ -98,6 +121,7 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
       time: showTime ? fmtTimeOutput(time) : null,
       ll_type: showLlType ? llType : null,
       status: showStatus ? status : null,
+      payment_source: paymentSource || null,
     }
 
     setSaving(true)
@@ -223,6 +247,26 @@ export default function ExpenseSheet({ trip, userId, state, onClose, onSaved, on
               </div>
             </div>
           )}
+
+          <div className={styles.field}>
+            <div className={styles.fieldLbl}>Payment source <span className={styles.optional}>(optional)</span></div>
+            <select className={styles.textInp} value={paymentSource} onChange={e => setPaymentSource(e.target.value)}>
+              <option value="">None — not tracked</option>
+              <optgroup label="Other">
+                {pmtGroups.other.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </optgroup>
+              {pmtGroups.gift.length > 0 && (
+                <optgroup label="Gift cards">
+                  {pmtGroups.gift.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </optgroup>
+              )}
+              {pmtGroups.reward.length > 0 && (
+                <optgroup label="Rewards">
+                  {pmtGroups.reward.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </optgroup>
+              )}
+            </select>
+          </div>
 
           <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
             <i className="ti ti-check" /> {saving ? 'Saving…' : editing ? 'Save changes' : 'Save expense'}
