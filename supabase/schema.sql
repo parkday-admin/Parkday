@@ -496,3 +496,46 @@ create policy "Users and collaborators manage reminders"
     auth.uid() = user_id
     or auth.uid() in (select id from profiles where collaborator_of = reminders.user_id)
   );
+
+-- Trip Pass is a one-time payment scoped to one trip through 30 days after
+-- it ends. It has no Stripe subscription to expire, so a daily job checks
+-- each trip_pass holder's trip against its own departure_date instead,
+-- archiving it and deactivating access the same way a cancelled Plus Pass
+-- subscription does (see stripe-webhook's customer.subscription.deleted
+-- handler) — App.jsx's existing RequirePaidAuth gate then locks them out
+-- of editing/unarchiving it or creating a new trip on its own.
+create extension if not exists pg_cron with schema extensions;
+
+create or replace function expire_trip_passes()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update trips
+  set status = 'archived'
+  where status = 'active'
+    and departure_date <= (current_date - interval '30 days')
+    and user_id in (
+      select id from profiles
+      where plan_type = 'trip_pass' and subscription_status = 'active'
+    );
+
+  update profiles
+  set subscription_status = 'inactive'
+  where plan_type = 'trip_pass'
+    and subscription_status = 'active'
+    and id in (
+      select user_id from trips
+      where status = 'archived'
+        and departure_date <= (current_date - interval '30 days')
+    );
+end;
+$$;
+
+select cron.schedule(
+  'expire-trip-passes-daily',
+  '0 8 * * *', -- 08:00 UTC daily
+  $$select expire_trip_passes();$$
+);
