@@ -31,7 +31,7 @@ export default function More() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
   const {
-    trips, activeTrip, setActiveTripId, planType,
+    trips, activeTrip, setActiveTripId, planType, accountType,
     giftCards, rewardPrograms,
   } = outletContext ?? {}
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -65,14 +65,16 @@ export default function More() {
               ))}
             </div>
           )}
-          {planType === 'trip_pass' ? (
-            <button type="button" className={styles.upgradeBtn} onClick={() => navigate('/paywall')}>
-              <i className="ti ti-crown" /> Upgrade to add a trip
-            </button>
-          ) : (
-            <button type="button" className={styles.newTripBtn} onClick={() => navigate('/configurator')}>
-              <i className="ti ti-plus" /> New trip
-            </button>
+          {accountType !== 'collaborator' && (
+            planType === 'trip_pass' ? (
+              <button type="button" className={styles.upgradeBtn} onClick={() => navigate('/paywall')}>
+                <i className="ti ti-crown" /> Upgrade to add a trip
+              </button>
+            ) : (
+              <button type="button" className={styles.newTripBtn} onClick={() => navigate('/configurator')}>
+                <i className="ti ti-plus" /> New trip
+              </button>
+            )
           )}
         </div>
       </DashboardCard>

@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
 import { onAuthStateChange } from './lib/auth'
 import { getProfile } from './lib/profile'
+import { getCollaboratorStatus } from './lib/collaborator'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
 import ResetPassword from './pages/ResetPassword'
+import InviteAccept from './pages/InviteAccept'
 import Dashboard from './pages/Dashboard'
 import Paywall from './pages/Paywall'
+import PausedAccess from './pages/PausedAccess'
 import Configurator from './components/Configurator/Configurator'
 import AppShell from './components/Layout/AppShell'
 import ComingSoon from './pages/ComingSoon'
@@ -57,7 +60,14 @@ function useProfile(session) {
     setProfile(undefined)
 
     getProfile(session.user.id).then(({ data }) => {
-      if (!cancelled) setProfile(data ? { status: data.subscription_status ?? null, planType: data.plan_type ?? null } : null)
+      if (!cancelled) {
+        setProfile(data ? {
+          status: data.subscription_status ?? null,
+          planType: data.plan_type ?? null,
+          accountType: data.account_type ?? 'owner',
+          collaboratorOf: data.collaborator_of ?? null,
+        } : null)
+      }
     })
 
     return () => { cancelled = true }
@@ -66,75 +76,111 @@ function useProfile(session) {
   return profile
 }
 
-function RequirePaidAuth({ session, status }) {
+// A collaborator's own profile row carries no subscription info — their
+// access is derived from the owner's. Re-fetched on every route change
+// (not just once at login) so a lapsed subscription locks a collaborator
+// out immediately on their next navigation, not just their next sign-in.
+function useCollaboratorStatus(profile, pathname) {
+  const [status, setStatus] = useState(undefined) // undefined = loading/not applicable, null = not a collaborator
+
+  useEffect(() => {
+    if (profile?.accountType !== 'collaborator') {
+      setStatus(null)
+      return
+    }
+
+    let cancelled = false
+    getCollaboratorStatus().then(({ data }) => {
+      if (!cancelled) setStatus(data ?? null)
+    })
+    return () => { cancelled = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.accountType, pathname])
+
+  return status
+}
+
+function RequirePaidAuth({ session, canAccess }) {
   if (!session) return <Navigate to="/login" replace />
-  if (status !== 'active') return <Navigate to="/paywall" replace />
+  if (!canAccess) return <Navigate to="/paywall" replace />
   return <Outlet />
+}
+
+function AppRoutes({ session, profile }) {
+  const location = useLocation()
+  const collaboratorStatus = useCollaboratorStatus(profile, location.pathname)
+
+  const isCollaborator = profile?.accountType === 'collaborator'
+  // Still waiting on the owner-status lookup for a collaborator — don't
+  // make a routing decision (which would flash paused/dashboard) until it
+  // resolves.
+  if (isCollaborator && collaboratorStatus === undefined) return null
+
+  const canAccess = isCollaborator ? !!collaboratorStatus?.ownerActive : profile?.status === 'active'
+  const destination = canAccess ? '/dashboard' : '/paywall'
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={!session ? <Home /> : <Navigate to={destination} replace />}
+      />
+      <Route
+        path="/login"
+        element={!session ? <Auth /> : <Navigate to={destination} replace />}
+      />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/invite/:token" element={<InviteAccept session={session} />} />
+      <Route
+        path="/paywall"
+        element={
+          !session
+            ? <Navigate to="/" replace />
+            : canAccess
+              ? <Navigate to="/dashboard" replace />
+              : isCollaborator
+                ? <PausedAccess ownerName={collaboratorStatus?.ownerName ?? 'The account owner'} />
+                : <Paywall session={session} />
+        }
+      />
+
+      <Route element={<RequirePaidAuth session={session} canAccess={canAccess} />}>
+        <Route element={<AppShell session={session} planType={profile?.planType ?? null} accountType={profile?.accountType ?? 'owner'} />}>
+          <Route
+            path="/configurator"
+            element={<Configurator session={session} planType={profile?.planType ?? null} />}
+          />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/trip-settings" element={<TripSettings />} />
+          <Route path="/estimator" element={<EstimatorPage />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/budget" element={<Budget />} />
+          <Route path="/budget/:cat" element={<CategoryDetail />} />
+          <Route path="/itinerary" element={<Itinerary />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/payments" element={<Payments />} />
+          <Route path="/gifts" element={<Gifts />} />
+          <Route path="/packing" element={<Packing />} />
+          <Route path="/reminders" element={<Reminders />} />
+          <Route path="/more" element={<More />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }
 
 export default function App() {
   const session = useSession()
   const profile = useProfile(session)
-  const status = profile?.status ?? null
 
   // Still resolving session, or resolving a signed-in user's plan.
   if (session === undefined || (session && profile === undefined)) return null
 
   return (
     <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            !session
-              ? <Home />
-              : <Navigate to={status === 'active' ? '/dashboard' : '/paywall'} replace />
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            !session
-              ? <Auth />
-              : <Navigate to={status === 'active' ? '/dashboard' : '/paywall'} replace />
-          }
-        />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route
-          path="/paywall"
-          element={
-            !session
-              ? <Navigate to="/" replace />
-              : status === 'active'
-                ? <Navigate to="/dashboard" replace />
-                : <Paywall session={session} />
-          }
-        />
-
-        <Route element={<RequirePaidAuth session={session} status={status} />}>
-          <Route element={<AppShell session={session} planType={profile?.planType ?? null} />}>
-            <Route
-              path="/configurator"
-              element={<Configurator session={session} planType={profile?.planType ?? null} />}
-            />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/trip-settings" element={<TripSettings />} />
-            <Route path="/estimator" element={<EstimatorPage />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/budget" element={<Budget />} />
-            <Route path="/budget/:cat" element={<CategoryDetail />} />
-            <Route path="/itinerary" element={<Itinerary />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route path="/gifts" element={<Gifts />} />
-            <Route path="/packing" element={<Packing />} />
-            <Route path="/reminders" element={<Reminders />} />
-            <Route path="/more" element={<More />} />
-          </Route>
-        </Route>
-
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <AppRoutes session={session} profile={profile} />
     </BrowserRouter>
   )
 }

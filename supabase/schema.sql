@@ -394,3 +394,55 @@ create policy "Users manage own reminders"
   on reminders for all
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- ── Migration: Collaborator access ──────────────────────────────────
+-- Full detail lives in supabase/migrations/20260827005545_collaborators.sql
+-- — kept in sync here for reference only.
+alter table profiles
+  add column if not exists account_type text default 'owner' check (account_type in ('owner', 'collaborator')),
+  add column if not exists collaborator_of uuid references profiles(id);
+
+create unique index if not exists one_collaborator_per_owner
+  on profiles (collaborator_of) where collaborator_of is not null;
+
+create table if not exists collaborator_invites (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid references profiles(id) not null,
+  invited_email text not null,
+  token uuid default gen_random_uuid() unique not null,
+  status text default 'pending' check (status in ('pending', 'accepted', 'revoked')),
+  created_at timestamptz default now(),
+  accepted_at timestamptz
+);
+
+create unique index if not exists one_pending_invite_per_owner
+  on collaborator_invites (owner_id) where status = 'pending';
+
+alter table collaborator_invites enable row level security;
+
+drop policy if exists "Owner manages own invites" on collaborator_invites;
+create policy "Owner manages own invites"
+  on collaborator_invites for select
+  using (auth.uid() = owner_id);
+
+drop policy if exists "Service role bypass on collaborator_invites" on collaborator_invites;
+create policy "Service role bypass on collaborator_invites"
+  on collaborator_invites for all
+  to service_role
+  using (true)
+  with check (true);
+
+-- trips, expenses, wish_list_items, gift_cards, reward_programs, and
+-- payments RLS were all updated to additionally allow access when the
+-- caller is a collaborator on the row's owner (a profiles row with
+-- collaborator_of = that owner's id) — see the migration file for the
+-- full per-table policy definitions (trips: select+update only, all
+-- others: full CRUD).
+
+-- ── Migration: collaborator invite cancellation ─────────────────────
+-- Full detail lives in
+-- supabase/migrations/20260827010500_collaborator_invite_cancel.sql
+drop policy if exists "Owner can cancel own pending invite" on collaborator_invites;
+create policy "Owner can cancel own pending invite"
+  on collaborator_invites for delete
+  using (auth.uid() = owner_id and status = 'pending');

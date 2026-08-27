@@ -111,7 +111,7 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId, accountType } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
@@ -163,10 +163,14 @@ export default function Dashboard() {
       <div className={styles.empty}>
         <i className={`ti ti-map-pin ${styles.emptyIcon}`} />
         <h1 className={styles.emptyHeadline}>Ready to plan your park day?</h1>
-        <p className={styles.emptySubhead}>Set up your first trip to get started.</p>
-        <button className={styles.planBtn} onClick={() => navigate('/configurator')}>
-          Plan a trip
-        </button>
+        <p className={styles.emptySubhead}>
+          {accountType === 'collaborator' ? "The account owner hasn't planned a trip yet." : 'Set up your first trip to get started.'}
+        </p>
+        {accountType !== 'collaborator' && (
+          <button className={styles.planBtn} onClick={() => navigate('/configurator')}>
+            Plan a trip
+          </button>
+        )}
       </div>
     )
   }

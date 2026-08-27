@@ -67,7 +67,7 @@ function tripDateRange(trip) {
   return `${fmtDateShort(trip.arrival_date)} – ${fmtDateShort(trip.departure_date)}, ${dy || ay}`
 }
 
-export default function AppShell({ session, planType }) {
+export default function AppShell({ session, planType, accountType }) {
   const location = useLocation()
   const navigate = useNavigate()
   const hdrRef = useRef(null)
@@ -308,14 +308,16 @@ export default function AppShell({ session, planType }) {
                 ))}
               </div>
             )}
-            {planType === 'trip_pass' ? (
-              <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
-                <i className="ti ti-crown" /> Upgrade to add a trip
-              </button>
-            ) : (
-              <button type="button" className={styles.navTripNew} onClick={() => { closeAll(); navigate('/configurator') }}>
-                <i className="ti ti-plus" /> New trip
-              </button>
+            {accountType !== 'collaborator' && (
+              planType === 'trip_pass' ? (
+                <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
+                  <i className="ti ti-crown" /> Upgrade to add a trip
+                </button>
+              ) : (
+                <button type="button" className={styles.navTripNew} onClick={() => { closeAll(); navigate('/configurator') }}>
+                  <i className="ti ti-plus" /> New trip
+                </button>
+              )
             )}
           </div>
 
@@ -340,7 +342,7 @@ export default function AppShell({ session, planType }) {
           <div className={styles.scroll}>
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
-              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session, planType,
+              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session, planType, accountType,
               familyMembers, openFamilySheet,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,

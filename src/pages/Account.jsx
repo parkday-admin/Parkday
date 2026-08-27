@@ -5,6 +5,10 @@ import { fetchArchivedTrips } from '../lib/trips'
 import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
 import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
 import { signOut, sendPasswordReset } from '../lib/auth'
+import {
+  fetchCollaboratorInvite, fetchCollaborator, sendCollaboratorInvite, resendCollaboratorInvite,
+  cancelCollaboratorInvite, removeCollaborator, leaveCollaboratorAccount,
+} from '../lib/collaborator'
 import styles from './Account.module.css'
 
 const TIMEZONES = [
@@ -102,6 +106,11 @@ export default function Account() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState(undefined) // undefined = not fetched yet, null = none on file
+  const [collaboratorState, setCollaboratorState] = useState(undefined) // undefined = loading, else {type:'none'|'pending'|'active', ...}
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteLoading, setInviteLoading] = useState(false)
+  const [inviteError, setInviteError] = useState(null)
+  const [leaving, setLeaving] = useState(false)
 
   useEffect(() => {
     if (!userId) return
@@ -117,6 +126,20 @@ export default function Account() {
     return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId])
+
+  async function loadCollaboratorState() {
+    const { data: collaborator } = await fetchCollaborator(userId)
+    if (collaborator) { setCollaboratorState({ type: 'active', collaborator }); return }
+    const { data: invite } = await fetchCollaboratorInvite(userId)
+    if (invite) { setCollaboratorState({ type: 'pending', invite }); return }
+    setCollaboratorState({ type: 'none' })
+  }
+
+  useEffect(() => {
+    if (!userId || profile?.account_type !== 'owner') return
+    loadCollaboratorState()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, profile?.account_type])
 
   useEffect(() => {
     if (!profile?.stripe_customer_id) return
@@ -187,8 +210,52 @@ export default function Account() {
     window.location.href = '/'
   }
 
+  async function handleSendInvite() {
+    setInviteError(null)
+    setInviteLoading(true)
+    const { error } = await sendCollaboratorInvite(inviteEmail.trim())
+    setInviteLoading(false)
+    if (error) { setInviteError(error.message); return }
+    setInviteEmail('')
+    showToast?.('Invite sent')
+    loadCollaboratorState()
+  }
+
+  async function handleResendInvite() {
+    const { error } = await resendCollaboratorInvite()
+    showToast?.(error ? error.message : 'Invite resent')
+  }
+
+  async function handleCancelInvite() {
+    const { error } = await cancelCollaboratorInvite(collaboratorState.invite.id)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Invite canceled')
+    loadCollaboratorState()
+  }
+
+  async function handleRemoveCollaborator() {
+    const who = collaboratorState.collaborator.full_name || collaboratorState.collaborator.email
+    const ok = window.confirm(`Are you sure? ${who} will immediately lose access to your trips.`)
+    if (!ok) return
+    const { error } = await removeCollaborator(collaboratorState.collaborator.id)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Collaborator removed')
+    loadCollaboratorState()
+  }
+
+  async function handleLeaveAccount() {
+    const ok = window.confirm('Are you sure? You will lose access to their trips immediately.')
+    if (!ok) return
+    setLeaving(true)
+    const { error } = await leaveCollaboratorAccount(userId)
+    setLeaving(false)
+    if (error) { showToast?.(error.message); return }
+    window.location.href = '/'
+  }
+
   const providers = session.user.app_metadata?.providers || []
   const isGoogleOnly = providers.includes('google') && !providers.includes('email')
+  const isCollaborator = profile.account_type === 'collaborator'
 
   const isPlus = profile.plan_type === 'plus_pass' && profile.subscription_status === 'active'
   const isTripPass = profile.plan_type === 'trip_pass' && profile.subscription_status === 'active'
@@ -264,6 +331,58 @@ export default function Account() {
         </button>
       </Card>
 
+      {!isCollaborator && (
+        <Card icon="ti-users-group" iconBg="rgba(44,165,141,0.16)" iconColor="var(--teal-dark)" title="Collaborator" sub="One free seat on your account">
+          {collaboratorState === undefined ? (
+            <div className={styles.empty}>Loading…</div>
+          ) : collaboratorState.type === 'active' ? (
+            <>
+              <div className={styles.rowInline}>
+                <div>
+                  <div className={styles.val}>{collaboratorState.collaborator.full_name || collaboratorState.collaborator.email}</div>
+                  {collaboratorState.collaborator.full_name && <div className={styles.sub}>{collaboratorState.collaborator.email}</div>}
+                </div>
+                <span className={`${styles.planBadge} ${styles.badgePlus}`}>Active</span>
+              </div>
+              <button type="button" className={`${styles.dangerBtn} ${styles.solid}`} style={{ marginTop: 10 }} onClick={handleRemoveCollaborator}>
+                Remove collaborator
+              </button>
+            </>
+          ) : collaboratorState.type === 'pending' ? (
+            <>
+              <div className={styles.rowInline}>
+                <div><div className={styles.val}>{collaboratorState.invite.invited_email}</div></div>
+                <span className={`${styles.planBadge} ${styles.badgeTrip}`}>Pending</span>
+              </div>
+              <div className={styles.rowInline}>
+                <button type="button" className={styles.linkBtn} onClick={handleResendInvite}>Resend invite</button>
+                <button type="button" className={styles.linkBtn} onClick={handleCancelInvite}>Cancel invite</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.row}>
+                <div className={styles.lbl}>Invite someone to your account</div>
+                <input
+                  className={styles.textInp}
+                  type="email"
+                  value={inviteEmail}
+                  onChange={e => setInviteEmail(e.target.value)}
+                  placeholder="their@email.com"
+                />
+              </div>
+              {inviteError && <div className={styles.dangerSub} style={{ color: 'var(--coral)' }}>{inviteError}</div>}
+              <button type="button" className={styles.addBtn} disabled={inviteLoading || !inviteEmail.trim()} onClick={handleSendInvite}>
+                <i className="ti ti-send" /> {inviteLoading ? 'Sending…' : 'Send invite'}
+              </button>
+              <div className={styles.planNote}>Your collaborator can view and edit all your trips. They'll need to create a free Parkday account to accept.</div>
+            </>
+          )}
+        </Card>
+      )}
+
+      {!isCollaborator && (
+      <>
       <Card icon="ti-sparkles" iconBg="rgba(245,181,54,0.18)" iconColor="#8a5a00" title="Subscription">
         {isInactive ? (
           <>
@@ -343,6 +462,8 @@ export default function Account() {
           </div>
         )}
       </Card>
+      </>
+      )}
 
       <Card icon="ti-bell" iconBg="rgba(44,165,141,0.16)" iconColor="var(--teal-dark)" title="Notifications">
         <ToggleRow name="Booking deadlines" sub="ADR windows, ticket & resort payment due dates" on={!!profile.notif_deadlines} onToggle={() => toggleNotif('notif_deadlines')} />
@@ -360,6 +481,17 @@ export default function Account() {
           <div className={styles.dangerTitle}>Danger zone</div>
         </div>
         <div className={styles.dangerBody}>
+          {isCollaborator && (
+            <div className={styles.dangerRow}>
+              <div>
+                <div className={styles.dangerName}>Leave this account</div>
+                <div className={styles.dangerSub}>Remove your collaborator link — you'll lose access to their trips</div>
+              </div>
+              <button type="button" className={`${styles.dangerBtn} ${styles.solid}`} disabled={leaving} onClick={handleLeaveAccount}>
+                {leaving ? 'Leaving…' : 'Leave'}
+              </button>
+            </div>
+          )}
           <div className={styles.dangerRow}>
             <div>
               <div className={styles.dangerName}>Export my data</div>

@@ -50,7 +50,7 @@ function Row({ label, value, locked }) {
 export default function TripSettings() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, refetchTrips, showToast } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, refetchTrips, showToast, accountType } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -86,8 +86,12 @@ export default function TripSettings() {
       <div className={styles.empty}>
         <i className={`ti ti-settings ${styles.emptyIcon}`} />
         <h1 className={styles.emptyHeadline}>No active trip</h1>
-        <p className={styles.emptySubhead}>Plan a trip to see its settings here.</p>
-        <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+        <p className={styles.emptySubhead}>
+          {accountType === 'collaborator' ? "The account owner hasn't planned a trip yet." : 'Plan a trip to see its settings here.'}
+        </p>
+        {accountType !== 'collaborator' && (
+          <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+        )}
       </div>
     )
   }
