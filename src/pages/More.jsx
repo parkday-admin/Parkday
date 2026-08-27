@@ -42,18 +42,26 @@ export default function More() {
     <div className={styles.page}>
       <DashboardCard icon="ti-map-2" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" title="Current trip">
         <div className={styles.tripBody}>
-          {activeTrip ? (
+          {activeTrip && trips && trips.length > 1 ? (
+            <button
+              type="button"
+              className={`${styles.tripTrigger} ${switcherOpen ? styles.open : ''}`}
+              onClick={() => setSwitcherOpen(o => !o)}
+              aria-expanded={switcherOpen}
+            >
+              <span className={styles.tripInfo}>
+                <span className={styles.tripName}>{activeTrip.name}</span>
+                <span className={styles.tripDates}>{tripDateRange(activeTrip)}</span>
+              </span>
+              <i className={`ti ti-chevron-down ${styles.tripChevron}`} />
+            </button>
+          ) : activeTrip ? (
             <>
               <div className={styles.tripName}>{activeTrip.name}</div>
               <div className={styles.tripDates}>{tripDateRange(activeTrip)}</div>
             </>
           ) : (
             <div className={styles.tripName} style={{ color: 'var(--text-tertiary)' }}>No active trip</div>
-          )}
-          {trips && trips.length > 1 && (
-            <div className={styles.switchLink} onClick={() => setSwitcherOpen(o => !o)}>
-              <i className="ti ti-chevron-down" /> Switch trip
-            </div>
           )}
           {switcherOpen && (
             <div className={styles.switcherList}>

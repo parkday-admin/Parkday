@@ -3,9 +3,21 @@
 .tripBody { padding: 14px 16px; display: flex; flex-direction: column; }
 .tripName { font-family: var(--heading); font-size: 16px; font-weight: 400; color: var(--night); }
 .tripDates { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
-.switchLink { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-tertiary); cursor: pointer; margin-top: 8px; }
-.switchLink:hover { color: var(--sky); }
-.switchLink i { font-size: 12px; }
+
+/* The whole current-trip block is the switcher trigger when there's more
+   than one trip to switch to — matches AppShell's desktop nav-drawer
+   treatment. */
+.tripTrigger {
+  width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--white);
+  text-align: left; font-family: var(--sans); cursor: pointer;
+}
+.tripTrigger:hover { border-color: var(--sky); background: rgba(42, 111, 224, 0.05); }
+.tripTrigger.open { border-color: var(--sky); background: rgba(42, 111, 224, 0.07); }
+.tripInfo { display: flex; flex-direction: column; min-width: 0; }
+.tripChevron { font-size: 18px; color: var(--text-tertiary); flex-shrink: 0; transition: transform 0.15s ease, color 0.15s ease; }
+.tripTrigger:hover .tripChevron, .tripTrigger.open .tripChevron { color: var(--sky); }
+.tripTrigger.open .tripChevron { transform: rotate(180deg); }
 
 .switcherList { margin-top: 8px; background: var(--cream); border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
 .switcherItem { padding: 8px 11px; cursor: pointer; border-bottom: 1px solid var(--border-light); }
