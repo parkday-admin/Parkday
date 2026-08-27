@@ -8,7 +8,6 @@ import Home from './pages/Home'
 import Auth from './pages/Auth'
 import ResetPassword from './pages/ResetPassword'
 import InviteAccept from './pages/InviteAccept'
-import OAuthPopupComplete from './pages/OAuthPopupComplete'
 import Dashboard from './pages/Dashboard'
 import Paywall from './pages/Paywall'
 import PausedAccess from './pages/PausedAccess'
@@ -213,7 +212,6 @@ function AppRoutes({ session, profile, justSignedIn }) {
         element={!session ? <Auth /> : <Navigate to={destination} replace />}
       />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/oauth-popup-complete" element={<OAuthPopupComplete />} />
       <Route path="/invite/:token" element={<InviteAccept session={session} />} />
       <Route
         path="/paywall"
