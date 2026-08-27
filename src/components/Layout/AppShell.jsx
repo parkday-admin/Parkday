@@ -67,9 +67,15 @@ function tripDateRange(trip) {
   return `${fmtDateShort(trip.arrival_date)} – ${fmtDateShort(trip.departure_date)}, ${dy || ay}`
 }
 
-export default function AppShell({ session, planType, accountType }) {
+export default function AppShell({ session, planType, accountType, collaboratorOf }) {
   const location = useLocation()
   const navigate = useNavigate()
+  // Account-level data (family members, gift funds, reminders — and every
+  // trip they attach to) belongs to the account owner, not necessarily the
+  // signed-in user. For an owner those are the same id; for a collaborator
+  // they're not, so every load/create below needs to resolve to this, not
+  // session.user.id.
+  const ownerId = accountType === 'collaborator' ? collaboratorOf : session.user.id
   const hdrRef = useRef(null)
   const userMenuRef = useRef(null)
   const [switcherOpen, setSwitcherOpen] = useState(false)
@@ -115,7 +121,7 @@ export default function AppShell({ session, planType, accountType }) {
       actionLabel: 'Undo',
       onAction: async () => {
         const { cat, label, time, status, ll_type, planned_amt, actual_amt, day } = deletedExpense
-        await createExpense(session.user.id, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day })
+        await createExpense(ownerId, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day })
         setExpensesVersion(v => v + 1)
         loadGiftFunds()
         setToast(null)
@@ -137,7 +143,7 @@ export default function AppShell({ session, planType, accountType }) {
   }
 
   async function loadFamilyMembers() {
-    const { data } = await fetchFamilyMembers(session.user.id)
+    const { data } = await fetchFamilyMembers(ownerId)
     setFamilyMembers(data)
   }
 
@@ -174,8 +180,8 @@ export default function AppShell({ session, planType, accountType }) {
   async function loadGiftFunds() {
     if (!activeTrip) { setGiftCards([]); setRewardPrograms([]); return }
     const [{ data: gc }, { data: rw }] = await Promise.all([
-      fetchGiftCards(session.user.id, activeTrip.id),
-      fetchRewardPrograms(session.user.id, activeTrip.id),
+      fetchGiftCards(ownerId, activeTrip.id),
+      fetchRewardPrograms(ownerId, activeTrip.id),
     ])
     setGiftCards(gc)
     setRewardPrograms(rw)
@@ -188,9 +194,9 @@ export default function AppShell({ session, planType, accountType }) {
 
   async function loadReminders() {
     if (!activeTrip) { setReminders([]); return }
-    const { data } = await fetchReminders(session.user.id, activeTrip.id)
+    const { data } = await fetchReminders(ownerId, activeTrip.id)
     if (data.length === 0) {
-      const rows = buildSystemReminders(activeTrip, session.user.id)
+      const rows = buildSystemReminders(activeTrip, ownerId)
       const { data: inserted } = await insertReminders(rows)
       setReminders(inserted)
     } else {
@@ -342,7 +348,7 @@ export default function AppShell({ session, planType, accountType }) {
           <div className={styles.scroll}>
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
-              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session, planType, accountType,
+              openExpenseSheet, expensesVersion, userId: ownerId, showToast, session, planType, accountType,
               familyMembers, openFamilySheet,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,
@@ -367,7 +373,7 @@ export default function AppShell({ session, planType, accountType }) {
       {activeTrip && (
         <ExpenseSheet
           trip={activeTrip}
-          userId={session.user.id}
+          userId={ownerId}
           state={sheetState}
           giftCards={giftCards ?? []}
           rewardPrograms={rewardPrograms ?? []}
@@ -378,7 +384,7 @@ export default function AppShell({ session, planType, accountType }) {
         />
       )}
       <FamilyMemberSheet
-        userId={session.user.id}
+        userId={ownerId}
         state={famSheetState}
         onClose={closeFamilySheet}
         onSaved={handleFamilySaved}

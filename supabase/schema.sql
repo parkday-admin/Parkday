@@ -446,3 +446,24 @@ drop policy if exists "Owner can cancel own pending invite" on collaborator_invi
 create policy "Owner can cancel own pending invite"
   on collaborator_invites for delete
   using (auth.uid() = owner_id and status = 'pending');
+
+-- ── Migration: collaborator visibility fixes ────────────────────────
+-- Full detail lives in
+-- supabase/migrations/20260827020000_collaborator_visibility_fixes.sql
+drop policy if exists "Owner can view their collaborator's profile" on profiles;
+create policy "Owner can view their collaborator's profile"
+  on profiles for select
+  using (collaborator_of = auth.uid());
+
+drop policy if exists "Users manage own family members" on family_members;
+drop policy if exists "Users and collaborators manage family members" on family_members;
+create policy "Users and collaborators manage family members"
+  on family_members for all
+  using (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = family_members.user_id)
+  )
+  with check (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = family_members.user_id)
+  );

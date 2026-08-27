@@ -145,7 +145,7 @@ function AppRoutes({ session, profile }) {
       />
 
       <Route element={<RequirePaidAuth session={session} canAccess={canAccess} />}>
-        <Route element={<AppShell session={session} planType={profile?.planType ?? null} accountType={profile?.accountType ?? 'owner'} />}>
+        <Route element={<AppShell session={session} planType={profile?.planType ?? null} accountType={profile?.accountType ?? 'owner'} collaboratorOf={profile?.collaboratorOf ?? null} />}>
           <Route
             path="/configurator"
             element={<Configurator session={session} planType={profile?.planType ?? null} />}
