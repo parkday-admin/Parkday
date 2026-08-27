@@ -29,7 +29,13 @@ import More from './pages/More'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
-  useEffect(() => onAuthStateChange(s => {
+  // A genuine sign-in transition, as opposed to a page load that finds an
+  // already-persisted session (Supabase fires INITIAL_SESSION for that) —
+  // only the former should trigger the marketing-domain post-login
+  // redirect. See useAppSubdomainRedirect below.
+  const [justSignedIn, setJustSignedIn] = useState(false)
+
+  useEffect(() => onAuthStateChange((s, event) => {
     // The saved-estimate chip on the login page is a one-time nudge to
     // create an account — once a session exists (any sign-in path,
     // including the Google OAuth redirect), its job is done. Without this
@@ -37,8 +43,10 @@ function useSession() {
     // login, unrelated to what the user is currently doing.
     if (s) localStorage.removeItem('pkd_estimate')
     setSession(s)
+    if (event === 'SIGNED_IN') setJustSignedIn(true)
   }), [])
-  return session
+
+  return { session, justSignedIn }
 }
 
 function useProfile(session) {
@@ -107,18 +115,19 @@ function RequirePaidAuth({ session, canAccess }) {
   return <Outlet />
 }
 
-// Whichever domain the app is served from, a signed-in user always ends up
-// on app.planyourparkday.com — covers both "just logged in on the marketing
-// domain" and "already had a session and revisited the marketing domain",
-// since both are the same condition: a session exists and we're not
-// already on the app subdomain or in local dev.
+// After a fresh sign-in on any domain other than app.planyourparkday.com
+// (the marketing domain, or local dev pointed at it), send the user to the
+// app subdomain instead of finishing the login locally. This only fires on
+// the SIGNED_IN transition (see useSession's justSignedIn) — a marketing
+// visitor who merely has a persisted session sitting in storage is left
+// alone on the marketing site, not bounced on every page load.
 // `destination` is null while it isn't known yet (still resolving a
 // collaborator's owner status) — the redirect waits rather than firing
 // with a stale/guessed path.
-function useAppSubdomainRedirect(session, destination) {
+function useAppSubdomainRedirect(justSignedIn, destination) {
   const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
   const onLocalhost = window.location.hostname === 'localhost'
-  const shouldRedirect = !!session && !!destination && !onAppSubdomain && !onLocalhost
+  const shouldRedirect = justSignedIn && !!destination && !onAppSubdomain && !onLocalhost
 
   useEffect(() => {
     if (shouldRedirect) window.location.href = `https://app.planyourparkday.com${destination}`
@@ -127,7 +136,7 @@ function useAppSubdomainRedirect(session, destination) {
   return shouldRedirect
 }
 
-function AppRoutes({ session, profile }) {
+function AppRoutes({ session, profile, justSignedIn }) {
   const location = useLocation()
   const collaboratorStatus = useCollaboratorStatus(profile, location.pathname)
 
@@ -142,7 +151,7 @@ function AppRoutes({ session, profile }) {
 
   // Called unconditionally (before the statusLoading early return) so hook
   // order stays stable across renders.
-  const redirectingToAppSubdomain = useAppSubdomainRedirect(session, statusLoading ? null : destination)
+  const redirectingToAppSubdomain = useAppSubdomainRedirect(justSignedIn, statusLoading ? null : destination)
 
   if (statusLoading) return null
   if (redirectingToAppSubdomain) return null
@@ -200,7 +209,7 @@ function AppRoutes({ session, profile }) {
 }
 
 export default function App() {
-  const session = useSession()
+  const { session, justSignedIn } = useSession()
   const profile = useProfile(session)
 
   // Still resolving session, or resolving a signed-in user's plan.
@@ -209,7 +218,7 @@ export default function App() {
   return (
     <>
       <BrowserRouter>
-        <AppRoutes session={session} profile={profile} />
+        <AppRoutes session={session} profile={profile} justSignedIn={justSignedIn} />
       </BrowserRouter>
       <IOSInstallBanner />
     </>

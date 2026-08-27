@@ -65,8 +65,8 @@ export async function updatePassword(newPassword) {
 }
 
 export function onAuthStateChange(callback) {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session)
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    callback(session, event)
   })
   return () => subscription.unsubscribe()
 }
