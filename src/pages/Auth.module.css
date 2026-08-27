@@ -9,7 +9,8 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  background: var(--cream);
+  background: rgba(240, 237, 232, 0.85);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-light);
 }
 

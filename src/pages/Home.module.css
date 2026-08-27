@@ -22,7 +22,7 @@
 .btnBlock { width: 100%; }
 
 /* Nav */
-.nav { position: sticky; top: 0; z-index: 30; background: var(--cream); border-bottom: 1px solid var(--border); }
+.nav { position: sticky; top: 0; z-index: 30; background: rgba(240, 237, 232, 0.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
 .navInner { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto; padding: 14px 32px; gap: 16px; }
 .navBrand { display: flex; align-items: center; gap: 10px; }
 .navBrand img { height: 40px; width: auto; }
