@@ -64,8 +64,8 @@ Deno.serve(async (req) => {
       customer: customerId,
       mode,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: 'https://parkday-nu.vercel.app/dashboard',
-      cancel_url: 'https://parkday-nu.vercel.app/paywall',
+      success_url: 'https://app.planyourparkday.com/dashboard',
+      cancel_url: 'https://app.planyourparkday.com/paywall',
       metadata: { supabase_user_id: userId },
     })
 

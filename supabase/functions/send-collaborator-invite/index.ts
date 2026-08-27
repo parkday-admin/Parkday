@@ -6,7 +6,7 @@ const supabaseAdmin = createClient(
 )
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
-const APP_URL = 'https://parkday-nu.vercel.app'
+const APP_URL = 'https://app.planyourparkday.com'
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const corsHeaders = {

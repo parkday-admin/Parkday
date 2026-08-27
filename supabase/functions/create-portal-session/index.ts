@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerId,
-      return_url: 'https://parkday-nu.vercel.app/account',
+      return_url: 'https://app.planyourparkday.com/account',
     })
 
     return new Response(JSON.stringify({ url: session.url }), {
