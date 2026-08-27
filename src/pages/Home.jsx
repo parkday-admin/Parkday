@@ -88,8 +88,8 @@ export default function Home() {
             <a href="#how-it-works" className={`${styles.btn} ${styles.btnSecondary}`}>How it works</a>
           </div>
           <div className={styles.heroTrust}>
-            <div className={styles.trustItem}><i className="ti ti-map-2" />No account needed to estimate</div>
-            <div className={styles.trustItem}><i className="ti ti-lock" />Free to start</div>
+            <div className={styles.trustItem}><i className="ti ti-user-off" />No account needed to estimate</div>
+            <div className={styles.trustItem}><i className="ti ti-gift" />Free to start</div>
           </div>
         </div>
         <div className={styles.heroPhoto}>

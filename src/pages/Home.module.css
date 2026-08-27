@@ -22,8 +22,8 @@
 .btnBlock { width: 100%; }
 
 /* Nav */
-.nav { position: sticky; top: 0; z-index: 30; background: rgba(240, 237, 226, 0.88); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
-.navInner { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; gap: 16px; }
+.nav { position: sticky; top: 0; z-index: 30; background: var(--cream); border-bottom: 1px solid var(--border); }
+.navInner { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto; padding: 14px 32px; gap: 16px; }
 .navBrand { display: flex; align-items: center; gap: 10px; }
 .navBrand img { height: 40px; width: auto; }
 .navBrand span { font-family: var(--heading); font-size: 24px; color: var(--text-primary); }
@@ -39,7 +39,7 @@
 .navMobile a { padding: 10px 4px; font-size: 15px; font-weight: 500; color: var(--text-primary); border-bottom: 1px solid var(--border-light); }
 
 /* Hero */
-.hero { padding: 72px 0 40px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+.hero { padding-top: 72px; padding-bottom: 40px; display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
 .hero h1 { font-size: 50px; line-height: 1.04; color: var(--text-primary); margin-bottom: 20px; }
 .lead { font-size: 18px; line-height: 1.55; color: var(--text-secondary); max-width: 480px; margin-bottom: 32px; }
 .heroCtas { display: flex; align-items: center; gap: 14px; margin-bottom: 36px; flex-wrap: wrap; }
@@ -49,19 +49,18 @@
 .heroPhoto { position: relative; width: 100%; height: 360px; border-radius: var(--radius-xl); box-shadow: var(--shadow-panel); border: 1px solid var(--border); overflow: hidden; }
 .heroPhoto img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
 
-/* Dark sections */
-.dark { background: var(--night); }
-.dark .display, .dark h2 { color: #fff; }
-.dark p { color: rgba(255, 255, 255, 0.65); }
+/* Sections that used to be dark — now the same cream as the rest of the
+   page (see .page), except the footer, which stays navy. */
+.dark { background: var(--cream); }
 
 /* Why Parkday */
 .why { padding: 64px 0; }
 .whyGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
 .why h2 { font-size: 38px; line-height: 1.15; margin-bottom: 20px; }
 .accent { color: var(--coral); }
-.why p { font-size: 16px; line-height: 1.65; }
+.why p { font-size: 16px; line-height: 1.65; color: var(--text-secondary); }
 .pillGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-.pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 12px; border-radius: var(--radius-pill); border: 1px solid rgba(255, 255, 255, 0.15); background: rgba(255, 255, 255, 0.04); color: rgba(255, 255, 255, 0.75); font-size: 13px; }
+.pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border); background: var(--white); color: var(--text-secondary); font-size: 13px; }
 .pill i { font-size: 15px; color: var(--gold); }
 .whyArrow { display: flex; justify-content: center; margin-bottom: 16px; color: var(--gold); font-size: 22px; }
 .tripCard { background: var(--night-card); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: var(--radius-xl); padding: 24px 26px; }
@@ -138,7 +137,6 @@
 .pricingHead { text-align: center; max-width: 560px; margin: 0 auto 40px; }
 .pricingHead h2 { font-size: 36px; margin-bottom: 12px; }
 .pricingHead p { font-size: 17px; color: var(--text-secondary); line-height: 1.55; }
-.dark .pricingHead p { color: rgba(255, 255, 255, 0.65); }
 .pricingGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 940px; margin: 0 auto; }
 .plan { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); position: relative; display: flex; flex-direction: column; }
 .planBody { padding: 26px 22px; position: relative; display: flex; flex-direction: column; flex: 1; }
@@ -188,7 +186,7 @@
   .navCtaGroup { display: none; }
   .navToggle { display: block; }
   .navMobile { padding-left: 20px; padding-right: 20px; }
-  .hero { grid-template-columns: 1fr; padding: 40px 0 32px; }
+  .hero { grid-template-columns: 1fr; padding-top: 40px; padding-bottom: 32px; }
   .hero h1 { font-size: 38px; }
   .heroPhoto { height: 260px; order: -1; }
   .whyGrid { grid-template-columns: 1fr; gap: 32px; }
