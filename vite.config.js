@@ -17,8 +17,8 @@ export default defineConfig({
         background_color: '#F0EDE8',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: 'https://app.planyourparkday.com/',
+        start_url: 'https://app.planyourparkday.com/',
         icons: [
           {
             src: '/icons/icon-192.png',
