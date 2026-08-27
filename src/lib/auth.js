@@ -54,7 +54,7 @@ export async function signOutAndRedirect() {
   await signOut()
   const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
   const onLocalhost = window.location.hostname === 'localhost'
-  window.location.href = onAppSubdomain && !onLocalhost ? 'https://planyourparkday.com/' : '/'
+  window.location.href = onAppSubdomain && !onLocalhost ? 'https://planyourparkday.com/login' : '/login'
 }
 
 const HANDOFF_HASH_KEY = 'pkd_session'
