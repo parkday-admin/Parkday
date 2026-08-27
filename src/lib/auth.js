@@ -138,18 +138,31 @@ export async function signInWithGoogle(redirectTo) {
   // page and closes itself, and Supabase's built-in cross-tab session sync
   // (it listens for storage events) picks up the resulting session here
   // automatically.
+  //
+  // The popup has to open here, synchronously, before any await — Chrome's
+  // popup blocker only trusts window.open as a direct response to the
+  // user's tap; calling it after the signInWithOAuth request below returns
+  // gets it silently blocked, which read here as an instantly-closed popup
+  // and a bogus "cancelled" result. Opening a blank window now and pointing
+  // it at the real URL once we have it keeps the user-gesture chain intact.
+  const popup = window.open('', 'parkday-google-signin', 'width=480,height=640')
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo: `${target}/oauth-popup-complete`, skipBrowserRedirect: true },
   })
-  if (error) return { data, error }
+  if (error) {
+    popup?.close()
+    return { data, error }
+  }
 
-  const popup = window.open(data.url, 'parkday-google-signin', 'width=480,height=640')
-  if (!popup) {
+  if (!popup || popup.closed) {
     // Popup blocked — fall back to the plain full-page redirect.
     window.location.assign(data.url)
     return { data, error: null }
   }
+
+  popup.location.href = data.url
 
   return new Promise(resolve => {
     const poll = setInterval(async () => {
