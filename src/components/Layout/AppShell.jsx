@@ -289,21 +289,31 @@ export default function AppShell({ session, planType, accountType, collaboratorO
         <div className={styles.navDrawer}>
           <div className={styles.navDrawerTrip}>
             <div className={styles.navDrawerTripLbl}>Current trip</div>
-            {activeTrip ? (
-              <>
-                <div className={styles.navDrawerTripName}>{activeTrip.name}</div>
-                <div className={styles.navDrawerTripDates}>{tripDateRange(activeTrip)}</div>
-              </>
+            {activeTrip && trips && trips.length > 1 ? (
+              <button
+                type="button"
+                className={`${styles.navDrawerTripCard} ${styles.navDrawerTripTrigger} ${switcherOpen ? styles.open : ''}`}
+                onClick={() => setSwitcherOpen(o => !o)}
+                aria-expanded={switcherOpen}
+              >
+                <span className={styles.navDrawerTripInfo}>
+                  <span className={styles.navDrawerTripName}>{activeTrip.name}</span>
+                  <span className={styles.navDrawerTripDates}>{tripDateRange(activeTrip)}</span>
+                </span>
+                <i className={`ti ti-chevron-down ${styles.navDrawerTripChevron}`} />
+              </button>
             ) : (
-              <div className={`${styles.navDrawerTripName} ${styles.muted}`}>No active trip</div>
+              <div className={styles.navDrawerTripCard}>
+                {activeTrip ? (
+                  <span className={styles.navDrawerTripInfo}>
+                    <span className={styles.navDrawerTripName}>{activeTrip.name}</span>
+                    <span className={styles.navDrawerTripDates}>{tripDateRange(activeTrip)}</span>
+                  </span>
+                ) : (
+                  <span className={`${styles.navDrawerTripName} ${styles.muted}`}>No active trip</span>
+                )}
+              </div>
             )}
-            <div className={styles.navDrawerTripActions}>
-              {trips && trips.length > 1 && (
-                <div className={styles.navDrawerTripSwitch} onClick={() => setSwitcherOpen(o => !o)}>
-                  <i className="ti ti-chevron-down" /> Switch trip
-                </div>
-              )}
-            </div>
             {switcherOpen && (
               <div className={styles.tripSwitcherList}>
                 {trips.map(t => (
