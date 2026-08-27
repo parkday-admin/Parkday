@@ -37,9 +37,15 @@ const PLANS = [
   },
 ]
 
-export default function Paywall({ session }) {
+export default function Paywall({ session, currentPlanType = null }) {
   const [loadingPlan, setLoadingPlan] = useState(null)
   const [error, setError] = useState(null)
+
+  const isUpgrading = currentPlanType === 'trip_pass'
+  // A Trip Pass holder landing here (the app's "Upgrade" buttons) is here
+  // to move to Plus, not to buy a second one-time Trip Pass for the same
+  // trip — showing that option back to them would just be confusing.
+  const plans = isUpgrading ? PLANS.filter(plan => plan.id !== 'trip_pass') : PLANS
 
   async function handleSelect(plan) {
     setError(null)
@@ -70,14 +76,18 @@ export default function Paywall({ session }) {
 
       <main className={styles.main}>
         <div className={styles.intro}>
-          <h1 className={styles.headline}>Choose your plan</h1>
-          <p className={styles.subhead}>One-time purchase. No subscription required unless you want one.</p>
+          <h1 className={styles.headline}>{isUpgrading ? 'Upgrade to Plus' : 'Choose your plan'}</h1>
+          <p className={styles.subhead}>
+            {isUpgrading
+              ? 'Unlock unlimited trips and keep planning beyond your first one.'
+              : 'One-time purchase. No subscription required unless you want one.'}
+          </p>
         </div>
 
         {error && <p className={styles.error}>{error}</p>}
 
         <div className={styles.cards}>
-          {PLANS.map(plan => (
+          {plans.map(plan => (
             <div key={plan.id} className={`${styles.card} ${plan.highlight ? styles.highlight : ''}`}>
               {plan.highlight && <span className={styles.badge}>Recommended</span>}
               <h2 className={styles.planName}>{plan.name}</h2>
@@ -99,7 +109,11 @@ export default function Paywall({ session }) {
           ))}
         </div>
 
-        <p className={styles.nudge}>Trip Pass is $29.99. Plus is just $59.99/yr — plan two trips and it pays for itself.</p>
+        <p className={styles.nudge}>
+          {isUpgrading
+            ? 'Plus is just $59.99/yr — plan two trips and it pays for itself.'
+            : 'Trip Pass is $29.99. Plus is just $59.99/yr — plan two trips and it pays for itself.'}
+        </p>
       </main>
     </div>
   )

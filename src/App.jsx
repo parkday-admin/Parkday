@@ -222,11 +222,16 @@ function AppRoutes({ session, profile, justSignedIn }) {
         element={
           !session
             ? <Navigate to="/" replace />
-            : canAccess
+            // An active Trip Pass holder can still land here deliberately —
+            // the "Upgrade to add a trip" / "Upgrade to Plus" buttons all
+            // route here — to upgrade to Plus. Only bounce away a user with
+            // nothing left to upgrade to (already on Plus, or paused
+            // collaborator access, which has no plan of its own to buy).
+            : canAccess && (isCollaborator || profile?.planType === 'plus_pass')
               ? <Navigate to="/dashboard" replace />
               : isCollaborator
                 ? <PausedAccess ownerName={collaboratorStatus?.ownerName ?? 'The account owner'} />
-                : <Paywall session={session} />
+                : <Paywall session={session} currentPlanType={canAccess ? profile?.planType : null} />
         }
       />
 
