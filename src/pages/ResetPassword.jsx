@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../supabase'
-import { updatePassword } from '../lib/auth'
+import { updatePassword, isPasswordRecovery, onPasswordRecovery } from '../lib/auth'
 import styles from './Auth.module.css'
 
 // Supabase completes the recovery token exchange itself and fires
@@ -19,14 +18,19 @@ export default function ResetPassword() {
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(event => {
-      if (event === 'PASSWORD_RECOVERY') setStatus('ready')
-    })
+    // The event can fire before this page even mounts, so check for that
+    // first — lib/auth.js subscribes at import time (from the top of
+    // App.jsx) specifically so this doesn't get missed.
+    if (isPasswordRecovery()) {
+      setStatus('ready')
+      return
+    }
+    const unsubscribe = onPasswordRecovery(() => setStatus('ready'))
     const timer = setTimeout(() => {
       setStatus(s => (s === 'checking' ? 'invalid' : s))
     }, RECOVERY_TIMEOUT_MS)
     return () => {
-      subscription.unsubscribe()
+      unsubscribe()
       clearTimeout(timer)
     }
   }, [])
