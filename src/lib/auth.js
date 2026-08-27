@@ -94,7 +94,18 @@ export async function adoptSessionFromHandoff() {
   }
 }
 
-export async function signInWithGoogle(redirectTo = window.location.origin) {
+// Google OAuth always comes back through app.planyourparkday.com, the one
+// domain actually registered in Supabase's redirect-URL allow list — using
+// window.location.origin here would send Supabase a redirect_to of
+// planyourparkday.com (or wherever the button was clicked from) whenever
+// that's not the app subdomain, which Supabase rejects before ever
+// reaching Google: the browser sits on "Redirecting…" through a real round
+// trip to Supabase's auth server, then bounces back with no session.
+function canonicalOAuthRedirect() {
+  return window.location.hostname === 'localhost' ? window.location.origin : 'https://app.planyourparkday.com'
+}
+
+export async function signInWithGoogle(redirectTo = canonicalOAuthRedirect()) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo },
