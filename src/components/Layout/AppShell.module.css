@@ -1,7 +1,7 @@
 .shellRoot { min-height: 100svh; background: var(--cream); display: flex; flex-direction: column; align-items: center; }
 
 /* Header */
-.hdr { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(243, 238, 222, 0.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-light); }
+.hdr { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: var(--cream); border-bottom: 1px solid var(--border-light); }
 .hdrInner { width: 100%; max-width: 480px; margin: 0 auto; padding: 16px 18px 13px; display: flex; align-items: center; gap: 11px; }
 @media (min-width: 640px) { .hdrInner { max-width: 620px; } }
 @media (min-width: 1024px) { .hdrInner { max-width: 1180px; } }
