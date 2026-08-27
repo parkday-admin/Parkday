@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { signIn, signUp, signInWithGoogle } from '../lib/auth'
 import { updateProfile } from '../lib/profile'
 import { previewInvite, acceptInvite } from '../lib/collaborator'
@@ -25,7 +25,6 @@ const INVALID_MESSAGES = {
 
 export default function InviteAccept({ session }) {
   const { token } = useParams()
-  const navigate = useNavigate()
 
   const [invite, setInvite] = useState(undefined) // undefined = checking, {state, ownerName} once resolved
   const [mode, setMode] = useState('signup') // 'login' | 'signup'
@@ -73,7 +72,13 @@ export default function InviteAccept({ session }) {
         setAccepting(false)
         return
       }
-      navigate('/dashboard', { replace: true })
+      // A full reload, not a client-side navigate — App.jsx only fetches
+      // the profile once per session and has no reason to refetch just
+      // because the URL changed, so it would otherwise still be holding
+      // the pre-acceptance profile (account_type: 'owner', no
+      // subscription) and route straight to the paywall instead of the
+      // dashboard.
+      window.location.href = '/dashboard'
     }
 
     run()
