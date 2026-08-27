@@ -362,6 +362,13 @@ export default function Configurator({ session, planType }) {
 
     setSaving(false)
     if (editingTrip) showToast?.('Trip updated')
+    // AppShell only fetches the trip list once on mount — it doesn't
+    // remount between pages, so without this a newly created trip is
+    // invisible to the nav (no "Switch trip" control, since it still only
+    // knows about one trip) and the dashboard keeps showing whichever trip
+    // was already active.
+    await outletContext?.refetchTrips?.()
+    outletContext?.setActiveTripId?.(savedTripId)
     navigate('/dashboard')
   }
 
