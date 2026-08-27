@@ -29,12 +29,48 @@ export function onPasswordRecovery(callback) {
   return () => recoveryListeners.delete(callback)
 }
 
+// Supabase's SIGNED_IN event does not mean "the user just interactively
+// signed in" — it also fires from _recoverAndRefresh() on every plain page
+// load whenever a valid session already exists in storage. Treating every
+// SIGNED_IN as fresh caused an infinite reload loop: useRedirectAfterSignIn
+// (App.jsx) does a real window.location.replace after a fresh sign-in, and
+// that reload's own client init re-recovers the same session from storage,
+// fires SIGNED_IN again, and triggers another replace, forever.
+//
+// sessionStorage (not component state) survives the reload — and the
+// out-and-back trip through Google for OAuth — so the flag set right
+// before an actual sign-in action here is still there when the resulting
+// SIGNED_IN event fires, but is absent on an ordinary page load.
+const EXPECT_SIGN_IN_KEY = 'pkd_expect_sign_in'
+
+function markExpectingSignIn() {
+  try {
+    sessionStorage.setItem(EXPECT_SIGN_IN_KEY, '1')
+  } catch {
+    // sessionStorage unavailable (e.g. privacy mode) — the caller's
+    // SIGNED_IN event just won't be treated as fresh; not worth failing
+    // the sign-in action over.
+  }
+}
+
+function consumeExpectingSignIn() {
+  try {
+    if (sessionStorage.getItem(EXPECT_SIGN_IN_KEY) !== '1') return false
+    sessionStorage.removeItem(EXPECT_SIGN_IN_KEY)
+    return true
+  } catch {
+    return false
+  }
+}
+
 export async function signUp(email, password) {
+  markExpectingSignIn()
   const { data, error } = await supabase.auth.signUp({ email, password })
   return { data, error }
 }
 
 export async function signIn(email, password) {
+  markExpectingSignIn()
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   return { data, error }
 }
@@ -112,6 +148,7 @@ function canonicalOAuthRedirect() {
 // it just broke sign-in outright instead of leaving a cosmetic issue. Back
 // to a plain full-page redirect, which does work end to end.
 export async function signInWithGoogle(redirectTo = canonicalOAuthRedirect()) {
+  markExpectingSignIn()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: { redirectTo },
@@ -131,9 +168,14 @@ export async function updatePassword(newPassword) {
   return { data, error }
 }
 
+// callback receives (session, event, isFreshSignIn) — isFreshSignIn is
+// only true for a SIGNED_IN event that followed an actual call to signIn/
+// signUp/signInWithGoogle above, not one Supabase fired on its own while
+// recovering an existing session from storage. See markExpectingSignIn.
 export function onAuthStateChange(callback) {
   const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-    callback(session, event)
+    const isFreshSignIn = event === 'SIGNED_IN' && consumeExpectingSignIn()
+    callback(session, event, isFreshSignIn)
   })
   return () => subscription.unsubscribe()
 }

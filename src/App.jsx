@@ -29,14 +29,18 @@ import More from './pages/More'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
-  // A genuine sign-in transition, as opposed to a page load that finds an
-  // already-persisted session (Supabase fires INITIAL_SESSION for that) —
-  // only the former should trigger the marketing-domain post-login
-  // redirect. See useAppSubdomainRedirect below.
+  // A genuine sign-in transition (the user actually just signed in), as
+  // opposed to a page load that recovers an already-persisted session —
+  // Supabase's SIGNED_IN event fires for both, so this comes from
+  // isFreshSignIn (see lib/auth.js's markExpectingSignIn), not the event
+  // name. Only the former should trigger the post-login redirect below;
+  // treating every SIGNED_IN as fresh caused an infinite reload loop, since
+  // each hard redirect's own page load re-recovers the same session and
+  // fires SIGNED_IN again.
   const [justSignedIn, setJustSignedIn] = useState(false)
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChange((s, event) => {
+    const unsubscribe = onAuthStateChange((s, _event, isFreshSignIn) => {
       // The saved-estimate chip on the login page is a one-time nudge to
       // create an account — once a session exists (any sign-in path,
       // including the Google OAuth redirect), its job is done. Without this
@@ -44,7 +48,7 @@ function useSession() {
       // login, unrelated to what the user is currently doing.
       if (s) localStorage.removeItem('pkd_estimate')
       setSession(s)
-      if (event === 'SIGNED_IN') setJustSignedIn(true)
+      if (isFreshSignIn) setJustSignedIn(true)
     })
     // If this load carries a session handed off from the marketing domain
     // (see useAppSubdomainRedirect), adopt it — setSession triggers the
