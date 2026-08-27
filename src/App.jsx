@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'rea
 import { onAuthStateChange } from './lib/auth'
 import { getProfile } from './lib/profile'
 import { getCollaboratorStatus } from './lib/collaborator'
+import IOSInstallBanner from './components/IOSInstallBanner'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
 import ResetPassword from './pages/ResetPassword'
@@ -106,6 +107,26 @@ function RequirePaidAuth({ session, canAccess }) {
   return <Outlet />
 }
 
+// Whichever domain the app is served from, a signed-in user always ends up
+// on app.planyourparkday.com — covers both "just logged in on the marketing
+// domain" and "already had a session and revisited the marketing domain",
+// since both are the same condition: a session exists and we're not
+// already on the app subdomain or in local dev.
+// `destination` is null while it isn't known yet (still resolving a
+// collaborator's owner status) — the redirect waits rather than firing
+// with a stale/guessed path.
+function useAppSubdomainRedirect(session, destination) {
+  const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
+  const onLocalhost = window.location.hostname === 'localhost'
+  const shouldRedirect = !!session && !!destination && !onAppSubdomain && !onLocalhost
+
+  useEffect(() => {
+    if (shouldRedirect) window.location.href = `https://app.planyourparkday.com${destination}`
+  }, [shouldRedirect, destination])
+
+  return shouldRedirect
+}
+
 function AppRoutes({ session, profile }) {
   const location = useLocation()
   const collaboratorStatus = useCollaboratorStatus(profile, location.pathname)
@@ -114,10 +135,17 @@ function AppRoutes({ session, profile }) {
   // Still waiting on the owner-status lookup for a collaborator — don't
   // make a routing decision (which would flash paused/dashboard) until it
   // resolves.
-  if (isCollaborator && collaboratorStatus === undefined) return null
+  const statusLoading = isCollaborator && collaboratorStatus === undefined
 
   const canAccess = isCollaborator ? !!collaboratorStatus?.ownerActive : profile?.status === 'active'
   const destination = canAccess ? '/dashboard' : '/paywall'
+
+  // Called unconditionally (before the statusLoading early return) so hook
+  // order stays stable across renders.
+  const redirectingToAppSubdomain = useAppSubdomainRedirect(session, statusLoading ? null : destination)
+
+  if (statusLoading) return null
+  if (redirectingToAppSubdomain) return null
 
   return (
     <Routes>
@@ -179,8 +207,11 @@ export default function App() {
   if (session === undefined || (session && profile === undefined)) return null
 
   return (
-    <BrowserRouter>
-      <AppRoutes session={session} profile={profile} />
-    </BrowserRouter>
+    <>
+      <BrowserRouter>
+        <AppRoutes session={session} profile={profile} />
+      </BrowserRouter>
+      <IOSInstallBanner />
+    </>
   )
 }
