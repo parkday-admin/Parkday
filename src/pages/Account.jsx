@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { getFullProfile, updateProfile, deleteAccount } from '../lib/profile'
-import { fetchArchivedTrips } from '../lib/trips'
+import { fetchArchivedTrips, unarchiveTrip } from '../lib/trips'
 import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
 import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
 import { signOutAndRedirect, sendPasswordReset } from '../lib/auth'
@@ -95,7 +95,7 @@ function ToggleRow({ name, sub, on, onToggle }) {
 export default function Account() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { session, showToast, activeTrip, familyMembers, openFamilySheet } = outletContext ?? {}
+  const { session, showToast, activeTrip, familyMembers, openFamilySheet, refetchTrips } = outletContext ?? {}
   const userId = session?.user?.id
 
   const [profile, setProfile] = useState(null)
@@ -103,6 +103,7 @@ export default function Account() {
   const [tzDraft, setTzDraft] = useState('America/New_York')
   const [saving, setSaving] = useState(false)
   const [archivedTrips, setArchivedTrips] = useState(null)
+  const [unarchivingId, setUnarchivingId] = useState(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState(undefined) // undefined = not fetched yet, null = none on file
@@ -185,6 +186,16 @@ export default function Account() {
       return
     }
     showToast?.(next ? 'Turned on' : 'Turned off')
+  }
+
+  async function handleUnarchive(trip) {
+    setUnarchivingId(trip.id)
+    const { error } = await unarchiveTrip(trip.id)
+    setUnarchivingId(null)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Trip unarchived')
+    setArchivedTrips(prev => (prev ?? []).filter(t => t.id !== trip.id))
+    refetchTrips?.()
   }
 
   async function handleManageSubscription() {
@@ -422,7 +433,7 @@ export default function Account() {
         )}
       </Card>
 
-      <Card icon="ti-archive" iconBg="rgba(13,35,64,0.08)" iconColor="var(--night)" title="Trip archive" sub="Past trips, view-only">
+      <Card icon="ti-archive" iconBg="rgba(13,35,64,0.08)" iconColor="var(--night)" title="Trip archive" sub="Past trips you've set aside">
         {archivedTrips === null ? (
           <div className={styles.empty}>Loading…</div>
         ) : archivedTrips.length === 0 ? (
@@ -434,7 +445,12 @@ export default function Account() {
                 <div className={styles.val}>{t.name}</div>
                 <div className={styles.sub}>{fmtDateRange(t)}{t.accommodation ? ` · ${t.accommodation}` : ''}</div>
               </div>
-              <button type="button" className={styles.linkBtn} onClick={() => showToast?.('Trip archive view coming soon.')}>View</button>
+              <div className={styles.rowInlineActions}>
+                <button type="button" className={styles.linkBtn} disabled={unarchivingId === t.id} onClick={() => handleUnarchive(t)}>
+                  {unarchivingId === t.id ? 'Unarchiving…' : 'Unarchive'}
+                </button>
+                <button type="button" className={styles.linkBtn} onClick={() => showToast?.('Trip archive view coming soon.')}>View</button>
+              </div>
             </div>
           ))
         )}

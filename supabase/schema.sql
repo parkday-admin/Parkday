@@ -22,7 +22,7 @@ create table trips (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references profiles(id),
   name text,
-  status text check (status in ('active', 'archived')) default 'active',
+  status text check (status in ('active', 'archived', 'deleted')) default 'active',
   arrival_date date,
   departure_date date,
   adults int,

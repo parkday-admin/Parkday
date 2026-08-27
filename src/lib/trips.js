@@ -25,6 +25,29 @@ export async function updateTripSavingsGoal(tripId, goal) {
   return { error }
 }
 
+// Moves a trip out of the active list without touching its data — it's
+// still visible (and editable via "Unarchive") in the account's Trip
+// archive.
+export async function archiveTrip(tripId) {
+  const { error } = await supabase.from('trips').update({ status: 'archived' }).eq('id', tripId)
+  return { error }
+}
+
+export async function unarchiveTrip(tripId) {
+  const { error } = await supabase.from('trips').update({ status: 'active' }).eq('id', tripId)
+  return { error }
+}
+
+// A soft delete — the row (and its expenses, wish list, etc.) is kept for
+// backend statistics, but this hides it from the user everywhere:
+// excluded from both fetchActiveTrips and fetchArchivedTrips, and from
+// data exports (status != 'deleted') once that exists. Not reversible
+// from the user's side, unlike archive.
+export async function deleteTrip(tripId) {
+  const { error } = await supabase.from('trips').update({ status: 'deleted' }).eq('id', tripId)
+  return { error }
+}
+
 export function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number)
   return new Date(y, m - 1, d)

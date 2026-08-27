@@ -79,7 +79,71 @@
 @media (min-width: 1024px) {
   .list { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; align-content: start; }
   .section { margin-bottom: 0; }
+  .fullWidth { grid-column: 1 / -1; }
 }
+
+/* Trip actions (archive) */
+.fullWidth { display: flex; flex-direction: column; gap: 11px; }
+.actionsCard {
+  background: var(--white);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.actionsRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 15px; }
+.actionsName { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.actionsSub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; max-width: 420px; }
+.actionsBtn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--sans);
+  flex-shrink: 0;
+}
+.actionsBtn:hover { border-color: var(--sky); color: var(--sky); }
+.actionsBtn:disabled { opacity: 0.6; cursor: default; }
+
+/* Danger zone — same treatment as Account.module.css */
+.dangerCard {
+  background: var(--coral-bg);
+  border: 1px solid rgba(224, 83, 63, 0.25);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.dangerHdr {
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(224, 83, 63, 0.18);
+}
+.dangerHdr i { color: var(--coral); font-size: 15px; }
+.dangerTitle { font-size: 13px; font-weight: 600; color: var(--coral); }
+.dangerBody { padding: 14px 15px; display: flex; flex-direction: column; gap: 10px; }
+.dangerRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dangerName { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.dangerSub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+.dangerBtn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid rgba(224, 83, 63, 0.4);
+  color: var(--coral);
+  cursor: pointer;
+  font-family: var(--sans);
+  flex-shrink: 0;
+}
+.dangerBtn:hover { background: var(--coral); border-color: var(--coral); color: #fff; }
+.dangerBtn.solid { background: var(--coral); color: #fff; }
+.dangerBtn.solid:hover { opacity: 0.88; }
+.dangerBtn:disabled { opacity: 0.6; cursor: default; }
 
 /* Skeleton */
 .skeleton { display: flex; flex-direction: column; gap: 11px; }

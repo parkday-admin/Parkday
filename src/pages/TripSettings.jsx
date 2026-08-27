@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { fetchExpenses } from '../lib/expenses'
+import { archiveTrip, deleteTrip } from '../lib/trips'
 import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS } from '../components/Configurator/configuratorData'
 import styles from './TripSettings.module.css'
 
@@ -54,6 +55,8 @@ export default function TripSettings() {
   const [expenses, setExpenses] = useState(null)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
+  const [archiving, setArchiving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -74,6 +77,31 @@ export default function TripSettings() {
     const { error } = await supabase.from('trips').update({ name }).eq('id', activeTrip.id)
     if (error) { showToast?.(error.message); return }
     showToast?.('Trip name updated')
+    refetchTrips?.()
+  }
+
+  async function handleArchive() {
+    const ok = window.confirm(`Archive "${activeTrip.name}"? You can view it anytime in your account's Trip archive, and unarchive it later.`)
+    if (!ok) return
+    setArchiving(true)
+    const { error } = await archiveTrip(activeTrip.id)
+    setArchiving(false)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Trip archived')
+    // The trip that was active no longer shows up in the active list, so
+    // refetching alone is enough — AppShell's loadTrips falls back to
+    // another active trip (or none) on its own.
+    refetchTrips?.()
+  }
+
+  async function handleDelete() {
+    const ok = window.confirm(`Delete "${activeTrip.name}"? This removes it from your account completely and can't be undone.`)
+    if (!ok) return
+    setDeleting(true)
+    const { error } = await deleteTrip(activeTrip.id)
+    setDeleting(false)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Trip deleted')
     refetchTrips?.()
   }
 
@@ -173,6 +201,40 @@ export default function TripSettings() {
           <Row key={d.id} label={`Day ${d.day} · ${fmtDate(dateForDay(activeTrip.arrival_date, d.day))}`} value={d.label} />
         ))}
       </Section>
+
+      {accountType !== 'collaborator' && (
+        <div className={styles.fullWidth}>
+          <div className={styles.actionsCard}>
+            <div className={styles.actionsRow}>
+              <div>
+                <div className={styles.actionsName}>Archive this trip</div>
+                <div className={styles.actionsSub}>Moves it out of your active trips. You can still view it, and unarchive it, from your account's Trip archive.</div>
+              </div>
+              <button type="button" className={styles.actionsBtn} disabled={archiving} onClick={handleArchive}>
+                {archiving ? 'Archiving…' : 'Archive'}
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.dangerCard}>
+            <div className={styles.dangerHdr}>
+              <i className="ti ti-alert-triangle" />
+              <div className={styles.dangerTitle}>Danger zone</div>
+            </div>
+            <div className={styles.dangerBody}>
+              <div className={styles.dangerRow}>
+                <div>
+                  <div className={styles.dangerName}>Delete this trip</div>
+                  <div className={styles.dangerSub}>Removes it from your account completely — this can't be undone</div>
+                </div>
+                <button type="button" className={`${styles.dangerBtn} ${styles.solid}`} disabled={deleting} onClick={handleDelete}>
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

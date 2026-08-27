@@ -78,6 +78,8 @@
 .linkBtn:hover { color: var(--sky-dark); text-decoration: underline; }
 .linkBtn:disabled { opacity: 0.6; cursor: default; text-decoration: none; }
 
+.rowInlineActions { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+
 .addBtn {
   width: 100%;
   display: flex;
