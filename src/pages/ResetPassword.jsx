@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { updatePassword, isPasswordRecovery, onPasswordRecovery } from '../lib/auth'
+import { updatePassword, isPasswordRecovery, onPasswordRecovery, signOut } from '../lib/auth'
 import styles from './Auth.module.css'
 
 // Supabase completes the recovery token exchange itself and fires
@@ -58,7 +58,17 @@ export default function ResetPassword() {
     }
 
     setStatus('done')
-    setTimeout(() => navigate('/login'), 2000)
+    setTimeout(goToLogin, 2000)
+  }
+
+  // The recovery link leaves the browser holding a live, authenticated
+  // session — navigating straight to /login without clearing it first runs
+  // into that route's own session-based redirect logic (to dashboard or
+  // paywall) instead of showing the login form. Signing out first makes
+  // landing on /login deterministic.
+  async function goToLogin() {
+    await signOut()
+    navigate('/login', { replace: true })
   }
 
   return (
@@ -139,7 +149,7 @@ export default function ResetPassword() {
               <h1 className={styles.headline}>Password updated</h1>
               <p className={styles.subhead}>Your password has been updated.</p>
               <p className={styles.toggle}>
-                <Link to="/login">Sign in</Link>
+                <button type="button" onClick={goToLogin}>Sign in</button>
               </p>
             </>
           )}
