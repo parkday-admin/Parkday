@@ -467,3 +467,32 @@ create policy "Users and collaborators manage family members"
     auth.uid() = user_id
     or auth.uid() in (select id from profiles where collaborator_of = family_members.user_id)
   );
+
+-- ── Migration: collaborator access to packing_items & reminders ────
+-- Full detail lives in
+-- supabase/migrations/20260827030000_collaborator_packing_reminders.sql
+drop policy if exists "Users manage own packing items" on packing_items;
+drop policy if exists "Users and collaborators manage packing items" on packing_items;
+create policy "Users and collaborators manage packing items"
+  on packing_items for all
+  using (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = packing_items.user_id)
+  )
+  with check (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = packing_items.user_id)
+  );
+
+drop policy if exists "Users manage own reminders" on reminders;
+drop policy if exists "Users and collaborators manage reminders" on reminders;
+create policy "Users and collaborators manage reminders"
+  on reminders for all
+  using (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = reminders.user_id)
+  )
+  with check (
+    auth.uid() = user_id
+    or auth.uid() in (select id from profiles where collaborator_of = reminders.user_id)
+  );
