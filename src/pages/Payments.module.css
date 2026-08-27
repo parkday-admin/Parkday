@@ -27,7 +27,7 @@
 .heroFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
 .heroFooterDivider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); flex-shrink: 0; }
 
-.urgencyPill { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; margin-top: 3px; }
+.urgencyPill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; margin-top: 3px; }
 .upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }
 .upMed { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
 .upLow { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
@@ -37,10 +37,10 @@
 .cardHdr { padding: 12px 15px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--border-light); }
 .cardIcon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .cardIcon i { font-size: 15px; }
-.cardTitle { font-family: var(--heading); font-size: 15px; font-weight: 400; color: var(--night); }
+.cardTitle { font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--night); }
 .cardBody { padding: 14px 15px; }
-.cardEmpty { font-size: 12px; color: var(--text-tertiary); padding: 8px 0; }
-.projectionText { font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+.cardEmpty { font-size: 14px; color: var(--text-tertiary); padding: 8px 0; }
+.projectionText { font-size: 14.5px; color: var(--text-secondary); line-height: 1.5; }
 .projectionText strong { color: var(--ink); }
 
 /* ── Payment rows ── */
@@ -49,9 +49,9 @@
 .pmtIcon { width: 34px; height: 34px; border-radius: 9px; background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .pmtIcon i { font-size: 15px; color: var(--sky-dark); }
 .pmtInfo { flex: 1; min-width: 0; }
-.pmtName { font-size: 13px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
-.methodPill { font-size: 9px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: rgba(13, 20, 32, 0.06); color: var(--text-tertiary); letter-spacing: 0.02em; }
-.pmtSub { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+.pmtName { font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+.methodPill { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: rgba(13, 20, 32, 0.06); color: var(--text-tertiary); letter-spacing: 0.02em; }
+.pmtSub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; }
 .chevron { color: var(--text-tertiary); font-size: 14px; flex-shrink: 0; }
 
 .addBtn {

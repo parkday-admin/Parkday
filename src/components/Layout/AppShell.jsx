@@ -28,7 +28,18 @@ const PAGE_TITLES = {
   '/account': 'Account',
   '/trip-settings': 'Trip settings',
   '/configurator': 'Plan your trip',
+  '/more': 'More',
 }
+
+// The 4 frequent destinations on the mobile tab bar, plus a "More" screen
+// grouping everything else — see the More page for that full list.
+const TAB_ITEMS = [
+  { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
+  { to: '/budget', icon: 'ti-chart-pie', label: 'Budget' },
+  { to: '/itinerary', icon: 'ti-calendar', label: 'Itinerary' },
+  { to: '/reminders', icon: 'ti-bell', label: 'Reminders' },
+]
+const MORE_ROUTES = ['/more', '/payments', '/gifts', '/packing', '/wishlist', '/trip-settings', '/estimator', '/account']
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
@@ -56,10 +67,11 @@ function tripDateRange(trip) {
   return `${fmtDateShort(trip.arrival_date)} – ${fmtDateShort(trip.departure_date)}, ${dy || ay}`
 }
 
-export default function AppShell({ session }) {
+export default function AppShell({ session, planType }) {
   const location = useLocation()
   const navigate = useNavigate()
-  const [drawerOpen, setDrawerOpen] = useState(false)
+  const hdrRef = useRef(null)
+  const userMenuRef = useRef(null)
   const [switcherOpen, setSwitcherOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [trips, setTrips] = useState(null)
@@ -135,6 +147,28 @@ export default function AppShell({ session }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // The header's account menu is persistent across every page, so clicking
+  // anywhere outside it (not just another menu action) needs to close it.
+  useEffect(() => {
+    if (!userMenuOpen) return
+    function onDocClick(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', onDocClick)
+    return () => document.removeEventListener('mousedown', onDocClick)
+  }, [userMenuOpen])
+
+  // Bottom sheets (Sheet.module.css) read this to keep their top edge below
+  // the fixed header, however tall it renders at the current breakpoint.
+  useEffect(() => {
+    function updateHeaderHeight() {
+      if (hdrRef.current) document.documentElement.style.setProperty('--app-header-h', `${hdrRef.current.offsetHeight}px`)
+    }
+    updateHeaderHeight()
+    window.addEventListener('resize', updateHeaderHeight)
+    return () => window.removeEventListener('resize', updateHeaderHeight)
+  }, [])
+
   const activeTrip = trips?.find(t => t.id === activeTripId) ?? trips?.[0] ?? null
 
   async function loadGiftFunds() {
@@ -201,7 +235,6 @@ export default function AppShell({ session }) {
     setActiveTripIdState(id)
     localStorage.setItem(ACTIVE_TRIP_KEY, id)
     setSwitcherOpen(false)
-    setDrawerOpen(false)
   }
 
   const budgetCatMatch = location.pathname.match(/^\/budget\/(.+)$/)
@@ -209,8 +242,12 @@ export default function AppShell({ session }) {
     ? categoryMeta(budgetCatMatch[1]).label
     : PAGE_TITLES[location.pathname] ?? 'Parkday'
 
+  function isNavItemActive(to) {
+    if (to === '/budget') return location.pathname === '/budget' || !!budgetCatMatch
+    return location.pathname === to
+  }
+
   function closeAll() {
-    setDrawerOpen(false)
     setSwitcherOpen(false)
     setUserMenuOpen(false)
   }
@@ -219,28 +256,31 @@ export default function AppShell({ session }) {
 
   return (
     <div className={styles.shellRoot}>
-      <div className={styles.hdr}>
+      <div className={styles.hdr} ref={hdrRef}>
         <div className={styles.hdrInner}>
-          <button type="button" className={styles.hdrIconBtn} onClick={() => setDrawerOpen(o => !o)} title="Menu">
-            <i className="ti ti-menu-2" />
-          </button>
           <img className={styles.logoImg} src="/assets/logos/parkday-icon.svg" alt="Parkday" />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className={styles.pkSub}>{title}</div>
-            {activeTrip && (
-              <div className={styles.pkTripSub}>{activeTrip.name} · {tripDateRange(activeTrip)}</div>
-            )}
           </div>
-          <button type="button" className={styles.hdrPill} onClick={() => navigate('/trip-settings')}>
-            <i className="ti ti-settings" /> Trip
-          </button>
+          <div className={styles.hdrUser} ref={userMenuRef}>
+            <button type="button" className={styles.hdrAvatarBtn} onClick={() => setUserMenuOpen(o => !o)}>
+              {initial}
+            </button>
+            <div className={`${styles.hdrUserMenu} ${userMenuOpen ? styles.show : ''}`}>
+              <div className={styles.hdrUserEmail}>{session.user.email}</div>
+              <Link to="/account" className={styles.navItem} onClick={closeAll}>
+                <i className="ti ti-user" /><span>Account</span>
+              </Link>
+              <button type="button" className={styles.navItem} onClick={() => { closeAll(); signOut() }}>
+                <i className="ti ti-logout" /><span>Sign out</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       <div className={styles.app}>
-        {drawerOpen && <div className={styles.navBackdrop} onClick={closeAll} />}
-
-        <div className={`${styles.navDrawer} ${drawerOpen ? styles.show : ''}`}>
+        <div className={styles.navDrawer}>
           <div className={styles.navDrawerTrip}>
             <div className={styles.navDrawerTripLbl}>Current trip</div>
             {activeTrip ? (
@@ -268,9 +308,15 @@ export default function AppShell({ session }) {
                 ))}
               </div>
             )}
-            <button type="button" className={styles.navTripNew} onClick={() => { closeAll(); navigate('/configurator') }}>
-              <i className="ti ti-plus" /> New trip
-            </button>
+            {planType === 'trip_pass' ? (
+              <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
+                <i className="ti ti-crown" /> Upgrade to add a trip
+              </button>
+            ) : (
+              <button type="button" className={styles.navTripNew} onClick={() => { closeAll(); navigate('/configurator') }}>
+                <i className="ti ti-plus" /> New trip
+              </button>
+            )}
           </div>
 
           <div className={styles.navDrawerBody}>
@@ -278,7 +324,7 @@ export default function AppShell({ session }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className={`${styles.navItem} ${location.pathname === item.to ? styles.active : ''} ${item.soon ? styles.future : ''}`}
+                className={`${styles.navItem} ${isNavItemActive(item.to) ? styles.active : ''} ${item.soon ? styles.future : ''}`}
                 onClick={closeAll}
               >
                 <i className={`ti ${item.icon}`} />
@@ -288,31 +334,30 @@ export default function AppShell({ session }) {
               </Link>
             ))}
           </div>
-
-          <div className={`${styles.navDrawerUser} ${userMenuOpen ? styles.open : ''}`} onClick={() => setUserMenuOpen(o => !o)}>
-            <div className={styles.navAvatar}>{initial}</div>
-            <div className={styles.navUname}>{session.user.email}</div>
-            <i className="ti ti-dots" style={{ color: 'var(--text-tertiary)', fontSize: 14 }} />
-            <div className={`${styles.navUserMenu} ${userMenuOpen ? styles.show : ''}`}>
-              <Link to="/account" className={styles.navItem} onClick={e => { e.stopPropagation(); closeAll() }}>
-                <i className="ti ti-user" /><span>Account</span>
-              </Link>
-              <button type="button" className={styles.navItem} onClick={e => { e.stopPropagation(); signOut() }}>
-                <i className="ti ti-logout" /><span>Sign out</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className={styles.pagesViewport}>
           <div className={styles.scroll}>
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
-              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session,
+              openExpenseSheet, expensesVersion, userId: session.user.id, showToast, session, planType,
               familyMembers, openFamilySheet,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,
             }} />
+          </div>
+
+          <div className={styles.tabBar}>
+            {TAB_ITEMS.map(item => (
+              <Link key={item.to} to={item.to} className={`${styles.tabItem} ${isNavItemActive(item.to) ? styles.tabActive : ''}`}>
+                <i className={`ti ${item.icon}`} />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+            <Link to="/more" className={`${styles.tabItem} ${MORE_ROUTES.includes(location.pathname) ? styles.tabActive : ''}`}>
+              <i className="ti ti-dots" />
+              <span>More</span>
+            </Link>
           </div>
         </div>
       </div>

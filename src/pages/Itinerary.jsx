@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useOutletContext, useSearchParams } from 'react-router-dom'
 import { fetchExpenses, deleteExpense, createExpense } from '../lib/expenses'
 import { categoryMeta } from '../lib/categories'
 import { tripDays, dayParkLabel } from '../lib/trips'
 import Fab from '../components/Fab/Fab'
 import EntryCard from '../components/EntryCard/EntryCard'
-import ViewTabs from '../components/ViewTabs/ViewTabs'
 import styles from './Itinerary.module.css'
+
+// Minimum horizontal drag, in px, before a touch gesture counts as a swipe
+// rather than an attempt to scroll the page vertically.
+const SWIPE_THRESHOLD = 60
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
 
@@ -44,6 +47,7 @@ export default function Itinerary() {
   const [expenses, setExpenses] = useState(null)
   const [error, setError] = useState(null)
   const [dayIndex, setDayIndex] = useState(null)
+  const touchStart = useRef(null)
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -113,6 +117,22 @@ export default function Itinerary() {
     window.scrollTo({ top: 0 })
   }
 
+  function handleTouchStart(e) {
+    const t = e.touches[0]
+    touchStart.current = { x: t.clientX, y: t.clientY }
+  }
+
+  function handleTouchEnd(e) {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    changeDay(dx < 0 ? 1 : -1)
+  }
+
   async function handleDelete(entry) {
     const { error } = await deleteExpense(entry.id)
     if (error) { showToast?.(error.message); return }
@@ -128,10 +148,8 @@ export default function Itinerary() {
   }
 
   return (
-    <div>
+    <div onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       {error && <p className={styles.error}>{error}</p>}
-
-      <ViewTabs active="day" />
 
       <div className={styles.dayNav}>
         <button type="button" className={styles.dayNavBtn} disabled={dayIndex === 0} onClick={() => changeDay(-1)}>

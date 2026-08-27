@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createRewardProgram, updateRewardProgram, deleteRewardProgram, REWARD_TYPE_LABEL, REWARD_TYPE_PROGRAM_DEFAULT } from '../../lib/giftFunds'
+import Sheet from '../Sheet/Sheet'
 import styles from './RewardSheet.module.css'
 
 export default function RewardSheet({ userId, tripId, state, onClose, onSaved, onDeleted, onError }) {
@@ -59,20 +60,17 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>{editing ? 'Edit reward' : 'Add reward'}</div>
-          {editing && (
-            <button type="button" className={styles.trash} onClick={handleDelete} title="Remove reward">
-              <i className="ti ti-trash" />
-            </button>
-          )}
-        </div>
+    <Sheet open={!!state} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>{editing ? 'Edit reward' : 'Add reward'}</div>
+        {editing && (
+          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove reward">
+            <i className="ti ti-trash" />
+          </button>
+        )}
+      </div>
 
-        <div className={styles.body}>
+      <div className={styles.body}>
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Type</div>
             <select className={styles.textInp} value={type} onChange={e => handleTypeChange(e.target.value)}>
@@ -105,11 +103,10 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
             </div>
           </div>
 
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

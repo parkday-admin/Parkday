@@ -34,8 +34,8 @@
 /* ── Progress ── */
 .progressCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 14px; }
 .progressTop { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-.progressLbl { font-size: 12px; font-weight: 600; color: var(--text-primary); }
-.progressCount { font-size: 11px; color: var(--text-tertiary); }
+.progressLbl { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.progressCount { font-size: 12.5px; color: var(--text-tertiary); }
 .progressTrack { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; }
 .progressFill { height: 100%; background: var(--sky); border-radius: 3px; transition: width 0.2s; }
 .allDone {
@@ -49,8 +49,8 @@
 .cat:last-child { margin-bottom: 0; }
 .catHdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .catIcon { width: 24px; height: 24px; border-radius: 7px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: var(--sky-dark); }
-.catTitle { font-size: 12.5px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
-.catCount { font-size: 10.5px; color: var(--text-tertiary); margin-left: auto; }
+.catTitle { font-size: 14.5px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.catCount { font-size: 12px; color: var(--text-tertiary); margin-left: auto; }
 
 .item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
 .item:last-child { border-bottom: none; }
@@ -58,7 +58,7 @@
 .check i { font-size: 12px; color: #fff; display: none; }
 .itemChecked .check { background: var(--teal); border-color: var(--teal); }
 .itemChecked .check i { display: block; }
-.itemText { flex: 1; font-size: 13px; color: var(--text-primary); }
+.itemText { flex: 1; font-size: 15px; color: var(--text-primary); }
 .itemChecked .itemText { color: var(--text-tertiary); text-decoration: line-through; }
 .itemDel { width: 24px; height: 24px; border-radius: 50%; border: none; background: none; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
 .itemDel:hover { background: rgba(224, 83, 63, 0.12); color: var(--coral); }

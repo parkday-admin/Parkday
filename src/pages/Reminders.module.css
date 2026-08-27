@@ -35,11 +35,11 @@
 .icon i { font-size: 15px; }
 .body { flex: 1; min-width: 0; }
 .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.cardTitle { font-size: 13px; font-weight: 600; color: var(--ink); }
-.when { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-.desc { font-size: 11px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
+.cardTitle { font-size: 15px; font-weight: 600; color: var(--ink); }
+.when { font-size: 12.5px; color: var(--text-secondary); margin-top: 2px; }
+.desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.5; }
 
-.urgencyPill { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; }
+.urgencyPill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; }
 .upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }
 .upMed { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
 .upLow { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }

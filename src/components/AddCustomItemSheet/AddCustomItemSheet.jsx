@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addCustomWishListItem } from '../../lib/wishlist'
+import Sheet from '../Sheet/Sheet'
 import styles from './AddCustomItemSheet.module.css'
 
 const PARKS = [
@@ -54,15 +55,12 @@ export default function AddCustomItemSheet({ trip, userId, open, onClose, onSave
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>Add custom item</div>
-        </div>
+    <Sheet open={open} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>Add custom item</div>
+      </div>
 
-        <div className={styles.body}>
+      <div className={styles.body}>
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Name</div>
             <input
@@ -102,11 +100,10 @@ export default function AddCustomItemSheet({ trip, userId, open, onClose, onSave
             <input className={styles.textInp} type="text" placeholder="Anything you want to remember" value={notes} onChange={e => setNotes(e.target.value)} />
           </div>
 
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save to wish list'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save to wish list'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

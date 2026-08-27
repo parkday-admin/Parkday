@@ -62,98 +62,7 @@
 }
 @keyframes skelShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 
-/* Countdown card */
-.countdownCard {
-  background: var(--night);
-  border-radius: var(--radius-lg);
-  padding: 16px 18px;
-  margin-bottom: 11px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 16px;
-  align-items: end;
-}
-.cdLeft { display: flex; flex-direction: column; }
-.cdBig { font-family: var(--heading); font-size: 40px; font-weight: 400; color: var(--gold); line-height: 1; }
-.cdLbl { font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
-.cdRight { text-align: right; }
-.cdTripName { font-size: 13px; font-weight: 600; color: #fff; }
-.cdTripDates { font-size: 11px; color: rgba(255, 255, 255, 0.5); margin-top: 2px; }
-.cdBarTrack { grid-column: 1 / -1; height: 4px; background: rgba(255, 255, 255, 0.12); border-radius: 2px; overflow: hidden; margin-top: 8px; }
-.cdBarFill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.3s; }
-
-/* Budget card */
-.budgetCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 11px; }
-.bcHeader { background: var(--night); padding: 13px 15px; cursor: pointer; }
-.bcHeader:hover { opacity: 0.96; }
-.bcTop { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.bcLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
-.bcNum { font-family: var(--heading); font-size: 29px; font-weight: 400; color: var(--gold); line-height: 1; }
-.bcRight { text-align: right; }
-.bcRemainingLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
-.bcRemaining { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--teal); }
-.bcBarTrack { height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; }
-.bcBarFill { height: 100%; background: var(--gold); border-radius: 2px; transition: width 0.3s; }
-.bcSub { font-size: 10px; color: rgba(255, 255, 255, 0.38); margin-top: 6px; }
-.bcFooter { margin-top: 9px; padding-top: 9px; border-top: 1px solid rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: space-between; }
-.bcFooterStat { text-align: center; flex: 1; }
-.bcFooterLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
-.bcFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
-.bcDivider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); }
-.bcBody { padding: 10px 15px; }
-.bcEmpty { font-size: 12px; color: var(--text-tertiary); padding: 10px 2px; }
-.bcCatRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; cursor: pointer; border-radius: 7px; padding: 3px 2px; transition: background 0.1s; }
-.bcCatRow:last-child { margin-bottom: 0; }
-.bcCatRow:hover { background: rgba(13, 35, 64, 0.04); }
-.bcCatRow:hover .bcCatName { color: var(--sky); }
-.bcCatLeft { display: flex; align-items: center; gap: 7px; }
-.bcCatDot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-.bcCatName { font-size: 12px; font-weight: 500; color: var(--ink); transition: color 0.12s; }
-.bcCatRight { display: flex; align-items: center; gap: 8px; }
-.bcCatSpent { font-size: 11px; color: var(--text-tertiary); }
-.bcCatProg { width: 60px; height: 3px; background: var(--border-light); border-radius: 2px; overflow: hidden; }
-.bcCatProgFill { height: 100%; border-radius: 2px; }
-.bcView { display: flex; align-items: center; justify-content: flex-end; gap: 3px; font-size: 11px; color: var(--sky); font-weight: 500; padding: 7px 15px 9px; cursor: pointer; }
-.bcView:hover { color: var(--sky-dark); }
-
-@media (min-width: 1024px) {
-  .bcBody { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 22px; }
-  .bcCatRow { margin-bottom: 2px; }
-}
-
-/* Itinerary card */
-.itinCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 11px; }
-.itinHdr { padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-light); }
-.itinHdrL { display: flex; align-items: center; gap: 9px; }
-.itinIcon { width: 29px; height: 29px; border-radius: 9px; background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.itinIcon i { font-size: 14px; color: var(--sky); }
-.itinTitle { font-size: 13px; font-weight: 600; color: var(--ink); }
-.itinSub { font-size: 11px; color: var(--text-tertiary); }
-.itinView { font-size: 11px; color: var(--sky); font-weight: 500; display: flex; align-items: center; gap: 3px; cursor: pointer; }
-
-.dayRow { padding: 10px 15px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 10px; transition: background 0.1s; cursor: pointer; }
-.dayRow:last-child { border-bottom: none; }
-.dayRow:hover { background: rgba(13, 35, 64, 0.04); }
-.dayChip { width: 37px; height: 37px; border-radius: 10px; background: var(--night); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
-.dayChipNum { font-family: var(--heading); font-size: 14px; font-weight: 400; color: #fff; line-height: 1; }
-.dayChipLbl { font-size: 8px; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; margin-top: 1px; }
-.dayInfo { flex: 1; min-width: 0; }
-.dayPark { font-size: 12px; font-weight: 600; color: var(--ink); }
-.dayDate { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
-.dayStatus { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-
-.pill { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 600; background: rgba(42, 111, 224, 0.1); color: var(--sky-dark); }
-
-/* Resort Package payments preview */
-.dprBody { padding: 10px 15px; }
-.dprRow { display: flex; align-items: center; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border-light); }
-.dprRow:last-child { border-bottom: none; }
-.dprLbl { font-size: 12px; font-weight: 600; color: var(--ink); }
-.dprSub { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
-.dprAmt { font-size: 12.5px; font-weight: 600; color: var(--ink); text-align: right; }
-.dprStatus { font-size: 10px; font-weight: 600; margin-top: 1px; text-align: right; }
-
-/* Urgency strip + reminders preview */
+/* Urgency strip */
 .urgencyStrip {
   background: rgba(224, 83, 63, 0.1); border: 1px solid rgba(224, 83, 63, 0.25); border-radius: var(--radius);
   padding: 9px 13px; margin: 0 0 11px; display: flex; align-items: center; gap: 8px; cursor: pointer;
@@ -163,20 +72,72 @@
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 .urgencyText { flex: 1; font-size: 12px; font-weight: 600; color: var(--coral); }
 
-.drrRow { display: flex; align-items: center; gap: 10px; padding: 10px 15px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
-.drrRow:last-child { border-bottom: none; }
-.drrRow:hover { background: rgba(13, 35, 64, 0.04); }
-.drrIcon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.drrIcon i { font-size: 13px; }
+/* Hero — merged countdown + budget on one navy surface */
+.hero { background: var(--night); border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; }
+.heroStats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 24px; align-items: end; }
+.heroStat { display: flex; flex-direction: column; }
+.heroLbl { font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.heroCountRow { display: flex; align-items: flex-end; gap: 8px; }
+.heroCount { font-family: var(--heading); font-size: 40px; line-height: 1; color: var(--gold); }
+.heroCountLbl { font-size: 12px; line-height: 1; color: rgba(255, 255, 255, 0.45); }
+.heroNum { font-family: var(--heading); font-size: 28px; line-height: 1; color: #fff; }
+.heroFoot { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; padding-top: 16px; margin-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+.heroFootRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.heroFootText { font-size: 12px; color: rgba(255, 255, 255, 0.45); }
 
-.urgencyPill { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; }
-.upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }
-.upMed { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
-.upLow { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
-
-@media (min-width: 1024px) {
-  .dashDayRows { display: grid; grid-template-columns: repeat(6, 1fr); gap: 9px; }
-  .dashDayRows .dayRow { flex-direction: column; align-items: flex-start; gap: 9px; border-bottom: none; border-right: 1px solid var(--border-light); padding: 13px 12px; border-radius: 0; }
-  .dashDayRows .dayRow:last-child { border-right: none; }
-  .dashDayRows .dayStatus { align-items: flex-start; }
+@media (min-width: 640px) {
+  .heroStats { grid-template-columns: 200px 1fr 1fr 1fr; }
 }
+
+/* Card grid. At mobile everything is one flat flex column. At desktop,
+   non-full-width cards are split into two independent flex columns
+   (.cardCols/.cardCol) instead of a CSS grid — a grid shares row height
+   across both columns, so a tall card on one side leaves a dead gap under
+   the shorter card next to it. Independent columns pack tight regardless of
+   what's alongside them. */
+.cardGrid { display: flex; flex-direction: column; gap: 16px; padding-bottom: 70px; }
+.cardCols { display: flex; gap: 16px; align-items: flex-start; }
+.cardCol { display: flex; flex-direction: column; gap: 16px; flex: 1; min-width: 0; }
+
+.cardEmpty { font-size: 12px; color: var(--text-tertiary); padding: 16px; }
+
+/* Shared row anatomy (Reminders / Payments / Gift cards / Budget rows) */
+.row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
+.row:last-child { border-bottom: none; }
+.row:hover { background: rgba(13, 35, 64, 0.03); }
+.rowIcon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rowIcon i { font-size: 15px; }
+.rowBody { flex: 1; min-width: 0; }
+.rowTop { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+.rowLabel { font-size: 15px; font-weight: 600; color: var(--ink); }
+.rowMeta { font-size: 12.5px; color: var(--text-tertiary); margin-top: 1px; }
+.rowValue { font-family: var(--heading); font-size: 19px; font-weight: 400; color: var(--night); flex-shrink: 0; }
+
+/* Badges (design-system tones) */
+.badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
+.badgeGreen { background: rgba(44, 165, 141, 0.15); color: var(--teal-dark); }
+.badgeGold { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
+.badgeCoral { background: rgba(224, 83, 63, 0.1); color: var(--coral); }
+.badgeBlue { background: rgba(42, 111, 224, 0.1); color: var(--sky-dark); }
+.badgeNeutral { background: var(--border-light); color: var(--text-secondary); }
+
+/* Itinerary day cards — auto-fill grid instead of a fixed column count */
+.dayGrid { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.dayCard {
+  border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; cursor: pointer;
+  display: flex; flex-direction: column; gap: 12px; transition: border-color 0.12s;
+}
+.dayCard:hover { border-color: var(--sky); }
+.dayCardTop { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.dayCardLeft { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.dayChip { width: 34px; height: 34px; border-radius: 8px; background: rgba(42, 111, 224, 0.1); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.dayChipNum { font-family: var(--heading); font-size: 16px; font-weight: 400; color: var(--sky-dark); line-height: 1; }
+.dayChipLbl { font-size: 9px; color: var(--text-tertiary); text-transform: uppercase; margin-top: 1px; }
+
+.fundsEmpty { padding: 0 16px 16px; text-align: center; }
+.fundsEmptyBtn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 12px; background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25);
+  border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
+}
+.fundsEmptyBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }

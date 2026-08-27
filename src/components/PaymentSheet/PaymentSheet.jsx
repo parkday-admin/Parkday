@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPayment, updatePayment, deletePayment, availablePaymentBalance, paymentSourceLabel } from '../../lib/payments'
 import { paymentSourceGroups } from '../../lib/giftFunds'
+import Sheet from '../Sheet/Sheet'
 import styles from './PaymentSheet.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -88,20 +89,17 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>{editing ? 'Edit payment' : 'Log a payment'}</div>
-          {editing && (
-            <button type="button" className={styles.trash} onClick={handleDelete} title="Remove payment">
-              <i className="ti ti-trash" />
-            </button>
-          )}
-        </div>
+    <Sheet open={!!state} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>{editing ? 'Edit payment' : 'Log a payment'}</div>
+        {editing && (
+          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove payment">
+            <i className="ti ti-trash" />
+          </button>
+        )}
+      </div>
 
-        <div className={styles.body}>
+      <div className={styles.body}>
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Amount</div>
             <div className={`${styles.amtWrap} ${amountError ? styles.err : ''}`}>
@@ -144,11 +142,10 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
             <input className={styles.textInp} type="text" placeholder="e.g. Monthly payment plan installment" value={note} onChange={e => setNote(e.target.value)} />
           </div>
 
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

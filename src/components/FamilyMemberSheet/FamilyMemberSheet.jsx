@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createFamilyMember, updateFamilyMember, deleteFamilyMember } from '../../lib/familyMembers'
+import Sheet from '../Sheet/Sheet'
 import styles from './FamilyMemberSheet.module.css'
 
 export default function FamilyMemberSheet({ userId, state, onClose, onSaved, onDeleted, onError }) {
@@ -48,20 +49,17 @@ export default function FamilyMemberSheet({ userId, state, onClose, onSaved, onD
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>{editing ? 'Edit family member' : 'Add family member'}</div>
-          {editing && (
-            <button type="button" className={styles.trash} onClick={handleDelete} title="Remove family member">
-              <i className="ti ti-trash" />
-            </button>
-          )}
-        </div>
+    <Sheet open={!!state} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>{editing ? 'Edit family member' : 'Add family member'}</div>
+        {editing && (
+          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove family member">
+            <i className="ti ti-trash" />
+          </button>
+        )}
+      </div>
 
-        <div className={styles.body}>
+      <div className={styles.body}>
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Name</div>
             <input
@@ -89,11 +87,10 @@ export default function FamilyMemberSheet({ userId, state, onClose, onSaved, onD
             </div>
           </div>
 
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

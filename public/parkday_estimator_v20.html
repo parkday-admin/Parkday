@@ -20,7 +20,7 @@
   --coral:#E0533F;
   --teal:#2CA58D;
   --teal-dark:#1B7D68;
-  --cream:#F3EEDE;
+  --cream:#F0EDE8;
   --white:#FFFFFF;
   --ink:#20242C;
   --card:#FBF5E8;
@@ -44,34 +44,37 @@ html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
 
 /* ── App shell ── */
 .layout{max-width:480px;margin:0 auto;}
-.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;min-height:100vh;min-height:100svh;background:var(--cream);position:relative;}
+.app{max-width:480px;margin:0 auto;display:flex;flex-direction:column;background:var(--cream);position:relative;}
 
-/* ── Header ── */
-.pk-hdr{position:relative;background:var(--cream);padding:18px 18px 14px;display:flex;align-items:center;gap:11px;flex-shrink:0;overflow:hidden;}
-.pk-logo{width:64px;height:auto;flex-shrink:0;display:block;position:relative;z-index:1;}
-.pk-title{font-family:'Fraunces',serif;font-size:24px;font-weight:500;color:var(--night);letter-spacing:-0.015em;line-height:1.05;}
-.pk-sub{font-size:12px;color:var(--sky);font-weight:500;margin-top:2px;}
-.restart-btn{position:relative;z-index:1;background:#fff;border:1px solid rgba(13,35,64,0.16);border-radius:20px;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:500;color:var(--night);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0;}
+/* ── Header (full-width bar, matches homepage nav) ── */
+.pk-hdr{position:sticky;top:0;z-index:40;background:rgba(240,237,226,0.88);backdrop-filter:blur(8px);border-bottom:1px solid var(--border-light);}
+.pk-hdr-inner{max-width:480px;margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.pk-brand{display:flex;align-items:center;gap:10px;min-width:0;color:inherit;text-decoration:none;}
+.pk-back-ic{font-size:17px;color:var(--text-tertiary);flex-shrink:0;transition:color 0.15s;}
+.pk-brand:hover .pk-back-ic{color:var(--sky);}
+.pk-logo{height:40px;width:auto;flex-shrink:0;display:block;}
+.pk-title{font-family:'Fraunces',serif;font-size:24px;color:var(--night);}
+.restart-btn{background:#fff;border:1px solid rgba(13,35,64,0.16);border-radius:20px;padding:7px 13px;cursor:pointer;font-size:12px;font-weight:500;color:var(--night);font-family:'Inter',sans-serif;display:flex;align-items:center;gap:5px;flex-shrink:0;}
 .restart-btn i{font-size:13px;}
 
 /* ── Cost bar (estimator) ── */
-.cost-wrap{margin:0;padding:0 14px 12px;flex-shrink:0;position:sticky;top:0;z-index:30;background:var(--cream);transform:translateZ(0);will-change:transform;}
-.cost-ticket{background:var(--night);border-radius:16px;padding:16px 20px;position:relative;overflow:hidden;display:flex;align-items:stretch;}
+.cost-wrap{margin:0;padding:14px 14px 12px;flex-shrink:0;position:sticky;top:69px;z-index:30;background:var(--cream);transform:translateZ(0);will-change:transform;}
+.cost-ticket{background:var(--night);border-radius:16px;padding:16px clamp(12px,4vw,20px);position:relative;overflow:hidden;display:flex;align-items:stretch;}
 .cost-ticket::before,.cost-ticket::after{content:'';position:absolute;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:var(--cream);}
 .cost-ticket::before{left:-10px;}
 .cost-ticket::after{right:-10px;}
-.cost-left{flex:1.2;}
-.cost-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.42);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
-.cost-num{font-family:'Fraunces',serif;font-size:42px;font-weight:400;color:var(--gold);line-height:1;}
-.cost-pp{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:rgba(255,255,255,0.85);line-height:1;}
-.cost-divider{width:1px;background:rgba(255,255,255,0.1);margin:0 16px;}
-.cost-right{flex-shrink:0;align-self:center;}
-.cost-rng{font-family:'Fraunces',serif;font-size:18px;font-weight:400;color:rgba(255,255,255,0.85);line-height:1;}
-.cost-mid{flex-shrink:0;align-self:center;}
+.cost-left{flex:1.2;min-width:0;}
+.cost-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,0.42);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;white-space:nowrap;}
+.cost-num{font-family:'Fraunces',serif;font-size:clamp(26px,8vw,42px);font-weight:400;color:var(--gold);line-height:1;}
+.cost-pp{font-family:'Fraunces',serif;font-size:clamp(13px,4vw,18px);font-weight:400;color:rgba(255,255,255,0.85);line-height:1;}
+.cost-divider{width:1px;background:rgba(255,255,255,0.1);margin:0 clamp(8px,3vw,16px);flex-shrink:0;}
+.cost-right{flex-shrink:1;min-width:0;align-self:center;}
+.cost-rng{font-family:'Fraunces',serif;font-size:clamp(13px,4vw,18px);font-weight:400;color:rgba(255,255,255,0.85);line-height:1;white-space:nowrap;}
+.cost-mid{flex-shrink:1;min-width:0;align-self:center;}
 
 
 /* ── Progress bar ── */
-.prog-wrap{background:var(--cream);padding:0 18px 14px;flex-shrink:0;}
+.prog-wrap{background:var(--cream);padding:0 18px 4px;flex-shrink:0;}
 .prog-steps{display:flex;gap:3px;}
 .ps{flex:1;height:4px;border-radius:2px;background:rgba(13,35,64,0.14);transition:background 0.2s;}
 .ps.done{background:var(--teal);}
@@ -84,7 +87,7 @@ html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
 /* ── Screens ── */
 .screens{flex:1;position:relative;background:var(--cream);}
 .screens-clip{position:absolute;inset:0;overflow:hidden;}
-.screen{position:relative;padding:16px;transition:transform 0.26s cubic-bezier(.4,0,.2,1),opacity 0.18s;}
+.screen{position:relative;padding:6px 16px 16px;transition:transform 0.26s cubic-bezier(.4,0,.2,1),opacity 0.18s;}
 .screen.hr,.screen.hl{position:absolute;inset:0;overflow-y:auto;pointer-events:none;}
 .screen.hr{transform:translateX(100%);opacity:0;}
 .screen.hl{transform:translateX(-28%);opacity:0;}
@@ -272,7 +275,8 @@ html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
 @media (min-width:640px){
   .layout{max-width:620px;}
   .app{max-width:620px;}
-  .screen{padding:20px 22px;}
+  .pk-hdr-inner{max-width:620px;}
+  .screen{padding:8px 22px 20px;}
   .sec-title{font-size:22px;}
   .sec-desc{font-size:14px;}
   .oname{font-size:12.5px;}
@@ -305,6 +309,7 @@ html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
 @media (min-width:1024px){
   .layout{max-width:720px;}
   .app{max-width:720px;}
+  .pk-hdr-inner{max-width:720px;}
   .sec-title{font-size:24px;}
   .opt{padding:13px 15px;}
   .oname{font-size:13px;}
@@ -315,18 +320,20 @@ html{scrollbar-width:thin;scrollbar-color:rgba(13,35,64,0.18) transparent;}
 </head>
 <body>
 
-<div class="layout">
-<div class="app">
-
-  <!-- Header -->
-  <div class="pk-hdr">
-    <img class="pk-logo" src="assets/logos/parkday-icon.svg" alt="Parkday">
-    <div style="flex:1;position:relative;z-index:1;">
+<!-- Header -->
+<div class="pk-hdr">
+  <div class="pk-hdr-inner">
+    <a class="pk-brand" href="parkday_home_v1.html">
+      <i class="ti ti-chevron-left pk-back-ic"></i>
+      <img class="pk-logo" src="assets/logos/parkday-icon.svg" alt="Parkday">
       <div class="pk-title">Parkday</div>
-      <div class="pk-sub" id="hdr-sub">Plan smoother park days.</div>
-    </div>
+    </a>
     <button class="restart-btn" id="restart-btn"><i class="ti ti-rotate-2"></i>Reset</button>
   </div>
+</div>
+
+<div class="layout">
+<div class="app">
 
   <!-- Estimator cost bar -->
   <div class="cost-wrap" id="cost-wrap">
@@ -613,11 +620,11 @@ function travelEst(){
   if(S.travel==='flying'){
     const fc=ftier(originMiles);
     const lo=fc[0]*2*t+16*t*2,hi=fc[1]*2*t+35*t*2;
-    return{lo,hi,lines:[{icon:'ti-plane',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Airfare + airport transfer (est.)',lo,hi}]};
+    return{lo,hi,lines:[{icon:'ti-plane',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Travel',lo,hi}]};
   } else {
     const[gLo,gHi]=gas(originMiles);
     const pk=30*S.parkdays;
-    return{lo:gLo+pk,hi:gHi+pk,lines:gLo>0?[{icon:'ti-car',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Gas + WDW parking (est.)',lo:gLo+pk,hi:gHi+pk}]:[]};
+    return{lo:gLo+pk,hi:gHi+pk,lines:gLo>0?[{icon:'ti-car',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Travel',lo:gLo+pk,hi:gHi+pk}]:[]};
   }
 }
 
@@ -653,11 +660,13 @@ function calc(){
   const subHi=rHi+tkHi+llHi+dHi+tvHi+svHi+exHi;
   const mLo=subLo*0.1,mHi=subHi*0.1;
   const totalLo=subLo+mLo,totalHi=subHi+mHi,total=(totalLo+totalHi)/2;
-  const lines=[
+  const lines=[];
+  if(includeTravel)lines.push(...tv.lines);
+  lines.push(
     {icon:'ti-building-castle',bg:'rgba(13,35,64,0.08)',ic:'#0D2340',name:'Accommodations',lo:rLo,hi:rHi},
     {icon:'ti-ticket',bg:'rgba(42,111,224,0.12)',ic:'#1E5AC4',name:'Tickets',lo:tkLo,hi:tkHi},
     {icon:'ti-bolt',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Lightning Lane',lo:llLo,hi:llHi},
-  ];
+  );
   if(includeDining){
     if(S.qs>0)lines.push({icon:'ti-shopping-bag',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Quick service dining',lo:d.qsLo,hi:d.qsHi});
     if(S.ts>0)lines.push({icon:'ti-tools-kitchen-2',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Table service dining',lo:d.tsLo,hi:d.tsHi});
@@ -665,11 +674,44 @@ function calc(){
     if(S.snacks>0)lines.push({icon:'ti-ice-cream',bg:'rgba(44,165,141,0.16)',ic:'#1B7D68',name:'Snacks',lo:d.snLo,hi:d.snHi});
     if(d.tipsLo>0)lines.push({icon:'ti-coin',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Tips (est.)',lo:d.tipsLo,hi:d.tipsHi});
   }
-  if(includeTravel)lines.push(...tv.lines);
   if(S.souvenirs>0)lines.push({icon:'ti-gift',bg:'rgba(224,83,63,0.12)',ic:'#E0533F',name:'Souvenirs',lo:S.souvenirs,hi:S.souvenirs});
   if(S.experiences>0)lines.push({icon:'ti-stars',bg:'rgba(245,181,54,0.16)',ic:'#C68A12',name:'Experiences',lo:S.experiences,hi:S.experiences});
   lines.push({icon:'ti-dots',bg:'rgba(13,35,64,0.08)',ic:'#0D2340',name:'Buffer (10%)',lo:mLo,hi:mHi});
   return{total,totalLo,totalHi,lines,dining:d};
+}
+
+// ── Path A handoff: bundle the estimate into the payload shape the
+// account/pricing prototype screens (and eventually the configurator) expect.
+function startPlanningTrip(){
+  const c=calc();
+  const sumBy=names=>{
+    const lo=c.lines.filter(l=>names.includes(l.name)).reduce((s,l)=>s+l.lo,0);
+    const hi=c.lines.filter(l=>names.includes(l.name)).reduce((s,l)=>s+l.hi,0);
+    return Math.round((lo+hi)/2);
+  };
+  const payload={
+    adults:S.adults,
+    children:S.children,
+    nights:S.nights,
+    parkDays:S.parkdays,
+    travelMode:skipped.travel?'skip':S.travel,
+    resortTier:S.resort,
+    season:S.season,
+    ticketType:S.ticket,
+    lightningLane:S.ll,
+    estimatedBudget:{
+      travel:sumBy(['Travel']),
+      accommodations:sumBy(['Accommodations']),
+      tickets:sumBy(['Tickets']),
+      dining:sumBy(['Quick service dining','Table service dining','Character dining','Tips (est.)']),
+      snacks:sumBy(['Snacks']),
+      lightningLane:sumBy(['Lightning Lane']),
+      souvenirs:S.souvenirs,
+      experiences:S.experiences,
+    },
+  };
+  localStorage.setItem('pkd_estimate',JSON.stringify(payload));
+  window.location.href='parkday_account_v1.html';
 }
 
 function updateCostBar(){
@@ -811,7 +853,7 @@ ${skippedHtml}
 <div class="convert-card">
   <div class="cc-title">Ready to plan your trip?</div>
   <div class="cc-sub">Create a free account to save this estimate and set up your trip — enter your dates, resort, and park days.</div>
-  <button class="cc-btn" onclick="window.location.href='parkday_dashboard_v3.html'">Create a free account →</button>
+  <button class="cc-btn" onclick="startPlanningTrip()">Start planning your trip →</button>
   <div class="cc-alt" onclick="sendPrompt('Help me compare Disney World alternatives: ${S.adults} adults + ${S.children} kids, ${S.nights} nights, ${S.season} season, ${rL[S.resort]}, estimate ${fmt(c.total)}. What changes would have the biggest cost impact?')">Compare alternatives ↗</div>
 </div>`;
 }
@@ -838,8 +880,26 @@ function goTo(s,dir){
 // ── Event wiring ──
 document.getElementById('nav-next').onclick=()=>{if(step<EST_TOTAL)goTo(step+1,1);};
 document.getElementById('nav-back').onclick=()=>{if(step>0)goTo(step-1,-1);};
+const DEFAULT_S={adults:1,children:0,nights:1,parkdays:1,season:'value',resort:'value',ticket:'base',ll:'none',qs:2,ts:1,character:0,snacks:2,souvenirs:0,experiences:0,travel:'flying'};
 document.getElementById('restart-btn').onclick=()=>{
   step=0;skipped.travel=false;skipped.extras=false;
+  Object.assign(S,DEFAULT_S);
+  originMiles=null;originLabel='';
+  expSelected.clear();
+
+  // Reset option-grid selections to defaults
+  document.querySelectorAll('.opt[data-grp]').forEach(b=>{
+    b.classList.toggle('sel',b.dataset.val===DEFAULT_S[b.dataset.grp]);
+  });
+
+  // Reset text inputs
+  const locInp=document.getElementById('loc-inp');if(locInp)locInp.value='';
+  const locRes=document.getElementById('loc-res');if(locRes){locRes.className='loc-res';locRes.textContent='';}
+  const souvInp=document.getElementById('souvenirs-inp');if(souvInp)souvInp.value='';
+  const expInp=document.getElementById('experiences-inp');if(expInp)expInp.value='';
+  const nightsHint=document.getElementById('nights-hint');if(nightsHint)nightsHint.textContent='Staying overnight';
+  const locSection=document.getElementById('loc-section');if(locSection)locSection.style.display='block';
+
   const clip=document.getElementById('screens-clip'),screensEl=document.querySelector('.screens');
   for(let i=0;i<=EST_TOTAL;i++){
     const s=document.getElementById('sc-'+i);

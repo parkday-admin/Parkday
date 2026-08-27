@@ -3,6 +3,7 @@ import { createExpense, updateExpense, deleteExpense } from '../../lib/expenses'
 import { categoriesForTrip, categoryMeta, CATS_WITH_TIME, CATS_WITH_STATUS } from '../../lib/categories'
 import { tripDays } from '../../lib/trips'
 import { paymentSourceGroups } from '../../lib/giftFunds'
+import Sheet from '../Sheet/Sheet'
 import styles from './ExpenseSheet.module.css'
 
 function fmtTimeInput(t) {
@@ -144,70 +145,87 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>{editing ? 'Edit expense' : 'Add expense'}</div>
-          {editing && (
-            <button type="button" className={styles.trash} onClick={handleDelete} title="Delete expense">
-              <i className="ti ti-trash" />
+    <Sheet open={!!state} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>{editing ? 'Edit expense' : 'Add expense'}</div>
+        {editing && (
+          <button type="button" className={styles.trash} onClick={handleDelete} title="Delete expense">
+            <i className="ti ti-trash" />
+          </button>
+        )}
+      </div>
+
+      <div className={styles.body}>
+        <div className={styles.field}>
+          <div className={styles.amtRow}>
+            <div>
+              <div className={styles.fieldLbl}>Planned</div>
+              <div className={`${styles.amtWrap} ${plannedError ? styles.err : ''}`}>
+                <div className={styles.amtPre}>$</div>
+                <input className={styles.amtInp} type="number" min="0" placeholder="0" value={planned}
+                  onChange={e => { setPlanned(e.target.value); setPlannedError(false) }} />
+              </div>
+            </div>
+            <button type="button" className={styles.copyBtn} title="Copy planned to actual" onClick={copyPlannedToActual}>
+              <i className="ti ti-arrow-right" />
             </button>
-          )}
+            <div>
+              <div className={styles.fieldLbl}>Actual <span className={styles.optional}>(if spent)</span></div>
+              <div className={styles.amtWrap}>
+                <div className={styles.amtPre}>$</div>
+                <input className={styles.amtInp} type="number" min="0" placeholder="—" value={actual} onChange={e => setActual(e.target.value)} />
+              </div>
+            </div>
+          </div>
+          {plannedError && <div className={styles.errMsg}>Enter a planned or actual amount</div>}
         </div>
 
-        <div className={styles.body}>
-          <div className={styles.field}>
-            <div className={styles.fieldLbl}>Category</div>
-            <div className={styles.catScroll}>
-              {cats.map(c => {
-                const cm = categoryMeta(c)
-                return (
-                  <button
-                    key={c}
-                    type="button"
-                    className={`${styles.catPill} ${cat === c ? styles.sel : ''}`}
-                    style={cat === c ? { borderColor: cm.color, background: cm.bg, color: cm.color } : undefined}
-                    onClick={() => setCat(c)}
-                  >
-                    <i className={`ti ${cm.icon}`} /> {cm.label}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
+        <div className={styles.field}>
+          <div className={styles.fieldLbl}>Payment source <span className={styles.optional}>(optional)</span></div>
+          <select className={styles.textInp} value={paymentSource} onChange={e => setPaymentSource(e.target.value)}>
+            <option value="">None — not tracked</option>
+            <optgroup label="Other">
+              {pmtGroups.other.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </optgroup>
+            {pmtGroups.gift.length > 0 && (
+              <optgroup label="Gift cards">
+                {pmtGroups.gift.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </optgroup>
+            )}
+            {pmtGroups.reward.length > 0 && (
+              <optgroup label="Rewards">
+                {pmtGroups.reward.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </optgroup>
+            )}
+          </select>
+        </div>
 
-          <div className={styles.field}>
-            <div className={styles.fieldLbl}>Label <span className={styles.optional}>(optional)</span></div>
-            <input className={styles.textInp} type="text" placeholder={meta.label} value={label} onChange={e => setLabel(e.target.value)} />
+        <div className={styles.field}>
+          <div className={styles.fieldLbl}>Category</div>
+          <div className={styles.catGrid}>
+            {cats.map(c => {
+              const cm = categoryMeta(c)
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  className={`${styles.catPill} ${cat === c ? styles.sel : ''}`}
+                  style={cat === c ? { borderColor: cm.color, background: cm.bg, color: cm.color } : undefined}
+                  onClick={() => setCat(c)}
+                >
+                  <i className={`ti ${cm.icon}`} /> {cm.label}
+                </button>
+              )
+            })}
           </div>
+        </div>
 
-          <div className={styles.field}>
-            <div className={styles.amtRow}>
-              <div>
-                <div className={styles.fieldLbl}>Planned</div>
-                <div className={`${styles.amtWrap} ${plannedError ? styles.err : ''}`}>
-                  <div className={styles.amtPre}>$</div>
-                  <input className={styles.amtInp} type="number" min="0" placeholder="0" value={planned}
-                    onChange={e => { setPlanned(e.target.value); setPlannedError(false) }} />
-                </div>
-              </div>
-              <button type="button" className={styles.copyBtn} title="Copy planned to actual" onClick={copyPlannedToActual}>
-                <i className="ti ti-arrow-right" />
-              </button>
-              <div>
-                <div className={styles.fieldLbl}>Actual <span className={styles.optional}>(if spent)</span></div>
-                <div className={styles.amtWrap}>
-                  <div className={styles.amtPre}>$</div>
-                  <input className={styles.amtInp} type="number" min="0" placeholder="—" value={actual} onChange={e => setActual(e.target.value)} />
-                </div>
-              </div>
-            </div>
-            {plannedError && <div className={styles.errMsg}>Enter a planned or actual amount</div>}
-          </div>
+        <div className={styles.field}>
+          <div className={styles.fieldLbl}>Label <span className={styles.optional}>(optional)</span></div>
+          <input className={styles.textInp} type="text" placeholder={meta.label} value={label} onChange={e => setLabel(e.target.value)} />
+        </div>
 
-          {!tripLevel && (
+        {!tripLevel && (
             <div className={styles.field}>
               <div className={styles.fieldLbl}>Day</div>
               <div className={styles.dayGrid}>
@@ -248,31 +266,10 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
             </div>
           )}
 
-          <div className={styles.field}>
-            <div className={styles.fieldLbl}>Payment source <span className={styles.optional}>(optional)</span></div>
-            <select className={styles.textInp} value={paymentSource} onChange={e => setPaymentSource(e.target.value)}>
-              <option value="">None — not tracked</option>
-              <optgroup label="Other">
-                {pmtGroups.other.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-              </optgroup>
-              {pmtGroups.gift.length > 0 && (
-                <optgroup label="Gift cards">
-                  {pmtGroups.gift.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </optgroup>
-              )}
-              {pmtGroups.reward.length > 0 && (
-                <optgroup label="Rewards">
-                  {pmtGroups.reward.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
-                </optgroup>
-              )}
-            </select>
-          </div>
-
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : editing ? 'Save changes' : 'Save expense'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : editing ? 'Save changes' : 'Save expense'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

@@ -6,19 +6,27 @@
 @media (min-width: 640px) { .hdrInner { max-width: 620px; } }
 @media (min-width: 1024px) { .hdrInner { max-width: 1180px; } }
 
-.hdrIconBtn { width: 36px; height: 36px; border-radius: 50%; background: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: var(--night); }
-.hdrIconBtn:hover { border-color: var(--sky); color: var(--sky); }
-.hdrIconBtn i { font-size: 16px; }
-@media (min-width: 1024px) { .hdrIconBtn { display: none; } }
-
 .logoImg { height: 44px; width: auto; flex-shrink: 0; display: block; }
 .pkSub { font-family: var(--heading); font-size: 28px; font-weight: 400; color: var(--night); letter-spacing: -0.01em; line-height: 1.05; }
-.pkTripSub { font-size: 11px; color: var(--sky); font-weight: 500; margin-top: 2px; }
-@media (min-width: 1024px) { .pkTripSub { display: none; } }
 
-.hdrPill { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 7px 12px; cursor: pointer; font-size: 11px; font-weight: 500; color: var(--night); display: flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
-.hdrPill:hover { border-color: var(--sky); color: var(--sky); }
-.hdrPill i { font-size: 13px; }
+/* Account menu — persistent top-right of the header on every page */
+.hdrUser { position: relative; flex-shrink: 0; }
+.hdrAvatarBtn {
+  width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(42, 111, 224, 0.12); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--sky-dark);
+}
+.hdrAvatarBtn:hover { background: rgba(42, 111, 224, 0.2); }
+.hdrUserMenu {
+  position: absolute; top: calc(100% + 8px); right: 0; min-width: 190px; background: var(--white);
+  border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 28px rgba(13, 35, 64, 0.16);
+  overflow: hidden; transform: translateY(-6px); opacity: 0; pointer-events: none;
+  transition: transform 0.18s cubic-bezier(.4, 0, .2, 1), opacity 0.18s; z-index: 70;
+}
+.hdrUserMenu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+.hdrUserEmail { padding: 10px 14px; font-size: 11.5px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-light); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hdrUserMenu .navItem { margin-bottom: 0; border-radius: 0; padding: 11px 14px; }
 
 /* App shell */
 .app { width: 100%; max-width: 480px; min-height: 100svh; background: var(--cream); position: relative; display: flex; flex-direction: row; align-items: stretch; }
@@ -26,24 +34,39 @@
 @media (min-width: 1024px) { .app { max-width: 1180px; } }
 
 .pagesViewport { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.scroll { flex: 1; padding: 100px 16px 60px; }
-@media (min-width: 1024px) { .scroll { padding-top: 87px; } }
+.scroll { flex: 1; padding: 100px 16px 84px; }
+@media (min-width: 1024px) { .scroll { padding: 87px 16px 60px; } }
 
-/* Nav backdrop + drawer */
-.navBackdrop { position: fixed; inset: 0; background: rgba(13, 20, 32, 0.5); z-index: 40; }
-@media (min-width: 1024px) { .navBackdrop { display: none; } }
-
+/* Nav drawer — desktop-only static sidebar. Mobile primary nav is the tab
+   bar below; everything else lives on the /more screen. */
 .navDrawer {
-  position: fixed; top: 0; bottom: 0; left: 0; width: 80%; max-width: 300px;
-  padding-top: 87px; background: var(--cream); z-index: 41;
-  transform: translateX(-100%); transition: transform 0.28s cubic-bezier(.4, 0, .2, 1);
-  display: flex; flex-direction: column;
-  border-right: 1px solid var(--border-light);
+  display: none;
 }
-.navDrawer.show { transform: translateX(0); }
 @media (min-width: 1024px) {
-  .navDrawer { position: static; transform: none; width: 252px; max-width: 252px; flex-shrink: 0; padding-top: 74px; }
+  .navDrawer {
+    display: flex; flex-direction: column; width: 252px; max-width: 252px; flex-shrink: 0;
+    border-right: 1px solid var(--border-light); background: var(--cream);
+    position: sticky; align-self: flex-start; top: var(--app-header-h, 90px);
+    max-height: calc(100vh - var(--app-header-h, 90px)); overflow-y: auto;
+  }
 }
+
+/* Mobile bottom tab bar */
+.tabBar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 55;
+  background: var(--white); border-top: 1px solid var(--border-light);
+  display: flex; align-items: center; justify-content: space-around; padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1024px) { .tabBar { display: none; } }
+
+.tabItem {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 44px; min-height: 44px;
+  justify-content: center; text-decoration: none; color: var(--text-tertiary);
+}
+.tabItem i { font-size: 20px; }
+.tabItem span { font-size: 10px; font-weight: 500; }
+.tabItem.tabActive { color: var(--sky-dark); }
+.tabItem.tabActive span { font-weight: 600; }
 
 .navDrawerTrip { padding: 12px 16px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; position: relative; }
 .navDrawerTripLbl { font-size: 9px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
@@ -70,6 +93,13 @@
 }
 .navTripNew:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }
 
+.navUpgradeBtn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px;
+  padding: 9px 12px; background: rgba(245, 181, 54, 0.16); border: 1px solid rgba(245, 181, 54, 0.5);
+  border-radius: 10px; font-size: 12px; font-weight: 600; color: #8a5a00; cursor: pointer;
+}
+.navUpgradeBtn:hover { background: rgba(245, 181, 54, 0.26); border-color: var(--gold); }
+
 .navDrawerBody { padding: 10px; flex: 1; overflow-y: auto; }
 
 .navItem {
@@ -95,17 +125,3 @@
   flex: 0 0 auto; margin-left: auto; width: fit-content;
 }
 
-.navDrawerUser { padding: 11px 16px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 9px; flex-shrink: 0; cursor: pointer; position: relative; }
-.navDrawerUser:hover { background: rgba(42, 111, 224, 0.04); }
-.navAvatar { width: 27px; height: 27px; border-radius: 50%; background: rgba(42, 111, 224, 0.15); display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 600; color: var(--sky-dark); flex-shrink: 0; }
-.navUname { font-size: 11.5px; color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.navDrawerUser i.ti-dots { transition: transform 0.18s; }
-.navDrawerUser.open i.ti-dots { transform: rotate(90deg); }
-.navUserMenu {
-  position: absolute; left: 10px; right: 10px; bottom: calc(100% + 6px); background: var(--white);
-  border: 1px solid var(--border-light); border-radius: 12px; box-shadow: 0 10px 28px rgba(13, 35, 64, 0.16);
-  overflow: hidden; transform: translateY(8px); opacity: 0; pointer-events: none;
-  transition: transform 0.18s cubic-bezier(.4, 0, .2, 1), opacity 0.18s; z-index: 5;
-}
-.navUserMenu.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
-.navUserMenu .navItem { margin-bottom: 0; border-radius: 0; padding: 11px 14px; }

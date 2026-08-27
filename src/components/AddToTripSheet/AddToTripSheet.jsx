@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createExpense, updateExpense } from '../../lib/expenses'
 import { updateWishListItem, wlCatMeta } from '../../lib/wishlist'
 import { tripDays, dayParkLabel } from '../../lib/trips'
+import Sheet from '../Sheet/Sheet'
 import styles from './AddToTripSheet.module.css'
 
 export default function AddToTripSheet({ trip, expenses, userId, state, onClose, onSaved, onError }) {
@@ -53,15 +54,12 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
   }
 
   return (
-    <>
-      <div className={styles.backdrop} onClick={onClose} />
-      <div className={styles.sheet}>
-        <div className={styles.dragWrap}><div className={styles.drag} /></div>
-        <div className={styles.hdr}>
-          <div className={styles.title}>Add to trip</div>
-        </div>
+    <Sheet open={!!state && !!item} onClose={onClose}>
+      <div className={styles.hdr}>
+        <div className={styles.title}>Add to trip</div>
+      </div>
 
-        <div className={styles.body}>
+      <div className={styles.body}>
           <div className={styles.field}>
             <div className={styles.itemName}>{item.name}</div>
             <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{meta.label}</span>
@@ -91,11 +89,10 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
             <input className={styles.textInp} type="text" placeholder="e.g. Book ADR 60 days out" value={notes} onChange={e => setNotes(e.target.value)} />
           </div>
 
-          <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-            <i className="ti ti-check" /> {saving ? 'Saving…' : 'Add to itinerary'}
-          </button>
-        </div>
+        <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
+          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Add to itinerary'}
+        </button>
       </div>
-    </>
+    </Sheet>
   )
 }

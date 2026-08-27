@@ -1,22 +1,50 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import { fetchExpenses, setCategoryBudget } from '../lib/expenses'
+import { fetchExpenses, setCategoryBudget, deleteExpense, createExpense } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
+import { tripDays } from '../lib/trips'
+import { paymentSourceLabel } from '../lib/payments'
 import Fab from '../components/Fab/Fab'
-import ViewTabs from '../components/ViewTabs/ViewTabs'
+import EntryCard from '../components/EntryCard/EntryCard'
+import Sheet from '../components/Sheet/Sheet'
 import styles from './Budget.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
 
+// Entry times are stored as display strings ("7:30 PM"); convert to
+// minutes-since-midnight so the flat All Expenses list sorts chronologically
+// within a day instead of alphabetically.
+function timeSortKey(t) {
+  const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i.exec((t || '').trim())
+  if (!m) return -1
+  let h = Number(m[1])
+  if (m[3]) {
+    if (/PM/i.test(m[3]) && h !== 12) h += 12
+    if (/AM/i.test(m[3]) && h === 12) h = 0
+  }
+  return h * 60 + Number(m[2])
+}
+
+function methodLabel(source, giftCards, rewardPrograms) {
+  if (!source) return 'None'
+  if (source.startsWith('manual:')) return source.slice(7)
+  return paymentSourceLabel(source, giftCards, rewardPrograms)
+}
+
 export default function Budget() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet, userId } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet, userId, giftCards, rewardPrograms } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [error, setError] = useState(null)
   const [editingCat, setEditingCat] = useState(null)
   const [budgetDraft, setBudgetDraft] = useState('')
   const [toast, setToast] = useState(null)
+  const [tab, setTab] = useState('summary')
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [filterCats, setFilterCats] = useState([])
+  const [filterDays, setFilterDays] = useState([])
+  const [filterMethods, setFilterMethods] = useState([])
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -32,7 +60,7 @@ export default function Budget() {
 
   useEffect(() => {
     if (!toast) return
-    const t = setTimeout(() => setToast(null), 2200)
+    const t = setTimeout(() => setToast(null), toast?.actionLabel ? 5000 : 2200)
     return () => clearTimeout(t)
   }, [toast])
 
@@ -84,12 +112,68 @@ export default function Budget() {
   const remaining = totalBudgeted - totalActual
   const pct = totalBudgeted > 0 ? Math.min(100, Math.round((totalActual / totalBudgeted) * 100)) : 0
 
+  // All Expenses tab: every real logged entry (budget-target rows and the
+  // auto-generated park_day placeholders aren't transactions), sorted the
+  // same way the Itinerary's day view sorts a day's Scheduled section.
+  const allEntries = expenses
+    .filter(e => !e.is_budget && e.cat !== 'park_day')
+    .sort((a, b) => {
+      const dayA = a.day ?? -1, dayB = b.day ?? -1
+      if (dayA !== dayB) return dayA - dayB
+      return timeSortKey(a.time) - timeSortKey(b.time)
+    })
+
+  const methodOptions = Array.from(new Set(allEntries.map(e => e.payment_source || '')))
+    .map(source => ({ value: source, label: methodLabel(source, giftCards ?? [], rewardPrograms ?? []) }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+
+  const filteredEntries = allEntries.filter(e => {
+    if (filterCats.length && !filterCats.includes(e.cat)) return false
+    if (filterDays.length) {
+      const dayKey = e.day == null ? 'trip' : e.day
+      if (!filterDays.includes(dayKey)) return false
+    }
+    if (filterMethods.length && !filterMethods.includes(e.payment_source || '')) return false
+    return true
+  })
+
+  const activeFilterCount = filterCats.length + filterDays.length + filterMethods.length
+
+  function toggleFilter(setter, value) {
+    setter(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value])
+  }
+
+  function clearFilters() {
+    setFilterCats([]); setFilterDays([]); setFilterMethods([])
+  }
+
+  async function handleDeleteEntry(entry) {
+    const { error } = await deleteExpense(entry.id)
+    if (error) { setToast(error.message); return }
+    setExpenses(prev => prev.filter(e => e.id !== entry.id))
+    setToast({
+      message: 'Expense deleted',
+      actionLabel: 'Undo',
+      onAction: async () => {
+        const { cat, label, time, status, ll_type, planned_amt, actual_amt, day, payment_source } = entry
+        await createExpense(userId, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day, payment_source })
+        setToast(null)
+        fetchExpenses(activeTrip.id).then(({ data }) => data && setExpenses(data))
+      },
+    })
+  }
+
   return (
     <div>
       {error && <p className={styles.error}>{error}</p>}
 
-      <ViewTabs active="category" />
+      <div className={styles.subTabs}>
+        <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
+        <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
+      </div>
 
+      {tab === 'summary' && (
+      <>
       <div className={styles.hero}>
         <div className={styles.heroHdr}>
           <div className={styles.heroTop}>
@@ -153,10 +237,128 @@ export default function Budget() {
           )
         })}
       </div>
+      </>
+      )}
+
+      {tab === 'all' && (
+        <div>
+          <div className={styles.filterBar}>
+            <button type="button" className={styles.filterBtn} onClick={() => setFilterOpen(true)}>
+              <i className="ti ti-filter" /> Filters
+              {activeFilterCount > 0 && <span className={styles.filterCount}>{activeFilterCount}</span>}
+            </button>
+            {activeFilterCount > 0 && (
+              <button type="button" className={styles.clearFiltersBtn} onClick={clearFilters}>Clear all</button>
+            )}
+          </div>
+
+          {filteredEntries.length === 0 ? (
+            <div className={styles.allEmpty}>
+              {allEntries.length === 0 ? 'No expenses logged yet.' : 'No expenses match these filters.'}
+            </div>
+          ) : (
+            <div className={styles.allList}>
+              {filteredEntries.map(e => {
+                const meta = categoryMeta(e.cat)
+                const dayLabel = e.day == null ? 'Trip level' : `Day ${e.day}`
+                return (
+                  <EntryCard
+                    key={e.id}
+                    entry={e}
+                    meta={meta}
+                    dayLabel={dayLabel}
+                    onEdit={en => openExpenseSheet?.({ editingExpense: en })}
+                    onDelete={handleDeleteEntry}
+                  />
+                )
+              })}
+            </div>
+          )}
+
+          <Sheet open={filterOpen} onClose={() => setFilterOpen(false)}>
+            <div className={styles.filterHdr}>
+              <div className={styles.filterTitle}>Filters</div>
+              {activeFilterCount > 0 && <button type="button" className={styles.filterClearLink} onClick={clearFilters}>Clear all</button>}
+            </div>
+            <div className={styles.filterBody}>
+              <div className={styles.filterSection}>
+                <div className={styles.filterSectionLbl}>Category</div>
+                <div className={styles.filterChips}>
+                  {cats.map(c => {
+                    const cm = categoryMeta(c)
+                    const sel = filterCats.includes(c)
+                    return (
+                      <button
+                        key={c}
+                        type="button"
+                        className={`${styles.filterChip} ${sel ? styles.filterChipSel : ''}`}
+                        style={sel ? { borderColor: cm.color, background: cm.bg, color: cm.color } : undefined}
+                        onClick={() => toggleFilter(setFilterCats, c)}
+                      >
+                        <i className={`ti ${cm.icon}`} /> {cm.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className={styles.filterSection}>
+                <div className={styles.filterSectionLbl}>Park day</div>
+                <div className={styles.filterChips}>
+                  <button
+                    type="button"
+                    className={`${styles.filterChip} ${filterDays.includes('trip') ? styles.filterChipSel : ''}`}
+                    onClick={() => toggleFilter(setFilterDays, 'trip')}
+                  >
+                    Trip level
+                  </button>
+                  {tripDays(activeTrip).map(d => (
+                    <button
+                      key={d.day}
+                      type="button"
+                      className={`${styles.filterChip} ${filterDays.includes(d.day) ? styles.filterChipSel : ''}`}
+                      onClick={() => toggleFilter(setFilterDays, d.day)}
+                    >
+                      Day {d.day}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {methodOptions.length > 0 && (
+                <div className={styles.filterSection}>
+                  <div className={styles.filterSectionLbl}>Payment method</div>
+                  <div className={styles.filterChips}>
+                    {methodOptions.map(o => (
+                      <button
+                        key={o.value}
+                        type="button"
+                        className={`${styles.filterChip} ${filterMethods.includes(o.value) ? styles.filterChipSel : ''}`}
+                        onClick={() => toggleFilter(setFilterMethods, o.value)}
+                      >
+                        {o.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <button type="button" className={styles.filterApplyBtn} onClick={() => setFilterOpen(false)}>
+                Show {filteredEntries.length} {filteredEntries.length === 1 ? 'expense' : 'expenses'}
+              </button>
+            </div>
+          </Sheet>
+        </div>
+      )}
 
       <Fab onClick={() => openExpenseSheet?.({})} />
 
-      {toast && <div className={styles.toast}>{toast}</div>}
+      {toast && (
+        <div className={styles.toast}>
+          <span>{typeof toast === 'string' ? toast : toast.message}</span>
+          {toast?.actionLabel && <button type="button" className={styles.toastAction} onClick={toast.onAction}>{toast.actionLabel}</button>}
+        </div>
+      )}
     </div>
   )
 }

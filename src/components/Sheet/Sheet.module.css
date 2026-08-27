@@ -1,0 +1,41 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 35, 64, 0.45);
+  z-index: 200;
+  animation: fadeIn 0.15s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Full-viewport flex shell — lets sheetInner center on desktop without a
+   transform (which would fight the drag gesture's own translateY). */
+.sheetOuter {
+  position: fixed;
+  inset: 0;
+  z-index: 201;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.sheetInner {
+  pointer-events: auto;
+  width: 100%;
+  background: var(--white);
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
+  max-height: calc(100vh - var(--app-header-h, 90px) - 16px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideUp 0.22s cubic-bezier(.4, 0, .2, 1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.dragWrap { display: flex; justify-content: center; padding-top: 10px; flex-shrink: 0; cursor: grab; touch-action: none; }
+.drag { width: 36px; height: 4px; background: var(--border-light); border-radius: 2px; }
+
+@media (min-width: 640px) {
+  .sheetInner { max-width: 480px; }
+}

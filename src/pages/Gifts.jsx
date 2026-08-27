@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { updateTripSavingsGoal } from '../lib/trips'
 import { giftFundsTotals, usesFor, REWARD_TYPE_ICON, REWARD_TYPE_LABEL } from '../lib/giftFunds'
@@ -16,6 +16,8 @@ function dateLabel(d) {
 }
 
 export default function Gifts() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const outletContext = useOutletContext()
   const {
     activeTrip, loading, userId, showToast, openExpenseSheet,
@@ -33,6 +35,17 @@ export default function Gifts() {
     if (!activeTrip) { setExpenses(null); return }
     fetchExpenses(activeTrip.id).then(({ data }) => setExpenses(data))
   }, [activeTrip, expensesVersion])
+
+  // Dashboard's "Add a gift card" empty-state CTA lands here and asks the
+  // sheet to open immediately. Consume the nav state once so a back/forward
+  // visit or refresh doesn't reopen it.
+  useEffect(() => {
+    if (location.state?.openAddGiftCard) {
+      setCardSheet({})
+      navigate(location.pathname, { replace: true, state: null })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state])
 
   if (loading || (activeTrip && (giftCards === null || rewardPrograms === null || expenses === null))) {
     return (

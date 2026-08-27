@@ -4,7 +4,7 @@
   justify-content: flex-end; padding-right: 18px; border-radius: var(--radius); gap: 6px; cursor: pointer;
 }
 .entryDeleteReveal i { color: #fff; font-size: 18px; }
-.entryDeleteReveal span { color: #fff; font-size: 11px; font-weight: 600; }
+.entryDeleteReveal span { color: #fff; font-size: 12.5px; font-weight: 600; }
 
 .entry {
   background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius);
@@ -20,18 +20,18 @@
 .entryIcon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .entryIcon i { font-size: 13px; }
 .entryBody { flex: 1; min-width: 0; }
-.entryName { font-size: 12px; font-weight: 600; color: var(--ink); }
-.entryMeta { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-.pill { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; background: var(--border-light); color: var(--text-secondary); }
+.entryName { font-size: 14px; font-weight: 600; color: var(--ink); }
+.entryMeta { font-size: 11.5px; color: var(--text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 20px; font-size: 10.5px; font-weight: 600; background: var(--border-light); color: var(--text-secondary); }
 .pillConfirmed { background: rgba(42, 111, 224, 0.12); color: var(--sky); }
 .pillWaitlist { background: rgba(245, 181, 54, 0.16); color: #8a5a00; }
 
 .entryAmts { text-align: right; flex-shrink: 0; }
-.entryPlanned { font-size: 13px; font-weight: 500; color: var(--ink); }
-.entryPlannedLbl { font-size: 10px; color: var(--text-tertiary); }
-.entryStrike { font-size: 10px; color: var(--text-tertiary); text-decoration: line-through; }
+.entryPlanned { font-size: 15px; font-weight: 500; color: var(--ink); }
+.entryPlannedLbl { font-size: 11.5px; color: var(--text-tertiary); }
+.entryStrike { font-size: 11.5px; color: var(--text-tertiary); text-decoration: line-through; }
 .entryPaidRow { display: flex; align-items: center; gap: 4px; justify-content: flex-end; }
-.entryActualAmt { font-size: 12px; font-weight: 700; }
-.entryDelta { font-size: 9px; font-weight: 600; padding: 1px 4px; border-radius: 3px; }
+.entryActualAmt { font-size: 14px; font-weight: 700; }
+.entryDelta { font-size: 10.5px; font-weight: 600; padding: 1px 4px; border-radius: 3px; }
 .deltaUnder { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
 .deltaOver { background: rgba(224, 83, 63, 0.15); color: var(--coral); }

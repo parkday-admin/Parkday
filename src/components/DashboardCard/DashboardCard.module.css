@@ -1,0 +1,14 @@
+.card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.hdr { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--border-light); }
+.hdrLeft { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.iconTile { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.iconTile i { font-size: 15px; }
+.title { font-size: 15px; font-weight: 600; color: var(--ink); }
+.sub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 1px; }
+.viewAll { font-size: 13.5px; font-weight: 500; color: var(--sky); display: flex; align-items: center; gap: 3px; cursor: pointer; flex-shrink: 0; }
+.viewAll:hover { color: var(--sky-dark); }
+.viewAll i { font-size: 13px; }
+.hdrRight { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.dragHandle { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin: -4px; color: var(--text-tertiary); cursor: grab; touch-action: none; }
+.dragHandle:active { cursor: grabbing; color: var(--text-secondary); }
+.dragHandle i { font-size: 16px; }

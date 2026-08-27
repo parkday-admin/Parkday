@@ -1,0 +1,2 @@
+.track { overflow: hidden; }
+.fill { height: 100%; transition: width 0.3s var(--ease-standard, cubic-bezier(.4, 0, .2, 1)); }

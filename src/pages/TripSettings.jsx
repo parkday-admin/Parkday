@@ -20,11 +20,14 @@ function dateForDay(arrivalDate, dayNum) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 }
 
-function Section({ title, editStep, tripId, navigate, children }) {
+function Section({ title, icon, editStep, tripId, navigate, children }) {
   return (
     <div className={styles.section}>
       <div className={styles.sectionHdr}>
-        <span className={styles.sectionLbl}>{title}</span>
+        <div className={styles.sectionHdrLeft}>
+          <i className={`ti ${icon} ${styles.sectionIcon}`} />
+          <span className={styles.sectionLbl}>{title}</span>
+        </div>
         <button type="button" className={styles.editLink} onClick={() => navigate(`/configurator?tripId=${tripId}&step=${editStep}`)}>Edit</button>
       </div>
       {children}
@@ -98,7 +101,7 @@ export default function TripSettings() {
 
   return (
     <div className={styles.list}>
-      <Section title="Dates & party" editStep={0} tripId={activeTrip.id} navigate={navigate}>
+      <Section title="Dates & party" icon="ti-calendar-event" editStep={0} tripId={activeTrip.id} navigate={navigate}>
         <div className={styles.row}>
           <span className={styles.rowLbl}>Trip name</span>
           {editingName ? (
@@ -123,7 +126,7 @@ export default function TripSettings() {
         <Row label="Children" value={activeTrip.children} />
       </Section>
 
-      <Section title="Getting there" editStep={1} tripId={activeTrip.id} navigate={navigate}>
+      <Section title="Getting there" icon="ti-route" editStep={1} tripId={activeTrip.id} navigate={navigate}>
         <Row label="Travel method" value={activeTrip.travel_mode === 'driving' ? 'Driving' : 'Flying into MCO'} />
         {activeTrip.travel_mode === 'driving' ? (
           <Row
@@ -146,7 +149,7 @@ export default function TripSettings() {
       </Section>
 
       {!dayTrip && (
-        <Section title="Accommodations" editStep={2} tripId={activeTrip.id} navigate={navigate}>
+        <Section title="Accommodations" icon="ti-bed" editStep={2} tripId={activeTrip.id} navigate={navigate}>
           <Row label="Resort" value={activeTrip.accommodation || 'Off Property'} />
           {resort && <Row label="Tier" value={TIER_LABELS[resort.tier]} />}
           <Row label="Booking type" value={BOOKING_LABELS[activeTrip.booking_type] || activeTrip.booking_type} locked />
@@ -154,12 +157,12 @@ export default function TripSettings() {
         </Section>
       )}
 
-      <Section title="Tickets & access" editStep={3} tripId={activeTrip.id} navigate={navigate}>
+      <Section title="Tickets & access" icon="ti-ticket" editStep={3} tripId={activeTrip.id} navigate={navigate}>
         <Row label="Ticket type" value={TICKET_LABELS[activeTrip.ticket_type] || activeTrip.ticket_type} />
         <Row label="Lightning Lane" value={LL_LABELS[activeTrip.lightning_lane] || activeTrip.lightning_lane} />
       </Section>
 
-      <Section title="Park days" editStep={4} tripId={activeTrip.id} navigate={navigate}>
+      <Section title="Park days" icon="ti-calendar" editStep={4} tripId={activeTrip.id} navigate={navigate}>
         {dayRows.length === 0 ? (
           <Row label="Park days" value="Not set yet" />
         ) : dayRows.map(d => (

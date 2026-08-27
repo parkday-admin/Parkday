@@ -5,12 +5,23 @@ import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPacka
 import { giftFundsTotals } from '../lib/giftFunds'
 import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
 import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
-import { urgencyLevel as reminderUrgencyLevel, URGENCY_LABEL as REMINDER_URGENCY_LABEL } from '../lib/reminders'
+import { urgencyLevel as reminderUrgencyLevel } from '../lib/reminders'
 import Fab from '../components/Fab/Fab'
+import DashboardCard from '../components/DashboardCard/DashboardCard'
+import ProgressBar from '../components/ProgressBar/ProgressBar'
+import useSortableCards from '../hooks/useSortableCards'
 import styles from './Dashboard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
-const URGENCY_CLASS = { high: 'upHigh', med: 'upMed', low: 'upLow' }
+// Badge tone contract: green = paid/on track, gold = upcoming, coral = over
+// budget/urgent only, blue = neutral informational.
+const BADGE_CLASS = { green: 'badgeGreen', gold: 'badgeGold', coral: 'badgeCoral', blue: 'badgeBlue', neutral: 'badgeNeutral' }
+const REMINDER_BADGE_TONE = { high: 'coral', med: 'gold', low: 'green' }
+const REMINDER_BADGE_LABEL = { high: 'Urgent', med: 'Upcoming', low: 'On track' }
+
+function Badge({ tone, children }) {
+  return <span className={`${styles.badge} ${styles[BADGE_CLASS[tone]]}`}>{children}</span>
+}
 
 function parseLocalDate(str) {
   const [y, m, d] = str.split('-').map(Number)
@@ -31,13 +42,68 @@ function dateForDay(arrivalDate, dayNum) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 }
 
+const DEFAULT_CARD_ORDER = ['itinerary', 'reminders', 'payments', 'gifts', 'budget']
+const DEFAULT_COLUMNS = {
+  colA: DEFAULT_CARD_ORDER.filter((_, i) => i % 2 === 0),
+  colB: DEFAULT_CARD_ORDER.filter((_, i) => i % 2 === 1),
+}
+
+function loadColumns(userId) {
+  if (!userId) return DEFAULT_COLUMNS
+  try {
+    const raw = localStorage.getItem(`pkd_dash_cols_${userId}`)
+    const parsed = raw ? JSON.parse(raw) : null
+    return parsed && Array.isArray(parsed.colA) && Array.isArray(parsed.colB) ? parsed : DEFAULT_COLUMNS
+  } catch {
+    return DEFAULT_COLUMNS
+  }
+}
+
+// Cards actually visible right now, filtered from the saved column
+// layout — any id that just became visible for the first time (e.g. the
+// user added their first gift card) gets appended to whichever column is
+// currently shorter.
+function visibleColumns(columns, cardVisibility) {
+  const colA = columns.colA.filter(id => cardVisibility[id])
+  const colB = columns.colB.filter(id => cardVisibility[id])
+  const known = new Set([...columns.colA, ...columns.colB])
+  DEFAULT_CARD_ORDER.forEach(id => {
+    if (cardVisibility[id] && !known.has(id)) {
+      (colA.length <= colB.length ? colA : colB).push(id)
+    }
+  })
+  return { colA, colB }
+}
+
+function interleaveColumns(colA, colB) {
+  const out = []
+  const len = Math.max(colA.length, colB.length)
+  for (let i = 0; i < len; i++) {
+    if (colA[i] != null) out.push(colA[i])
+    if (colB[i] != null) out.push(colB[i])
+  }
+  return out
+}
+
+function useIsDesktop() {
+  const query = '(min-width: 1024px)'
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const handler = e => setIsDesktop(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isDesktop
+}
+
 function countdown(trip) {
   const today = new Date(); today.setHours(0, 0, 0, 0)
   const arrival = parseLocalDate(trip.arrival_date)
   const departure = parseLocalDate(trip.departure_date)
   const daysToArrival = Math.round((arrival - today) / 86400000)
 
-  if (daysToArrival > 0) return { big: String(daysToArrival), label: daysToArrival === 1 ? 'day until your trip' : 'days until your trip' }
+  if (daysToArrival > 0) return { big: String(daysToArrival), label: daysToArrival === 1 ? 'day out' : 'days out' }
   if (today <= departure) return { big: '🎉', label: "you're at Disney!" }
   return { big: '✓', label: 'trip complete' }
 }
@@ -49,6 +115,19 @@ export default function Dashboard() {
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
+  const [columns, setColumns] = useState(() => loadColumns(userId))
+
+  useEffect(() => { setColumns(loadColumns(userId)) }, [userId])
+
+  function reorderColumns(next) {
+    setColumns(next)
+    if (userId) {
+      try { localStorage.setItem(`pkd_dash_cols_${userId}`, JSON.stringify(next)) } catch { /* ignore */ }
+    }
+  }
+
+  const { dragId, setCardRef, handleDragStart } = useSortableCards(reorderColumns)
+  const isDesktop = useIsDesktop()
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -72,7 +151,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className={styles.skeleton}>
-        <div className={styles.skelBlock} style={{ height: 90 }} />
+        <div className={styles.skelBlock} style={{ height: 140 }} />
         <div className={styles.skelBlock} style={{ height: 220 }} />
         <div className={styles.skelBlock} style={{ height: 160 }} />
       </div>
@@ -95,7 +174,7 @@ export default function Dashboard() {
   if (expenses === null) {
     return (
       <div className={styles.skeleton}>
-        <div className={styles.skelBlock} style={{ height: 90 }} />
+        <div className={styles.skelBlock} style={{ height: 140 }} />
         <div className={styles.skelBlock} style={{ height: 220 }} />
         <div className={styles.skelBlock} style={{ height: 160 }} />
       </div>
@@ -105,7 +184,11 @@ export default function Dashboard() {
   const dayRows = expenses.filter(e => e.cat === 'park_day').sort((a, b) => a.day - b.day)
   const dayTotals = dayNum => {
     const es = expenses.filter(e => e.day === dayNum && e.cat !== 'park_day')
-    return { planned: es.reduce((s, e) => s + (e.planned_amt || 0), 0), count: es.length }
+    return {
+      planned: es.reduce((s, e) => s + (e.planned_amt || 0), 0),
+      actual: es.filter(e => e.actual_amt != null).reduce((s, e) => s + e.actual_amt, 0),
+      count: es.length,
+    }
   }
 
   const cats = categoriesForTrip(activeTrip)
@@ -123,14 +206,211 @@ export default function Dashboard() {
   const pct = budgeted > 0 ? Math.min(100, Math.round((spent / budgeted) * 100)) : 0
 
   const cd = countdown(activeTrip)
-  const plannedCount = expenses.filter(e => e.actual_amt > 0).length
-  const planPct = expenses.length > 0 ? Math.round((plannedCount / expenses.length) * 100) : 0
+
+  const cardVisibility = {
+    itinerary: true,
+    reminders: true,
+    payments: isPackageBooking(activeTrip) && !!payments,
+    gifts: giftCards != null && rewardPrograms != null,
+    budget: cats.length > 0,
+  }
+  const { colA, colB } = visibleColumns(columns, cardVisibility)
+
+  function sortProps(id) {
+    return {
+      key: id,
+      cardRef: setCardRef(id),
+      style: dragId === id ? { opacity: 0.35 } : undefined,
+      dragHandleProps: { onPointerDown: e => handleDragStart(id, { colA, colB }, e) },
+    }
+  }
 
   const remindersWithDaysOut = (reminders ?? [])
     .filter(r => !r.done && r.reminder_date != null)
     .map(r => ({ ...r, daysOut: daysUntil(r.reminder_date) }))
   const urgentReminders = remindersWithDaysOut.filter(r => r.daysOut <= 6)
   const upcomingReminders = remindersWithDaysOut.slice().sort((a, b) => a.daysOut - b.daysOut).slice(0, 2)
+
+  const nodes = {}
+
+  nodes.itinerary = (
+    <DashboardCard
+      {...sortProps('itinerary')}
+      icon="ti-calendar" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
+      title="Itinerary" sub={`${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''} planned`}
+      onView={() => navigate('/itinerary?day=1')}
+    >
+      {dayRows.length === 0 ? (
+        <div className={styles.cardEmpty}>No park days planned yet.</div>
+      ) : (
+        <div className={styles.dayGrid}>
+          {dayRows.map(d => {
+            const date = dateForDay(activeTrip.arrival_date, d.day)
+            const { planned: dayPlanned, actual: dayActual, count } = dayTotals(d.day)
+            const dayPct = dayPlanned > 0 ? Math.round((dayActual / dayPlanned) * 100) : 0
+            return (
+              <div key={d.id} className={styles.dayCard} onClick={() => navigate(`/itinerary?day=${d.day}`)}>
+                <div className={styles.dayCardTop}>
+                  <div className={styles.dayCardLeft}>
+                    <div className={styles.dayChip}>
+                      <div className={styles.dayChipNum}>{d.day}</div>
+                      <div className={styles.dayChipLbl}>{fmtDOW(date)}</div>
+                    </div>
+                    <div>
+                      <div className={styles.rowLabel}>{d.label}</div>
+                      <div className={styles.rowMeta}>{fmtDayDate(date)} · {count} {count === 1 ? 'entry' : 'entries'}</div>
+                    </div>
+                  </div>
+                  <div className={styles.rowValue}>{dayPlanned > 0 ? fmt(dayPlanned) : '—'}</div>
+                </div>
+                <ProgressBar value={dayPct} tone="teal" height={3} />
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </DashboardCard>
+  )
+
+  nodes.reminders = (
+    <DashboardCard
+      {...sortProps('reminders')}
+      icon="ti-bell" iconBg="rgba(224,83,63,0.1)" iconColor="var(--coral)"
+      title="Reminders" sub={`${remindersWithDaysOut.length} upcoming`}
+      onView={() => navigate('/reminders')}
+    >
+      {upcomingReminders.length === 0 ? (
+        <div className={styles.cardEmpty}>No upcoming reminders.</div>
+      ) : upcomingReminders.map(r => {
+        const lvl = reminderUrgencyLevel(r.daysOut)
+        return (
+          <div key={r.id} className={styles.row} onClick={() => navigate('/reminders')}>
+            <div className={styles.rowIcon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
+            <div className={styles.rowBody}>
+              <div className={styles.rowLabel}>{r.title}</div>
+              <div className={styles.rowMeta}>{r.daysOut > 0 ? `in ${r.daysOut} day${r.daysOut === 1 ? '' : 's'}` : r.daysOut === 0 ? 'Today' : 'Past due'}</div>
+            </div>
+            <Badge tone={REMINDER_BADGE_TONE[lvl]}>{REMINDER_BADGE_LABEL[lvl]}</Badge>
+          </div>
+        )
+      })}
+    </DashboardCard>
+  )
+
+  if (cardVisibility.payments) {
+    const packageRow = findBudgetRow(expenses.filter(e => e.cat === 'package'), 'package')
+    const totalCost = packageRow?.planned_amt || 0
+    const paid = paymentsPaidTotal(payments)
+    const payRemaining = Math.max(0, totalCost - paid)
+    const finalPaymentDate = effectiveFinalPaymentDate(activeTrip)
+    const daysOut = daysUntil(finalPaymentDate) ?? 0
+    const lvl = paymentUrgencyLevel(daysOut)
+    const paidInFull = payRemaining <= 0
+    nodes.payments = (
+      <DashboardCard
+        {...sortProps('payments')}
+        icon="ti-receipt-2" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
+        title="Resort package" sub={`${payments.length} payment${payments.length === 1 ? '' : 's'} logged`}
+        onView={() => navigate('/payments')}
+      >
+        <div className={styles.row}>
+          <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
+          <div className={styles.rowBody}>
+            <div className={styles.rowLabel}>Paid to date</div>
+            <div className={styles.rowMeta}>of {fmt(totalCost)} total</div>
+          </div>
+          <div className={styles.rowValue}>{fmt(paid)}</div>
+        </div>
+        <div className={styles.row}>
+          <div className={styles.rowIcon} style={{ background: 'var(--border-light)' }}><i className="ti ti-wallet" style={{ color: 'var(--text-tertiary)' }} /></div>
+          <div className={styles.rowBody}>
+            <div className={styles.rowLabel}>{paidInFull ? 'Package paid in full' : 'Remaining balance'}</div>
+            <div className={styles.rowMeta}>{paidInFull ? 'Nothing further will be charged' : `Final payment ${finalPaymentDate ? new Date(finalPaymentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`}</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className={styles.rowValue}>{fmt(payRemaining)}</div>
+            {paidInFull ? <Badge tone="green">Paid</Badge> : <Badge tone={REMINDER_BADGE_TONE[lvl]}>{`Due in ${daysOut}d`}</Badge>}
+          </div>
+        </div>
+      </DashboardCard>
+    )
+  }
+
+  if (cardVisibility.gifts) {
+    const fundedCards = giftCards.filter(c => c.balance > 0)
+    const fundedRewards = rewardPrograms.filter(r => r.value > 0)
+    const hasFunds = fundedCards.length > 0 || fundedRewards.length > 0
+    const totalAvailable = giftFundsTotals(fundedCards, fundedRewards).totalAvailable
+    nodes.gifts = (
+      <DashboardCard
+        {...sortProps('gifts')}
+        icon="ti-gift" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
+        title="Gift cards & rewards" sub={hasFunds ? `${fmt(totalAvailable)} available` : undefined}
+        onView={() => navigate('/gifts')}
+      >
+        {hasFunds ? (
+          <>
+            {fundedCards.map(c => (
+              <div key={c.id} className={styles.row} onClick={() => navigate('/gifts')}>
+                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
+                <div className={styles.rowBody}>
+                  <div className={styles.rowLabel}>{c.source}</div>
+                  <div className={styles.rowMeta}>Gift card</div>
+                </div>
+                <div className={styles.rowValue}>{fmt(c.balance)}</div>
+              </div>
+            ))}
+            {fundedRewards.map(r => (
+              <div key={r.id} className={styles.row} onClick={() => navigate('/gifts')}>
+                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
+                <div className={styles.rowBody}>
+                  <div className={styles.rowLabel}>{r.program}</div>
+                  <div className={styles.rowMeta}>Reward</div>
+                </div>
+                <div className={styles.rowValue}>{fmt(r.value)}</div>
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className={styles.fundsEmpty}>
+            <div className={styles.cardEmpty} style={{ padding: '4px 0 12px' }}>No funds added yet.</div>
+            <button type="button" className={styles.fundsEmptyBtn} onClick={() => navigate('/gifts', { state: { openAddGiftCard: true } })}>
+              <i className="ti ti-plus" /> Add a gift card
+            </button>
+          </div>
+        )}
+      </DashboardCard>
+    )
+  }
+
+  if (cardVisibility.budget) {
+    nodes.budget = (
+      <DashboardCard
+        {...sortProps('budget')}
+        icon="ti-chart-pie" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
+        title="Budget by category" sub="Actual vs. budgeted, by category"
+        onView={() => navigate('/budget')}
+      >
+        {cats.map(c => {
+          const meta = categoryMeta(c.cat)
+          const rowPct = c.budgeted > 0 ? Math.min(100, Math.round((c.actual / c.budgeted) * 100)) : 0
+          const over = c.actual > c.budgeted
+          return (
+            <div key={c.cat} className={styles.row} onClick={() => navigate(`/budget/${c.cat}`)}>
+              <div className={styles.rowIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
+              <div className={styles.rowBody}>
+                <div className={styles.rowTop}>
+                  <div className={styles.rowLabel}>{meta.label}</div>
+                  <div className={styles.rowMeta}>{fmt(c.actual)} / {fmt(c.budgeted)}</div>
+                </div>
+                <ProgressBar value={rowPct} tone={over ? 'coral' : 'teal'} height={3} />
+              </div>
+            </div>
+          )
+        })}
+      </DashboardCard>
+    )
+  }
 
   return (
     <div>
@@ -144,198 +424,51 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className={styles.countdownCard}>
-        <div className={styles.cdLeft}>
-          <div className={styles.cdBig}>{cd.big}</div>
-          <div className={styles.cdLbl}>{cd.label}</div>
-        </div>
-        <div className={styles.cdRight}>
-          <div className={styles.cdTripName}>{activeTrip.name}</div>
-          <div className={styles.cdTripDates}>
-            {fmtDayDate(activeTrip.arrival_date)} – {fmtDayDate(activeTrip.departure_date)}
-            {activeTrip.accommodation ? ` · ${activeTrip.accommodation}` : ''}
-          </div>
-        </div>
-        <div className={styles.cdBarTrack}><div className={styles.cdBarFill} style={{ width: `${planPct}%` }} /></div>
-      </div>
-
-      <div className={styles.budgetCard}>
-        <div className={styles.bcHeader} onClick={() => navigate('/budget')}>
-          <div className={styles.bcTop}>
-            <div>
-              <div className={styles.bcLbl}>Trip budget</div>
-              <div className={styles.bcNum}>{fmt(budgeted)}</div>
-            </div>
-            <div className={styles.bcRight}>
-              <div className={styles.bcRemainingLbl}>Remaining</div>
-              <div className={styles.bcRemaining}>{fmt(remaining)}</div>
+      {/* Merged countdown + budget hero — one navy surface, one set of numbers. */}
+      <div className={styles.hero}>
+        <div className={styles.heroStats}>
+          <div className={styles.heroStat}>
+            <div className={styles.heroLbl}>Countdown</div>
+            <div className={styles.heroCountRow}>
+              <div className={styles.heroCount}>{cd.big}</div>
+              <div className={styles.heroCountLbl}>{cd.label}</div>
             </div>
           </div>
-          <div className={styles.bcBarTrack}><div className={styles.bcBarFill} style={{ width: `${pct}%` }} /></div>
-          <div className={styles.bcSub}>{fmt(planned)} planned · {fmt(spent)} spent · {pct}% of budget spent</div>
-          <div className={styles.bcFooter}>
-            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Budgeted</div><div className={styles.bcFooterVal} style={{ color: 'var(--gold)' }}>{fmt(budgeted)}</div></div>
-            <div className={styles.bcDivider} />
-            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Planned</div><div className={styles.bcFooterVal} style={{ color: 'var(--sky)' }}>{fmt(planned)}</div></div>
-            <div className={styles.bcDivider} />
-            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Spent</div><div className={styles.bcFooterVal} style={{ color: 'var(--coral)' }}>{fmt(spent)}</div></div>
-            <div className={styles.bcDivider} />
-            <div className={styles.bcFooterStat}><div className={styles.bcFooterLbl}>Remaining</div><div className={styles.bcFooterVal} style={{ color: 'var(--teal)' }}>{fmt(remaining)}</div></div>
+          <div className={styles.heroStat}>
+            <div className={styles.heroLbl}>Trip budget</div>
+            <div className={styles.heroNum} style={{ color: 'var(--gold)' }}>{fmt(budgeted)}</div>
+          </div>
+          <div className={styles.heroStat}>
+            <div className={styles.heroLbl}>Spent</div>
+            <div className={styles.heroNum} style={{ color: 'var(--coral)' }}>{fmt(spent)}</div>
+          </div>
+          <div className={styles.heroStat}>
+            <div className={styles.heroLbl}>Remaining</div>
+            <div className={styles.heroNum} style={{ color: 'var(--teal)' }}>{fmt(remaining)}</div>
           </div>
         </div>
-        <div className={styles.bcBody}>
-          {cats.length === 0 ? (
-            <div className={styles.bcEmpty}>No budget categories yet.</div>
-          ) : cats.map(c => {
-            const meta = categoryMeta(c.cat)
-            const rowPct = c.budgeted > 0 ? Math.min(100, Math.round((c.actual / c.budgeted) * 100)) : 0
-            return (
-              <div key={c.cat} className={styles.bcCatRow} onClick={() => navigate(`/budget/${c.cat}`)}>
-                <div className={styles.bcCatLeft}>
-                  <div className={styles.bcCatDot} style={{ background: meta.color }} />
-                  <div className={styles.bcCatName}>{meta.label}</div>
-                </div>
-                <div className={styles.bcCatRight}>
-                  <span className={styles.bcCatSpent}>{fmt(c.actual)} / {fmt(c.budgeted)}</span>
-                  <div className={styles.bcCatProg}><div className={styles.bcCatProgFill} style={{ width: `${rowPct}%`, background: meta.color }} /></div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-        <div className={styles.bcView} onClick={() => navigate('/budget')}>View full budget <i className="ti ti-chevron-right" style={{ fontSize: 12 }} /></div>
-      </div>
-
-      <div className={styles.itinCard}>
-        <div className={styles.itinHdr}>
-          <div className={styles.itinHdrL}>
-            <div className={styles.itinIcon}><i className="ti ti-calendar" /></div>
-            <div>
-              <div className={styles.itinTitle}>Itinerary</div>
-              <div className={styles.itinSub}>{dayRows.length} park day{dayRows.length !== 1 ? 's' : ''} planned</div>
+        <div className={styles.heroFoot}>
+          <ProgressBar value={pct} tone="gold" dark height={4} />
+          <div className={styles.heroFootRow}>
+            <div className={styles.heroFootText}>{pct}% of budget spent · {fmt(planned)} still planned</div>
+            <div className={styles.heroFootText}>
+              {fmtDayDate(activeTrip.arrival_date)} – {fmtDayDate(activeTrip.departure_date)}
+              {activeTrip.accommodation ? ` · ${activeTrip.accommodation}` : ''}
             </div>
           </div>
-          <div className={styles.itinView} onClick={() => navigate('/itinerary?day=1')}>View all <i className="ti ti-chevron-right" /></div>
-        </div>
-        <div className={styles.dashDayRows}>
-          {dayRows.length === 0 ? (
-            <div className={styles.bcEmpty}>No park days planned yet.</div>
-          ) : dayRows.map(d => {
-            const date = dateForDay(activeTrip.arrival_date, d.day)
-            const { planned: dayPlanned, count } = dayTotals(d.day)
-            return (
-              <div key={d.id} className={styles.dayRow} onClick={() => navigate(`/itinerary?day=${d.day}`)}>
-                <div className={styles.dayChip}>
-                  <div className={styles.dayChipNum}>{d.day}</div>
-                  <div className={styles.dayChipLbl}>{fmtDOW(date)}</div>
-                </div>
-                <div className={styles.dayInfo}>
-                  <div className={styles.dayPark}>{d.label}</div>
-                  <div className={styles.dayDate}>{fmtDayDate(date)}</div>
-                </div>
-                <div className={styles.dayStatus}>
-                  <span className={styles.pill}>{dayPlanned > 0 ? fmt(dayPlanned) : '—'}</span>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{count} {count === 1 ? 'entry' : 'entries'}</div>
-                </div>
-              </div>
-            )
-          })}
         </div>
       </div>
 
-      <div className={styles.itinCard}>
-        <div className={styles.itinHdr}>
-          <div className={styles.itinHdrL}>
-            <div className={styles.itinIcon} style={{ background: 'rgba(224,83,63,0.12)' }}><i className="ti ti-bell" style={{ color: 'var(--coral)' }} /></div>
-            <div className={styles.itinTitle}>Upcoming reminders</div>
+      <div className={styles.cardGrid}>
+        {isDesktop ? (
+          <div className={styles.cardCols}>
+            <div className={styles.cardCol}>{colA.map(id => nodes[id])}</div>
+            <div className={styles.cardCol}>{colB.map(id => nodes[id])}</div>
           </div>
-          <div className={styles.itinView} onClick={() => navigate('/reminders')}>View all <i className="ti ti-chevron-right" /></div>
-        </div>
-        <div className={styles.dashDayRows}>
-          {upcomingReminders.length === 0 ? (
-            <div className={styles.bcEmpty} style={{ padding: '16px 15px' }}>No upcoming reminders.</div>
-          ) : upcomingReminders.map(r => {
-            const lvl = reminderUrgencyLevel(r.daysOut)
-            return (
-              <div key={r.id} className={styles.drrRow} onClick={() => navigate('/reminders')}>
-                <div className={styles.drrIcon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
-                <div className={styles.dayInfo}>
-                  <div className={styles.dayPark}>{r.title}</div>
-                  <div className={styles.dayDate}>{r.daysOut > 0 ? `in ${r.daysOut} day${r.daysOut === 1 ? '' : 's'}` : r.daysOut === 0 ? 'Today' : 'Past due'}</div>
-                </div>
-                <span className={`${styles.urgencyPill} ${styles[URGENCY_CLASS[lvl]]}`}>{REMINDER_URGENCY_LABEL[lvl]}</span>
-              </div>
-            )
-          })}
-        </div>
+        ) : (
+          interleaveColumns(colA, colB).map(id => nodes[id])
+        )}
       </div>
-
-      {isPackageBooking(activeTrip) && payments && (() => {
-        const packageRow = findBudgetRow(expenses.filter(e => e.cat === 'package'), 'package')
-        const totalCost = packageRow?.planned_amt || 0
-        const paid = paymentsPaidTotal(payments)
-        const remaining = Math.max(0, totalCost - paid)
-        const finalPaymentDate = effectiveFinalPaymentDate(activeTrip)
-        const daysOut = daysUntil(finalPaymentDate) ?? 0
-        const lvl = paymentUrgencyLevel(daysOut)
-        const dueColor = remaining <= 0 ? 'var(--teal-dark)' : lvl === 'high' ? 'var(--coral)' : lvl === 'med' ? '#8a5a00' : 'var(--text-tertiary)'
-        return (
-          <div className={styles.itinCard}>
-            <div className={styles.itinHdr}>
-              <div className={styles.itinHdrL}>
-                <div className={styles.itinIcon}><i className="ti ti-receipt-2" /></div>
-                <div className={styles.itinTitle}>Resort Package payments</div>
-              </div>
-              <div className={styles.itinView} onClick={() => navigate('/payments')}>View <i className="ti ti-chevron-right" /></div>
-            </div>
-            <div className={styles.dprBody}>
-              <div className={styles.dprRow}>
-                <div><div className={styles.dprLbl}>Paid to date</div><div className={styles.dprSub}>{payments.length} payment{payments.length === 1 ? '' : 's'} logged</div></div>
-                <div><div className={styles.dprAmt}>{fmt(paid)}</div><div className={styles.dprStatus} style={{ color: 'var(--teal-dark)' }}>of {fmt(totalCost)}</div></div>
-              </div>
-              <div className={styles.dprRow}>
-                <div><div className={styles.dprLbl}>{remaining <= 0 ? 'Package paid in full' : 'Remaining balance'}</div><div className={styles.dprSub}>{remaining <= 0 ? 'Nothing further will be charged' : `Final payment ${finalPaymentDate ? new Date(finalPaymentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`}</div></div>
-                <div><div className={styles.dprAmt}>{fmt(remaining)}</div><div className={styles.dprStatus} style={{ color: dueColor }}>{remaining <= 0 ? 'Paid' : `Due in ${daysOut}d`}</div></div>
-              </div>
-            </div>
-          </div>
-        )
-      })()}
-
-      {(giftCards?.length > 0 || rewardPrograms?.length > 0) && (
-        <div className={styles.itinCard}>
-          <div className={styles.itinHdr}>
-            <div className={styles.itinHdrL}>
-              <div className={styles.itinIcon}><i className="ti ti-gift" /></div>
-              <div className={styles.itinTitle}>Gift cards & rewards</div>
-            </div>
-            <div className={styles.itinView} onClick={() => navigate('/gifts')}>View <i className="ti ti-chevron-right" /></div>
-          </div>
-          <div className={styles.dashDayRows}>
-            {giftCards.map(c => (
-              <div key={c.id} className={styles.dayRow} onClick={() => navigate('/gifts')}>
-                <div className={styles.dayInfo}>
-                  <div className={styles.dayPark}>{c.source}</div>
-                  <div className={styles.dayDate}>Gift card</div>
-                </div>
-                <span className={styles.pill}>{c.balance <= 0 ? 'Depleted' : fmt(c.balance)}</span>
-              </div>
-            ))}
-            {rewardPrograms.map(r => (
-              <div key={r.id} className={styles.dayRow} onClick={() => navigate('/gifts')}>
-                <div className={styles.dayInfo}>
-                  <div className={styles.dayPark}>{r.program}</div>
-                  <div className={styles.dayDate}>Reward</div>
-                </div>
-                <span className={styles.pill}>{fmt(r.value)}</span>
-              </div>
-            ))}
-          </div>
-          <div className={styles.bcView} onClick={() => navigate('/gifts')}>
-            Total available: {fmt(giftFundsTotals(giftCards, rewardPrograms).totalAvailable)}
-          </div>
-        </div>
-      )}
 
       <Fab onClick={() => openExpenseSheet?.({ presetCat: 'dining', presetDay: 1 })} />
     </div>

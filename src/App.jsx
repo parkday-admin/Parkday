@@ -20,6 +20,7 @@ import Gifts from './pages/Gifts'
 import Payments from './pages/Payments'
 import Packing from './pages/Packing'
 import Reminders from './pages/Reminders'
+import More from './pages/More'
 
 function useSession() {
   const [session, setSession] = useState(undefined) // undefined = loading, null = signed out
@@ -109,7 +110,7 @@ export default function App() {
         />
 
         <Route element={<RequirePaidAuth session={session} status={status} />}>
-          <Route element={<AppShell session={session} />}>
+          <Route element={<AppShell session={session} planType={profile?.planType ?? null} />}>
             <Route
               path="/configurator"
               element={<Configurator session={session} planType={profile?.planType ?? null} />}
@@ -126,6 +127,7 @@ export default function App() {
             <Route path="/gifts" element={<Gifts />} />
             <Route path="/packing" element={<Packing />} />
             <Route path="/reminders" element={<Reminders />} />
+            <Route path="/more" element={<More />} />
           </Route>
         </Route>
 

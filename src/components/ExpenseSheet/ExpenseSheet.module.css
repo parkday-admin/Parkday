@@ -1,31 +1,3 @@
-.backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(13, 35, 64, 0.45);
-  z-index: 40;
-  animation: fadeIn 0.15s ease;
-}
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--white);
-  border-radius: 18px 18px 0 0;
-  z-index: 41;
-  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.2);
-  max-height: 92vh;
-  display: flex;
-  flex-direction: column;
-  animation: slideUp 0.22s cubic-bezier(.4, 0, .2, 1);
-}
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-.dragWrap { display: flex; justify-content: center; padding-top: 10px; flex-shrink: 0; }
-.drag { width: 36px; height: 4px; background: var(--border-light); border-radius: 2px; }
-
 .hdr {
   display: flex;
   align-items: center;
@@ -48,9 +20,9 @@
 .fieldLbl { font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
 .optional { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 10px; }
 
-.catScroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 2px; }
+.catGrid { display: flex; flex-wrap: wrap; gap: 7px; }
 .catPill {
-  flex-shrink: 0; display: flex; align-items: center; gap: 5px;
+  display: flex; align-items: center; gap: 5px;
   padding: 8px 12px; border-radius: 999px; border: 1.5px solid var(--border-light);
   background: var(--white); font-size: 12px; font-weight: 500; color: var(--text-secondary);
   cursor: pointer; white-space: nowrap; transition: all 0.12s;
@@ -113,8 +85,3 @@
 .saveBtn:hover { background: var(--sky-dark); }
 .saveBtn:disabled { opacity: 0.6; cursor: default; }
 .saveBtn i { font-size: 14px; }
-
-@media (min-width: 640px) {
-  .sheet { left: 50%; right: auto; width: 480px; transform: translateX(-50%); border-radius: 18px 18px 0 0; }
-  @keyframes slideUp { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
-}
