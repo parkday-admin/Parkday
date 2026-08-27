@@ -136,28 +136,46 @@ function RequirePaidAuth({ session, canAccess }) {
   return <Outlet />
 }
 
-// After a fresh sign-in on any domain other than app.planyourparkday.com
-// (the marketing domain, or local dev pointed at it), send the user to the
-// app subdomain instead of finishing the login locally. This only fires on
-// the SIGNED_IN transition (see useSession's justSignedIn) — a marketing
-// visitor who merely has a persisted session sitting in storage is left
-// alone on the marketing site, not bounced on every page load.
-// `destination` is null while it isn't known yet (still resolving a
-// collaborator's owner status) — the redirect waits rather than firing
-// with a stale/guessed path.
-// The session's tokens ride along in the URL fragment (buildSessionHandoffHash)
-// since app.planyourparkday.com can't see localStorage from this origin —
-// without it the user lands on the app subdomain logged out and has to
-// sign in a second time.
-function useAppSubdomainRedirect(session, justSignedIn, destination) {
+// After a fresh sign-in (the SIGNED_IN transition — see useSession's
+// justSignedIn), land the user on their destination via a real full-page
+// navigation rather than client-side routing.
+//
+// On a domain other than app.planyourparkday.com (the marketing domain, or
+// local dev pointed at it), this also sends them to the app subdomain
+// instead of finishing the login locally — the session's tokens ride along
+// in the URL fragment (buildSessionHandoffHash) since app.planyourparkday.com
+// can't see localStorage from this origin, or the user lands there logged
+// out and has to sign in a second time.
+//
+// Even when already on the app subdomain, a real navigation (not React
+// Router's client-side <Navigate>) matters for an installed Android PWA:
+// Google's sign-in page is outside the manifest's scope, so Chrome shows
+// browser chrome (an address bar + close button) over the installed app
+// for the OAuth trip. Chrome is supposed to auto-hide that once back in
+// scope, but only reliably does so on an actual top-level navigation —
+// a client-side route change after the redirect lands can leave the user
+// stuck looking at browser chrome around an otherwise-working app.
+//
+// Fires at most once per sign-in (hasRedirected) — justSignedIn stays true
+// for the rest of the session, and without the guard this would force a
+// full reload on every subsequent render.
+function useRedirectAfterSignIn(session, justSignedIn, destination) {
+  const [hasRedirected, setHasRedirected] = useState(false)
   const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
   const onLocalhost = window.location.hostname === 'localhost'
-  const shouldRedirect = justSignedIn && !!session && !!destination && !onAppSubdomain && !onLocalhost
+  const shouldRedirect = justSignedIn && !!session && !!destination && !hasRedirected
 
   useEffect(() => {
-    if (shouldRedirect) {
-      window.location.href = `https://app.planyourparkday.com${destination}${buildSessionHandoffHash(session)}`
-    }
+    if (!shouldRedirect) return
+    setHasRedirected(true)
+    const target = onAppSubdomain || onLocalhost
+      ? destination
+      : `https://app.planyourparkday.com${destination}${buildSessionHandoffHash(session)}`
+    window.location.replace(target)
+    // onAppSubdomain/onLocalhost read from window.location at render time,
+    // not state — stable for the life of this component, so omitting them
+    // doesn't risk a stale redirect target.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldRedirect, destination, session])
 
   return shouldRedirect
@@ -178,10 +196,10 @@ function AppRoutes({ session, profile, justSignedIn }) {
 
   // Called unconditionally (before the statusLoading early return) so hook
   // order stays stable across renders.
-  const redirectingToAppSubdomain = useAppSubdomainRedirect(session, justSignedIn, statusLoading ? null : destination)
+  const redirectingAfterSignIn = useRedirectAfterSignIn(session, justSignedIn, statusLoading ? null : destination)
 
   if (statusLoading) return null
-  if (redirectingToAppSubdomain) return null
+  if (redirectingAfterSignIn) return null
 
   return (
     <Routes>
