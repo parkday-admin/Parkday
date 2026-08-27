@@ -131,3 +131,18 @@ export function onAuthStateChange(callback) {
   })
   return () => subscription.unsubscribe()
 }
+
+// A standalone (home-screen-installed) iOS app that navigates to a
+// different origin — like Google's sign-in page — gets that shown in a
+// separate in-app browser overlay rather than in the installed app's own
+// window. iOS does share storage between the two for the same site, so
+// completing sign-in there does persist a session, but the installed app's
+// screen was already loaded before that happened and has no way to learn
+// about it — it just sits on whatever it was showing (e.g. "Redirecting…")
+// until something tells it to look again. Call this when the app regains
+// focus/visibility to re-check storage for a session that appeared while
+// it was in the background.
+export async function getCurrentSession() {
+  const { data: { session } } = await supabase.auth.getSession()
+  return session
+}

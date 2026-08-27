@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
-import { onAuthStateChange, adoptSessionFromHandoff, buildSessionHandoffHash } from './lib/auth'
+import { onAuthStateChange, adoptSessionFromHandoff, buildSessionHandoffHash, getCurrentSession } from './lib/auth'
 import { getProfile } from './lib/profile'
 import { getCollaboratorStatus } from './lib/collaborator'
 import IOSInstallBanner from './components/IOSInstallBanner'
@@ -51,6 +51,20 @@ function useSession() {
     // listener above with the real session, same as any other sign-in.
     adoptSessionFromHandoff()
     return unsubscribe
+  }, [])
+
+  useEffect(() => {
+    function handleVisible() {
+      if (document.visibilityState !== 'visible') return
+      // See getCurrentSession's comment — this is what un-freezes a
+      // standalone install left on a stale "Redirecting…" screen after
+      // Google sign-in completed in iOS's separate in-app browser overlay.
+      getCurrentSession().then(fresh => {
+        setSession(current => (fresh?.access_token !== current?.access_token ? fresh : current))
+      })
+    }
+    document.addEventListener('visibilitychange', handleVisible)
+    return () => document.removeEventListener('visibilitychange', handleVisible)
   }, [])
 
   return { session, justSignedIn }
