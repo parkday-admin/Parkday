@@ -105,12 +105,60 @@ function canonicalOAuthRedirect() {
   return window.location.hostname === 'localhost' ? window.location.origin : 'https://app.planyourparkday.com'
 }
 
-export async function signInWithGoogle(redirectTo = canonicalOAuthRedirect()) {
+// An installed (home-screen) app is running in "standalone" display mode —
+// distinct from a normal browser tab, where the full-page redirect below
+// works fine as-is.
+export function isStandaloneApp() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true
+}
+
+// Installed-app callers (Auth.jsx's default login button) get the popup
+// flow below; anyone passing an explicit redirectTo (InviteAccept, which
+// needs to land back on the exact invite link to finish accepting it) gets
+// the plain full-page redirect unchanged, regardless of standalone mode.
+export async function signInWithGoogle(redirectTo) {
+  const usingDefaultRedirect = redirectTo === undefined
+  const target = redirectTo ?? canonicalOAuthRedirect()
+
+  if (!usingDefaultRedirect || !isStandaloneApp()) {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: target },
+    })
+    return { data, error }
+  }
+
+  // A full-page redirect to Google leaves the installed app's manifest
+  // scope, and Chrome's "you've left the app" browser chrome for that trip
+  // doesn't reliably auto-dismiss on return — the app can end up fully
+  // signed in but still stuck wrapped in that chrome (see
+  // useRedirectAfterSignIn in App.jsx for the same issue's other half).
+  // Running the OAuth flow in a popup keeps this window inside scope the
+  // whole time: the popup completes sign-in against a dedicated redirect
+  // page and closes itself, and Supabase's built-in cross-tab session sync
+  // (it listens for storage events) picks up the resulting session here
+  // automatically.
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo },
+    options: { redirectTo: `${target}/oauth-popup-complete`, skipBrowserRedirect: true },
   })
-  return { data, error }
+  if (error) return { data, error }
+
+  const popup = window.open(data.url, 'parkday-google-signin', 'width=480,height=640')
+  if (!popup) {
+    // Popup blocked — fall back to the plain full-page redirect.
+    window.location.assign(data.url)
+    return { data, error: null }
+  }
+
+  return new Promise(resolve => {
+    const poll = setInterval(async () => {
+      if (!popup.closed) return
+      clearInterval(poll)
+      const session = await getCurrentSession()
+      resolve({ data, error: session ? null : { message: 'Sign-in was cancelled.' } })
+    }, 500)
+  })
 }
 
 export async function sendPasswordReset(email) {
