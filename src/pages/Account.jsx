@@ -31,6 +31,12 @@ function fmtDate(str) {
   return parseLocalDate(str).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+// access_until is a full ISO timestamp (set in UTC by stripe-webhook), not
+// the plain 'YYYY-MM-DD' fmtDate expects.
+function fmtTimestamp(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+}
+
 function fmtDateRange(trip) {
   if (!trip.arrival_date || !trip.departure_date) return ''
   if (trip.arrival_date === trip.departure_date) return fmtDate(trip.arrival_date)
@@ -411,9 +417,15 @@ export default function Account() {
                 {portalLoading ? 'Opening…' : 'Manage'}
               </button>
             </div>
-            <div className={styles.rowInline}>
-              <div><div className={styles.lbl}>Renews</div><div className={styles.val}>{nextRenewalDate(profile.created_at) ? `${nextRenewalDate(profile.created_at)} · $59.99/year` : '—'}</div></div>
-            </div>
+            {profile.access_until ? (
+              <div className={styles.rowInline}>
+                <div><div className={styles.lbl}>Cancelled</div><div className={styles.val}>Access until {fmtTimestamp(profile.access_until)}</div></div>
+              </div>
+            ) : (
+              <div className={styles.rowInline}>
+                <div><div className={styles.lbl}>Renews</div><div className={styles.val}>{nextRenewalDate(profile.created_at) ? `${nextRenewalDate(profile.created_at)} · $59.99/year` : '—'}</div></div>
+              </div>
+            )}
           </>
         ) : (
           <>

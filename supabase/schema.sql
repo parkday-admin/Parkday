@@ -11,6 +11,11 @@ create table profiles (
   stripe_customer_id text,
   subscription_status text check (subscription_status in ('active', 'inactive', 'trialing')),
   plan_type text check (plan_type in ('trip_pass', 'plus_pass')),
+  -- Set when a Plus Pass subscription is cancelled, to the date their
+  -- already-paid-for period actually ends (see stripe-webhook's
+  -- customer.subscription.deleted handler). Cleared on a fresh purchase or
+  -- successful renewal. expire_cancelled_plus_passes() is what enforces it.
+  access_until timestamptz,
   notif_deadlines boolean default true,
   notif_checkin boolean default true,
   notif_budget boolean default false,
@@ -538,4 +543,43 @@ select cron.schedule(
   'expire-trip-passes-daily',
   '0 8 * * *', -- 08:00 UTC daily
   $$select expire_trip_passes();$$
+);
+
+-- Cancelling Plus Pass shouldn't cut access immediately (see access_until
+-- above) — access continues until the date their already-paid-for period
+-- actually ends. This is what enforces that cutoff once it arrives.
+create or replace function expire_cancelled_plus_passes()
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  -- status = 'active' guard here (missing on the original immediate-
+  -- cancellation logic this replaces) keeps a trip the user already
+  -- soft-deleted from being resurrected to 'archived'.
+  update trips
+  set status = 'archived'
+  where status = 'active'
+    and user_id in (
+      select id from profiles
+      where plan_type = 'plus_pass'
+        and subscription_status = 'active'
+        and access_until is not null
+        and access_until <= now()
+    );
+
+  update profiles
+  set subscription_status = 'inactive'
+  where plan_type = 'plus_pass'
+    and subscription_status = 'active'
+    and access_until is not null
+    and access_until <= now();
+end;
+$$;
+
+select cron.schedule(
+  'expire-cancelled-plus-passes-daily',
+  '0 8 * * *', -- 08:00 UTC daily
+  $$select expire_cancelled_plus_passes();$$
 );

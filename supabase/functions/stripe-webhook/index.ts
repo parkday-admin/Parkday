@@ -12,6 +12,19 @@ const supabaseAdmin = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
+// Plus Pass renews yearly on the signup anniversary — mirrors Account.jsx's
+// nextRenewalDate (kept in UTC calendar terms so it doesn't shift a day
+// depending on server timezone).
+function nextRenewalDate(createdAt: string): Date {
+  const signup = new Date(createdAt)
+  const now = new Date()
+  const month = signup.getUTCMonth()
+  const day = signup.getUTCDate()
+  let next = new Date(Date.UTC(now.getUTCFullYear(), month, day))
+  if (next <= now) next = new Date(Date.UTC(now.getUTCFullYear() + 1, month, day))
+  return next
+}
+
 Deno.serve(async (req) => {
   const signature = req.headers.get('stripe-signature')
   const body = await req.text()
@@ -34,7 +47,10 @@ Deno.serve(async (req) => {
 
         await supabaseAdmin
           .from('profiles')
-          .update({ subscription_status: 'active', plan_type: planType })
+          // access_until: null clears any pending cancellation cutoff —
+          // relevant if they'd cancelled and are now buying again before
+          // that date arrived.
+          .update({ subscription_status: 'active', plan_type: planType, access_until: null })
           .eq('id', userId)
         break
       }
@@ -43,9 +59,12 @@ Deno.serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice
         const customerId = invoice.customer as string
 
+        // A successful renewal charge means they didn't cancel (or
+        // un-cancelled before the period ended) — clear any pending cutoff
+        // the same as a fresh purchase. No-op if it was already null.
         await supabaseAdmin
           .from('profiles')
-          .update({ subscription_status: 'active' })
+          .update({ subscription_status: 'active', access_until: null })
           .eq('stripe_customer_id', customerId)
         break
       }
@@ -62,21 +81,27 @@ Deno.serve(async (req) => {
       }
 
       case 'customer.subscription.deleted': {
+        // Cancelling shouldn't cut access immediately, however soon this
+        // event actually fires (that timing depends on the Stripe Customer
+        // Portal's cancellation config, not this app) — they've already
+        // paid through their current period, so access should continue
+        // until it actually ends. Record that cutoff date instead of
+        // deactivating now; expire_cancelled_plus_passes() (a daily
+        // pg_cron job) is what applies it once the date arrives.
         const subscription = event.data.object as Stripe.Subscription
         const customerId = subscription.customer as string
 
         const { data: profile } = await supabaseAdmin
           .from('profiles')
-          .update({ subscription_status: 'inactive' })
+          .select('id, created_at')
           .eq('stripe_customer_id', customerId)
-          .select('id')
           .single()
 
         if (profile) {
           await supabaseAdmin
-            .from('trips')
-            .update({ status: 'archived' })
-            .eq('user_id', profile.id)
+            .from('profiles')
+            .update({ access_until: nextRenewalDate(profile.created_at).toISOString() })
+            .eq('id', profile.id)
         }
         break
       }
