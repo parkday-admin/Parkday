@@ -4,6 +4,7 @@ import { onAuthStateChange } from './lib/auth'
 import { getProfile } from './lib/profile'
 import Home from './pages/Home'
 import Auth from './pages/Auth'
+import ResetPassword from './pages/ResetPassword'
 import Dashboard from './pages/Dashboard'
 import Paywall from './pages/Paywall'
 import Configurator from './components/Configurator/Configurator'
@@ -98,6 +99,7 @@ export default function App() {
               : <Navigate to={status === 'active' ? '/dashboard' : '/paywall'} replace />
           }
         />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route
           path="/paywall"
           element={

@@ -191,6 +191,25 @@
   color: var(--text-tertiary);
 }
 
+.forgotLink {
+  display: block;
+  width: 100%;
+  text-align: right;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: -6px 0 14px;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.forgotLink:hover {
+  color: var(--sky);
+  text-decoration: underline;
+}
+
 .error {
   font-size: 12.5px;
   color: var(--coral);
@@ -252,5 +271,15 @@
 }
 
 .toggle button:hover {
+  text-decoration: underline;
+}
+
+.toggle a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.toggle a:hover {
   text-decoration: underline;
 }

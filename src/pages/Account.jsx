@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
-import { supabase } from '../supabase'
 import { getFullProfile, updateProfile, deleteAccount } from '../lib/profile'
 import { fetchArchivedTrips } from '../lib/trips'
 import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
 import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
-import { signOut } from '../lib/auth'
+import { signOut, sendPasswordReset } from '../lib/auth'
 import styles from './Account.module.css'
 
 const TIMEZONES = [
@@ -149,7 +148,7 @@ export default function Account() {
   }
 
   async function handleResetPassword() {
-    const { error } = await supabase.auth.resetPasswordForEmail(session.user.email)
+    const { error } = await sendPasswordReset(session.user.email)
     showToast?.(error ? error.message : 'Password reset email sent.')
   }
 

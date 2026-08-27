@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { signIn, signUp, signInWithGoogle } from '../lib/auth'
+import { signIn, signUp, signInWithGoogle, sendPasswordReset } from '../lib/auth'
 import styles from './Auth.module.css'
 
 function GoogleIcon() {
@@ -24,13 +24,16 @@ function readSavedEstimate() {
 
 export default function Auth() {
   const [estimate] = useState(readSavedEstimate)
-  const [mode, setMode] = useState(estimate ? 'signup' : 'login') // 'login' | 'signup'
+  const [mode, setMode] = useState(estimate ? 'signup' : 'login') // 'login' | 'signup' | 'forgot'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState(null)
   const [notice, setNotice] = useState(null)
+  const [resetLoading, setResetLoading] = useState(false)
+  const [resetError, setResetError] = useState(null)
+  const [resetSent, setResetSent] = useState(false)
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -52,6 +55,33 @@ export default function Auth() {
     }
 
     setLoading(false)
+  }
+
+  function goToForgotPassword() {
+    setMode('forgot')
+    setError(null)
+    setNotice(null)
+    setResetError(null)
+    setResetSent(false)
+  }
+
+  function backToSignIn() {
+    setMode('login')
+    setResetError(null)
+    setResetSent(false)
+  }
+
+  async function handleForgotSubmit(e) {
+    e.preventDefault()
+    setResetError(null)
+    setResetLoading(true)
+    const { error } = await sendPasswordReset(email)
+    setResetLoading(false)
+    if (error) {
+      setResetError('Something went wrong. Please try again.')
+      return
+    }
+    setResetSent(true)
   }
 
   async function handleGoogle() {
@@ -78,6 +108,47 @@ export default function Auth() {
 
       <div className={styles.layout}>
         <div className={styles.card}>
+          {mode === 'forgot' ? (
+            <>
+              <h1 className={styles.headline}>Reset your password</h1>
+              <p className={styles.subhead}>Enter your email address and we'll send you a link to reset your password.</p>
+
+              {resetSent ? (
+                <>
+                  <p className={styles.notice}>Check your email. We've sent a password reset link to {email}.</p>
+                  <p className={styles.toggle}>
+                    <button type="button" onClick={backToSignIn}>Back to sign in</button>
+                  </p>
+                </>
+              ) : (
+                <form onSubmit={handleForgotSubmit} className={styles.form}>
+                  <div className={styles.field}>
+                    <label htmlFor="resetEmail">Email</label>
+                    <input
+                      id="resetEmail"
+                      type="email"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      autoComplete="email"
+                    />
+                  </div>
+
+                  {resetError && <p className={styles.error}>{resetError}</p>}
+
+                  <button type="submit" className={styles.submit} disabled={resetLoading}>
+                    {resetLoading ? 'Sending…' : 'Send reset link'}
+                  </button>
+
+                  <p className={styles.toggle}>
+                    <button type="button" onClick={backToSignIn}>Back to sign in</button>
+                  </p>
+                </form>
+              )}
+            </>
+          ) : (
+            <>
           <h1 className={styles.headline}>
             {mode === 'signup' ? 'Create your account' : 'Sign in to plan your park day'}
           </h1>
@@ -137,6 +208,12 @@ export default function Auth() {
               />
             </div>
 
+            {mode === 'login' && (
+              <button type="button" className={styles.forgotLink} onClick={goToForgotPassword}>
+                Forgot password?
+              </button>
+            )}
+
             {error && <p className={styles.error}>{error}</p>}
             {notice && <p className={styles.notice}>{notice}</p>}
 
@@ -152,6 +229,8 @@ export default function Auth() {
               <>Already have an account? <button onClick={() => { setMode('login'); setError(null); setNotice(null) }}>Sign in</button></>
             )}
           </p>
+            </>
+          )}
         </div>
       </div>
     </div>
