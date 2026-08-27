@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './Home.module.css'
 import Estimator from '../components/Estimator/Estimator'
+import { useRevealOnScroll } from '../hooks/useRevealOnScroll'
 
 const FAQS = [
   {
@@ -34,6 +35,16 @@ function NavBrand() {
 export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState(0)
+
+  const [whyRef, whyInView] = useRevealOnScroll()
+  const [hiwRef, hiwInView] = useRevealOnScroll()
+  const [valuePropsRef, valuePropsInView] = useRevealOnScroll()
+  const [featuresRef, featuresInView] = useRevealOnScroll()
+  const [estimatorRef, estimatorInView] = useRevealOnScroll()
+  const [pricingRef, pricingInView] = useRevealOnScroll()
+  const [faqRef, faqInView] = useRevealOnScroll()
+
+  const reveal = inView => `${styles.reveal} ${inView ? styles.revealVisible : ''}`
 
   const navLinks = (
     <>
@@ -87,7 +98,7 @@ export default function Home() {
       </div>
 
       {/* WHY PARKDAY */}
-      <div className={`${styles.dark} ${styles.why}`}>
+      <div ref={whyRef} className={`${styles.dark} ${styles.why} ${reveal(whyInView)}`}>
         <div className={`${styles.wrap} ${styles.whyGrid}`}>
           <div>
             <h2 className={styles.display}>The money side of Disney planning lives everywhere.&nbsp;<br /><span className={styles.accent}>Until now.</span></h2>
@@ -125,7 +136,7 @@ export default function Home() {
       </div>
 
       {/* HOW IT WORKS */}
-      <div className={`${styles.wrap} ${styles.hiw}`} id="how-it-works">
+      <div ref={hiwRef} className={`${styles.wrap} ${styles.hiw} ${reveal(hiwInView)}`} id="how-it-works">
         <div className={styles.sectionHead}>
           <h2 className={styles.display}>How Parkday works</h2>
           <p>From your first estimate to your final park day, Parkday helps you keep the trip budget clear and organized.</p>
@@ -162,7 +173,7 @@ export default function Home() {
       </div>
 
       {/* VALUE PROPS */}
-      <div className={`${styles.wrap} ${styles.valueProps}`}>
+      <div ref={valuePropsRef} className={`${styles.wrap} ${styles.valueProps} ${reveal(valuePropsInView)}`}>
         <div className={styles.valueGrid}>
           <div className={styles.valueCard} style={{ background: 'var(--sky-bg)' }}>
             <div className={styles.valueIcon} style={{ background: 'var(--sky)' }}><i className="ti ti-users" /></div>
@@ -180,7 +191,7 @@ export default function Home() {
       </div>
 
       {/* FEATURES */}
-      <div className={`${styles.wrap} ${styles.features}`} id="features">
+      <div ref={featuresRef} className={`${styles.wrap} ${styles.features} ${reveal(featuresInView)}`} id="features">
         <div className={styles.sectionHead}>
           <h2 className={styles.display}>Everything you need to plan with confidence.</h2>
           <p>From the first estimate to the final countdown, Parkday keeps every part of your trip organized.</p>
@@ -251,7 +262,7 @@ export default function Home() {
       </div>
 
       {/* ESTIMATOR */}
-      <div className={`${styles.wrap} ${styles.estimatorSection}`} id="estimator">
+      <div ref={estimatorRef} className={`${styles.wrap} ${styles.estimatorSection} ${reveal(estimatorInView)}`} id="estimator">
         <div className={styles.sectionHead}>
           <h2 className={styles.display}>Wonder what your trip will really cost?</h2>
           <p>Answer a few questions about your party, resort, and park days and get a realistic budget in under two minutes. No account needed.</p>
@@ -260,7 +271,7 @@ export default function Home() {
       </div>
 
       {/* PRICING */}
-      <div className={`${styles.dark} ${styles.pricing}`} id="pricing">
+      <div ref={pricingRef} className={`${styles.dark} ${styles.pricing} ${reveal(pricingInView)}`} id="pricing">
         <div className={styles.wrap}>
           <div className={styles.pricingHead}>
             <h2 className={styles.display}>Choose the plan that fits your trip</h2>
@@ -316,7 +327,7 @@ export default function Home() {
       </div>
 
       {/* FAQ */}
-      <div className={styles.faq} id="faq">
+      <div ref={faqRef} className={`${styles.faq} ${reveal(faqInView)}`} id="faq">
         <div className={styles.faqHead}>
           <div className={styles.faqEyebrow}>FAQ</div>
           <h2 className={styles.display}>Questions, answered.</h2>
