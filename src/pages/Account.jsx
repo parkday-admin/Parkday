@@ -4,7 +4,7 @@ import { getFullProfile, updateProfile, deleteAccount } from '../lib/profile'
 import { fetchArchivedTrips } from '../lib/trips'
 import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
 import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
-import { signOut, sendPasswordReset } from '../lib/auth'
+import { signOutAndRedirect, sendPasswordReset } from '../lib/auth'
 import {
   fetchCollaboratorInvite, fetchCollaborator, sendCollaboratorInvite, resendCollaboratorInvite,
   cancelCollaboratorInvite, removeCollaborator, leaveCollaboratorAccount,
@@ -206,8 +206,7 @@ export default function Account() {
       showToast?.(error.message)
       return
     }
-    await signOut()
-    window.location.href = '/'
+    await signOutAndRedirect()
   }
 
   async function handleSendInvite() {

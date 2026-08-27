@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { createCheckoutSession } from '../lib/stripe'
-import { signOut } from '../lib/auth'
+import { signOutAndRedirect } from '../lib/auth'
 import styles from './Paywall.module.css'
 
 const PLANS = [
@@ -64,7 +64,7 @@ export default function Paywall({ session }) {
             <img className={styles.logoImg} src="/assets/logos/parkday-icon.svg" alt="Parkday" />
             <span className={styles.wordmark}>Parkday</span>
           </span>
-          <button className={styles.signOut} onClick={signOut}>Sign out</button>
+          <button className={styles.signOut} onClick={signOutAndRedirect}>Sign out</button>
         </div>
       </header>
 

@@ -44,6 +44,56 @@ export async function signOut() {
   return { error }
 }
 
+// Supabase persists sessions in localStorage, which is scoped per-origin —
+// app.planyourparkday.com can't see a session that was established on
+// planyourparkday.com. So signing out anywhere sends the user back to the
+// marketing domain rather than leaving them stranded on the app subdomain
+// showing a login form under a URL that looks like they're still "in the
+// app".
+export async function signOutAndRedirect() {
+  await signOut()
+  const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
+  const onLocalhost = window.location.hostname === 'localhost'
+  window.location.href = onAppSubdomain && !onLocalhost ? 'https://planyourparkday.com/' : '/'
+}
+
+const HANDOFF_HASH_KEY = 'pkd_session'
+
+// See signOutAndRedirect's comment on why localStorage doesn't cross
+// subdomains — the same gap breaks the other direction: a session
+// established on planyourparkday.com (marketing) doesn't exist yet on
+// app.planyourparkday.com after the post-login redirect. This hands the
+// live tokens across in the URL fragment (never sent to a server, unlike a
+// query string) so the app subdomain can adopt the same session instead of
+// showing a login form the user just got past.
+export function buildSessionHandoffHash(session) {
+  if (!session?.access_token || !session?.refresh_token) return ''
+  const payload = encodeURIComponent(JSON.stringify({
+    at: session.access_token,
+    rt: session.refresh_token,
+  }))
+  return `#${HANDOFF_HASH_KEY}=${payload}`
+}
+
+// Call once on mount. Strips the handoff hash from the URL either way, so
+// the tokens never linger in the address bar or browser history.
+export async function adoptSessionFromHandoff() {
+  const prefix = `#${HANDOFF_HASH_KEY}=`
+  if (!window.location.hash.startsWith(prefix)) return false
+
+  const raw = window.location.hash.slice(prefix.length)
+  window.history.replaceState(null, '', window.location.pathname + window.location.search)
+
+  try {
+    const { at, rt } = JSON.parse(decodeURIComponent(raw))
+    if (!at || !rt) return false
+    const { error } = await supabase.auth.setSession({ access_token: at, refresh_token: rt })
+    return !error
+  } catch {
+    return false
+  }
+}
+
 export async function signInWithGoogle(redirectTo = window.location.origin) {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

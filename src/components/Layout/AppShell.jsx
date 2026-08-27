@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styles from './AppShell.module.css'
-import { signOut } from '../../lib/auth'
+import { signOutAndRedirect } from '../../lib/auth'
 import { fetchActiveTrips } from '../../lib/trips'
 import { createExpense } from '../../lib/expenses'
 import { fetchFamilyMembers } from '../../lib/familyMembers'
@@ -277,7 +277,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
               <Link to="/account" className={styles.navItem} onClick={closeAll}>
                 <i className="ti ti-user" /><span>Account</span>
               </Link>
-              <button type="button" className={styles.navItem} onClick={() => { closeAll(); signOut() }}>
+              <button type="button" className={styles.navItem} onClick={() => { closeAll(); signOutAndRedirect() }}>
                 <i className="ti ti-logout" /><span>Sign out</span>
               </button>
             </div>

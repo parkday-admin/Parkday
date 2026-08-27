@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
-import { onAuthStateChange } from './lib/auth'
+import { onAuthStateChange, adoptSessionFromHandoff, buildSessionHandoffHash } from './lib/auth'
 import { getProfile } from './lib/profile'
 import { getCollaboratorStatus } from './lib/collaborator'
 import IOSInstallBanner from './components/IOSInstallBanner'
@@ -35,16 +35,23 @@ function useSession() {
   // redirect. See useAppSubdomainRedirect below.
   const [justSignedIn, setJustSignedIn] = useState(false)
 
-  useEffect(() => onAuthStateChange((s, event) => {
-    // The saved-estimate chip on the login page is a one-time nudge to
-    // create an account — once a session exists (any sign-in path,
-    // including the Google OAuth redirect), its job is done. Without this
-    // it lingers in localStorage forever and resurfaces on every future
-    // login, unrelated to what the user is currently doing.
-    if (s) localStorage.removeItem('pkd_estimate')
-    setSession(s)
-    if (event === 'SIGNED_IN') setJustSignedIn(true)
-  }), [])
+  useEffect(() => {
+    const unsubscribe = onAuthStateChange((s, event) => {
+      // The saved-estimate chip on the login page is a one-time nudge to
+      // create an account — once a session exists (any sign-in path,
+      // including the Google OAuth redirect), its job is done. Without this
+      // it lingers in localStorage forever and resurfaces on every future
+      // login, unrelated to what the user is currently doing.
+      if (s) localStorage.removeItem('pkd_estimate')
+      setSession(s)
+      if (event === 'SIGNED_IN') setJustSignedIn(true)
+    })
+    // If this load carries a session handed off from the marketing domain
+    // (see useAppSubdomainRedirect), adopt it — setSession triggers the
+    // listener above with the real session, same as any other sign-in.
+    adoptSessionFromHandoff()
+    return unsubscribe
+  }, [])
 
   return { session, justSignedIn }
 }
@@ -124,14 +131,20 @@ function RequirePaidAuth({ session, canAccess }) {
 // `destination` is null while it isn't known yet (still resolving a
 // collaborator's owner status) — the redirect waits rather than firing
 // with a stale/guessed path.
-function useAppSubdomainRedirect(justSignedIn, destination) {
+// The session's tokens ride along in the URL fragment (buildSessionHandoffHash)
+// since app.planyourparkday.com can't see localStorage from this origin —
+// without it the user lands on the app subdomain logged out and has to
+// sign in a second time.
+function useAppSubdomainRedirect(session, justSignedIn, destination) {
   const onAppSubdomain = window.location.hostname === 'app.planyourparkday.com'
   const onLocalhost = window.location.hostname === 'localhost'
-  const shouldRedirect = justSignedIn && !!destination && !onAppSubdomain && !onLocalhost
+  const shouldRedirect = justSignedIn && !!session && !!destination && !onAppSubdomain && !onLocalhost
 
   useEffect(() => {
-    if (shouldRedirect) window.location.href = `https://app.planyourparkday.com${destination}`
-  }, [shouldRedirect, destination])
+    if (shouldRedirect) {
+      window.location.href = `https://app.planyourparkday.com${destination}${buildSessionHandoffHash(session)}`
+    }
+  }, [shouldRedirect, destination, session])
 
   return shouldRedirect
 }
@@ -151,7 +164,7 @@ function AppRoutes({ session, profile, justSignedIn }) {
 
   // Called unconditionally (before the statusLoading early return) so hook
   // order stays stable across renders.
-  const redirectingToAppSubdomain = useAppSubdomainRedirect(justSignedIn, statusLoading ? null : destination)
+  const redirectingToAppSubdomain = useAppSubdomainRedirect(session, justSignedIn, statusLoading ? null : destination)
 
   if (statusLoading) return null
   if (redirectingToAppSubdomain) return null
