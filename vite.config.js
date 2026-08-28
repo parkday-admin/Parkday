@@ -45,7 +45,7 @@ export default defineConfig({
         // these aren't part of the app and shouldn't be precached.
         globIgnores: ['**/parkday_*.html', '**/Parkday Home*.html', '**/*_classes*.txt', '**/*_globals*.txt', '**/*_ids*.txt'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api/, /^\/auth/],
+        navigateFallbackDenylist: [/^\/api/, /^\/auth/, /^\/llms(-full)?\.txt$/],
       },
     }),
   ],
