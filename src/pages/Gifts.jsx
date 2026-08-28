@@ -179,7 +179,7 @@ export default function Gifts() {
                   </div>
                   <div className={styles.gcAmts}>
                     <div className={`${styles.gcBalance} ${depleted ? styles.depleted : ''}`}>{depleted ? 'Depleted' : fmt(c.balance)}</div>
-                    <div className={styles.gcOriginal}>{fmt(c.original_amount)} original</div>
+                    <div className={`${styles.gcOriginal} ${depleted ? styles.struck : ''}`}>{fmt(c.original_amount)} original</div>
                   </div>
                 </div>
                 {uses > 0 && (
@@ -209,16 +209,18 @@ export default function Gifts() {
             <div className={styles.cardEmpty}>No rewards yet.</div>
           ) : rewardPrograms.map(r => {
             const uses = usesFor(expenses, 'reward', r.id).length
+            const depleted = r.value <= 0
             return (
               <div key={r.id} className={styles.rwRow}>
                 <div className={styles.gcRowTop} onClick={() => setRewardSheet({ editingReward: r })}>
-                  <div className={styles.rwIcon}><i className={`ti ${REWARD_TYPE_ICON[r.type]}`} /></div>
+                  <div className={`${styles.rwIcon} ${depleted ? styles.depleted : ''}`}><i className={`ti ${REWARD_TYPE_ICON[r.type]}`} /></div>
                   <div className={styles.gcInfo}>
                     <div className={styles.gcName}>{r.program}</div>
                     <div className={styles.gcSub}>{r.detail || REWARD_TYPE_LABEL[r.type]}</div>
                   </div>
                   <div className={styles.gcAmts}>
-                    <div className={styles.gcBalance}>{fmt(r.value)}</div>
+                    <div className={`${styles.gcBalance} ${depleted ? styles.depleted : ''}`}>{depleted ? 'Depleted' : fmt(r.value)}</div>
+                    <div className={`${styles.gcOriginal} ${depleted ? styles.struck : ''}`}>{fmt(r.original_value)} original</div>
                   </div>
                 </div>
                 {uses > 0 && (

@@ -5,7 +5,7 @@ export const REWARD_TYPE_LABEL = { visa: 'Disney Visa reward dollars', insiders:
 export const REWARD_TYPE_PROGRAM_DEFAULT = { visa: 'Disney Visa', insiders: 'Disney Movie Insiders', travel: 'Travel credit', other: '' }
 
 const GC_SELECT = 'id, source, original_amount, balance, last4, date_added, depleted'
-const RW_SELECT = 'id, type, program, detail, value'
+const RW_SELECT = 'id, type, program, detail, value, original_value'
 
 export async function fetchGiftCards(userId, tripId) {
   const { data, error } = await supabase

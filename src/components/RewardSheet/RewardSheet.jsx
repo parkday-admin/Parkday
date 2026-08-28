@@ -9,6 +9,7 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
   const [type, setType] = useState('visa')
   const [program, setProgram] = useState('')
   const [detail, setDetail] = useState('')
+  const [original, setOriginal] = useState('')
   const [value, setValue] = useState('')
   const [programError, setProgramError] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -18,6 +19,7 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
     setType(editing?.type || 'visa')
     setProgram(editing?.program || REWARD_TYPE_PROGRAM_DEFAULT.visa)
     setDetail(editing?.detail || '')
+    setOriginal(editing ? String(editing.original_value) : '')
     setValue(editing ? String(editing.value) : '')
     setProgramError(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -38,7 +40,18 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
     const trimmed = program.trim()
     if (!trimmed) { setProgramError(true); return }
 
-    const fields = { type, program: trimmed, detail: detail.trim() || null, value: Number(value) || 0 }
+    // Original and balance fall back to each other when left blank, so
+    // filling in just one (as most people will for a brand-new reward)
+    // doesn't leave the other at $0.
+    const valueNum = value === '' ? null : Number(value) || 0
+    const originalNum = original === '' ? valueNum : Number(original) || 0
+    const fields = {
+      type,
+      program: trimmed,
+      detail: detail.trim() || null,
+      original_value: originalNum ?? 0,
+      value: valueNum ?? originalNum ?? 0,
+    }
 
     setSaving(true)
     const { error } = editing
@@ -96,7 +109,15 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>$ value</div>
+            <div className={styles.fieldLbl}>Original value</div>
+            <div className={styles.amtWrap}>
+              <div className={styles.amtPre}>$</div>
+              <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={original} onChange={e => setOriginal(e.target.value)} />
+            </div>
+          </div>
+
+          <div className={styles.field}>
+            <div className={styles.fieldLbl}>Balance remaining</div>
             <div className={styles.amtWrap}>
               <div className={styles.amtPre}>$</div>
               <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={value} onChange={e => setValue(e.target.value)} />

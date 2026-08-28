@@ -48,8 +48,8 @@
 .gcRowTop { display: flex; align-items: center; gap: 11px; cursor: pointer; }
 .gcIcon, .rwIcon { width: 34px; height: 34px; border-radius: 9px; background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .gcIcon i, .rwIcon i { font-size: 15px; color: var(--sky-dark); }
-.gcIcon.depleted { background: rgba(13, 20, 32, 0.06); }
-.gcIcon.depleted i { color: var(--text-tertiary); }
+.gcIcon.depleted, .rwIcon.depleted { background: rgba(13, 20, 32, 0.06); }
+.gcIcon.depleted i, .rwIcon.depleted i { color: var(--text-tertiary); }
 .gcInfo { flex: 1; min-width: 0; }
 .gcName { font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
 .last4Pill { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: rgba(13, 20, 32, 0.06); color: var(--text-tertiary); letter-spacing: 0.02em; }
@@ -57,7 +57,8 @@
 .gcAmts { text-align: right; flex-shrink: 0; }
 .gcBalance { font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--teal-dark); }
 .gcBalance.depleted { color: var(--text-tertiary); }
-.gcOriginal { font-size: 11.5px; color: var(--text-tertiary); text-decoration: line-through; margin-top: 1px; }
+.gcOriginal { font-size: 11.5px; color: var(--text-tertiary); margin-top: 1px; }
+.gcOriginal.struck { text-decoration: line-through; }
 
 .viewBtn {
   margin: 6px 0 0 45px; font-size: 11px; font-weight: 600; color: var(--sky);
