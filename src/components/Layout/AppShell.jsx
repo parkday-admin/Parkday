@@ -17,6 +17,7 @@ const ACTIVE_TRIP_KEY = 'pkd_active_trip_id'
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
+  '/today': 'Today',
   '/budget': 'Budget',
   '/itinerary': 'Itinerary',
   '/wishlist': 'Wish list',

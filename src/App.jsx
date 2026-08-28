@@ -9,6 +9,7 @@ import Auth from './pages/Auth'
 import ResetPassword from './pages/ResetPassword'
 import InviteAccept from './pages/InviteAccept'
 import Dashboard from './pages/Dashboard'
+import TodayFullView from './pages/TodayFullView'
 import Paywall from './pages/Paywall'
 import PausedAccess from './pages/PausedAccess'
 import Configurator from './components/Configurator/Configurator'
@@ -243,6 +244,7 @@ function AppRoutes({ session, profile, justSignedIn }) {
             element={<Configurator session={session} planType={profile?.planType ?? null} />}
           />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/today" element={<TodayFullView />} />
           <Route path="/trip-settings" element={<TripSettings />} />
           <Route path="/estimator" element={<EstimatorPage />} />
           <Route path="/estimates" element={<Estimates />} />

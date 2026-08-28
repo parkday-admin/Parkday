@@ -91,6 +91,25 @@ export function tripDays(trip) {
   })
 }
 
+// The trip whose date range currently contains today, if any — trips are
+// already ordered by created_at desc (fetchActiveTrips), so the first match
+// naturally wins when two trips' dates overlap (an edge case not worth
+// engineering around further).
+export function dateActiveTrip(trips) {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  return (trips ?? []).find(t => {
+    if (!t.arrival_date || !t.departure_date) return false
+    return parseLocalDate(t.arrival_date) <= today && today <= parseLocalDate(t.departure_date)
+  }) ?? null
+}
+
+// 1-based trip day number for today. Only meaningful when dateActiveTrip
+// found this trip — callers shouldn't call this otherwise.
+export function tripDayNumberForToday(trip) {
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  return Math.round((today - parseLocalDate(trip.arrival_date)) / 86400000) + 1
+}
+
 // The park/status label for a given 1-based day number: the saved park_day
 // row's label if the day has one, else Arrival/Departure/Rest day based on
 // position — shared by the itinerary day nav and the wish list's
@@ -103,4 +122,21 @@ export function dayParkLabel(trip, expenses, dayNum) {
   if (index === 0 && days.length > 1) return 'Arrival day'
   if (index === days.length - 1) return 'Departure day'
   return 'Rest day'
+}
+
+const PARK_ICON = { 'Magic Kingdom': 'ti-building-castle', EPCOT: 'ti-world', 'Hollywood Studios': 'ti-camera', 'Animal Kingdom': 'ti-paw' }
+
+// Like dayParkLabel, but also resolves a Tabler icon and title-cases the
+// non-park labels — used by the Today card/full view. Departure day always
+// reads as travel even if a park was assigned to it, since guests don't
+// spend departure day at a park.
+export function dayTypeInfo(trip, expenses, dayNum) {
+  const days = tripDays(trip)
+  const index = days.findIndex(d => d.day === dayNum)
+  const isDeparture = index === days.length - 1 && days.length > 1
+  const isArrival = index === 0 && days.length > 1
+  const parkRow = !isDeparture && expenses.find(e => e.cat === 'park_day' && e.day === dayNum)
+  if (parkRow) return { label: parkRow.label, icon: PARK_ICON[parkRow.label] || 'ti-sun', isPark: true }
+  if (isDeparture || isArrival) return { label: 'Travel Day', icon: 'ti-plane', isPark: false }
+  return { label: 'Rest Day', icon: 'ti-sun', isPark: false }
 }

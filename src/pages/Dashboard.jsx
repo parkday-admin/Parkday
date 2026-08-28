@@ -3,12 +3,13 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPackageBooking } from '../lib/categories'
 import { giftFundsTotals } from '../lib/giftFunds'
-import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
+import { daysUntil, effectiveFinalPaymentDate, dateActiveTrip } from '../lib/trips'
 import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
 import { urgencyLevel as reminderUrgencyLevel } from '../lib/reminders'
 import Fab from '../components/Fab/Fab'
 import DashboardCard from '../components/DashboardCard/DashboardCard'
 import ProgressBar from '../components/ProgressBar/ProgressBar'
+import TodayCard from '../components/TodayCard/TodayCard'
 import useSortableCards from '../hooks/useSortableCards'
 import styles from './Dashboard.module.css'
 
@@ -111,7 +112,7 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId, accountType } = outletContext ?? { activeTrip: null, loading: true }
+  const { trips, activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId, accountType } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
@@ -210,6 +211,7 @@ export default function Dashboard() {
   const pct = budgeted > 0 ? Math.min(100, Math.round((spent / budgeted) * 100)) : 0
 
   const cd = countdown(activeTrip)
+  const todayTrip = dateActiveTrip(trips)
 
   const cardVisibility = {
     itinerary: true,
@@ -462,6 +464,8 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {todayTrip && <TodayCard trip={todayTrip} onOpen={() => navigate('/today')} />}
 
       <div className={styles.cardGrid}>
         {isDesktop ? (
