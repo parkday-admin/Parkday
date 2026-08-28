@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { findBudgetRow, isPackageBooking } from '../lib/categories'
 import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
-import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel, URGENCY_LABEL } from '../lib/payments'
+import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel, URGENCY_LABEL, deletePayment } from '../lib/payments'
 import PaymentSheet from '../components/PaymentSheet/PaymentSheet'
 import styles from './Payments.module.css'
 
@@ -99,6 +99,13 @@ export default function Payments() {
     refreshAll()
   }
 
+  async function handleDeleteRow(p) {
+    const { error } = await deletePayment(p.id)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Payment removed')
+    refreshAll()
+  }
+
   const sorted = payments.slice().sort((a, b) => b.date.localeCompare(a.date))
 
   return (
@@ -164,13 +171,20 @@ export default function Payments() {
           {sorted.length === 0 ? (
             <div className={styles.cardEmpty}>No payments logged yet.</div>
           ) : sorted.map(p => (
-            <div key={p.id} className={styles.pmtRow} onClick={() => setSheetState({ editingPayment: p })}>
+            <div key={p.id} className={styles.pmtRow}>
               <div className={styles.pmtIcon}><i className="ti ti-receipt-2" /></div>
               <div className={styles.pmtInfo}>
                 <div className={styles.pmtName}>{fmt(p.amount)}<span className={styles.methodPill}>{p.method}</span></div>
                 <div className={styles.pmtSub}>{dateLabel(p.date)}{p.note ? ` · ${p.note}` : ''}</div>
               </div>
-              <i className={`ti ti-chevron-right ${styles.chevron}`} />
+              <div className={styles.pmtActions}>
+                <button type="button" className={styles.editBtn} onClick={() => setSheetState({ editingPayment: p })}>
+                  Edit payment
+                </button>
+                <button type="button" className={styles.removeBtn} title="Remove payment" onClick={() => handleDeleteRow(p)}>
+                  <i className="ti ti-trash" />
+                </button>
+              </div>
             </div>
           ))}
           <button type="button" className={styles.addBtn} onClick={() => setSheetState({})}>
