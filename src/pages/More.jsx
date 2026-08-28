@@ -90,7 +90,7 @@ export default function More() {
       <DashboardCard icon="ti-chart-pie" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" title="Money">
         <Row icon="ti-credit-card" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" label="Payments" onClick={() => navigate('/payments')} />
         <Row icon="ti-gift" iconBg="rgba(245,181,54,0.15)" iconColor="var(--gold-dark)" label="Gift Cards/Rewards" meta={totalAvailable > 0 ? fmt(totalAvailable) : undefined} onClick={() => navigate('/gifts')} />
-        <Row icon="ti-calculator" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" label="Estimator" onClick={() => navigate('/estimator')} />
+        <Row icon="ti-calculator" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" label="Estimates" onClick={() => navigate('/estimates')} />
       </DashboardCard>
 
       <DashboardCard icon="ti-map-2" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" title="Plan">

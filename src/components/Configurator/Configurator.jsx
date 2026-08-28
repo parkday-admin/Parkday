@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../supabase'
 import styles from './Configurator.module.css'
 import {
@@ -14,8 +14,9 @@ import {
 import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
 
-function makeDefaultS() {
-  return JSON.parse(JSON.stringify(DEFAULT_S))
+function makeDefaultS(prefill) {
+  const base = JSON.parse(JSON.stringify(DEFAULT_S))
+  return prefill ? { ...base, ...prefill } : base
 }
 
 function computeParty(S, familyMembers) {
@@ -61,24 +62,31 @@ function Stepper({ label, hint, value, onDec, onInc }) {
 
 export default function Configurator({ session, planType }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const outletContext = useOutletContext()
   const showToast = outletContext?.showToast
   const familyMembers = outletContext?.familyMembers
   const openFamilySheet = outletContext?.openFamilySheet
   const [searchParams] = useSearchParams()
   const tripId = searchParams.get('tripId')
+  // A "Convert to trip" / "Plan this trip" hand-off from the estimator or
+  // Estimates page — only meaningful for a brand-new trip, never an edit.
+  const prefill = !tripId ? location.state?.prefill : null
 
-  const [S, setS] = useState(makeDefaultS)
+  const [S, setS] = useState(() => makeDefaultS(prefill))
   const [step, setStep] = useState(0)
   const [editingTrip, setEditingTrip] = useState(false)
-  const [selectedResort, setSelectedResort] = useState(null)
+  const [selectedResort, setSelectedResort] = useState(prefill?.accName ? RESORTS.find(r => r.name === prefill.accName) ?? null : null)
   const [resortQuery, setResortQuery] = useState('')
   const [loading, setLoading] = useState(!!tripId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [dateAlert, setDateAlert] = useState(null)
   const [originalArrival, setOriginalArrival] = useState(null)
-  const [famSeeded, setFamSeeded] = useState(false)
+  // Prefilled party counts (extraAdults/extraChildren) already reflect the
+  // estimate's totals — skip the auto-select-everyone effect below so it
+  // doesn't add family members on top of them.
+  const [famSeeded, setFamSeeded] = useState(!!prefill)
   const editTripPartyRef = useRef(null)
 
   const setField = (key, value) => setS(prev => ({ ...prev, [key]: value }))

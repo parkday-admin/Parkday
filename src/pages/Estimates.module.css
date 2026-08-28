@@ -1,0 +1,221 @@
+.scrollWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  margin-bottom: 14px;
+}
+
+.table { border-collapse: collapse; width: 100%; min-width: 520px; }
+
+.headCell {
+  padding: 14px 14px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: top;
+  min-width: 150px;
+}
+
+.colName {
+  font-family: var(--heading);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--night);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.colName i { font-size: 11px; color: var(--text-tertiary); }
+.colName:hover i { color: var(--sky); }
+
+.nameInp {
+  font-family: var(--heading);
+  font-size: 15px;
+  color: var(--night);
+  border: 1.5px solid var(--sky);
+  border-radius: 6px;
+  padding: 2px 6px;
+  width: 100%;
+  outline: none;
+}
+
+.colDate { font-size: 10px; color: var(--text-tertiary); margin-top: 3px; }
+
+.table td {
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.table tr:last-child td { border-bottom: none; }
+
+.labelCol {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  background: var(--white) !important;
+  position: sticky;
+  left: 0;
+  border-right: 1px solid var(--border-light);
+  min-width: 150px;
+}
+
+.labelInner { display: flex; align-items: center; gap: 9px; }
+
+.labelIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.labelIcon i { font-size: 12px; }
+
+.labelText { overflow: hidden; text-overflow: ellipsis; }
+
+/* Below desktop, collapse the label column to icons only so the estimate
+   columns keep as much width as possible. */
+@media (max-width: 1023px) {
+  .labelCol { width: 46px; min-width: 0 !important; padding-left: 8px; padding-right: 8px; }
+  .labelInner { justify-content: center; }
+  .labelText { display: none; }
+}
+
+.placeholderHead { background: var(--cream); border-bottom: 1px dashed var(--border-light); }
+
+.placeholderCol { background: var(--cream); padding: 10px !important; position: relative; }
+
+.placeholderBtn {
+  position: absolute;
+  inset: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--sky);
+  text-align: center;
+}
+.placeholderBtn i { font-size: 20px; }
+.placeholderBtn:hover { border-color: var(--sky); background: var(--sky-bg); }
+
+.cellVal { font-size: 12.5px; color: var(--text-primary); }
+.cellPrice { font-size: 11px; font-weight: 600; color: var(--sky-dark); margin-top: 2px; }
+
+.costRow td {
+  background: var(--night);
+  border-top: 1px solid var(--night);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
+  height: 70px;
+  box-sizing: border-box;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+/* The label column is position:sticky, which in some browsers doesn't
+   stretch to the row's full height and doesn't reliably collapse its
+   border with neighboring cells — box-shadow paints independently of both,
+   so it's used here instead of border to guarantee this cell matches the
+   rest of the row exactly. */
+.labelColDark {
+  background: var(--night) !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  border-top: none !important;
+  border-right: none !important;
+  box-shadow: inset -1px 0 0 var(--night), inset 0 1px 0 var(--night);
+}
+.costMid { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--gold); }
+.costRng { font-size: 10.5px; color: rgba(255, 255, 255, 0.55); margin-top: 1px; }
+
+.actions { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.actionsRow { display: flex; align-items: center; gap: 8px; }
+
+.planBtn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  background: var(--sky);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: var(--sans);
+  white-space: nowrap;
+}
+.planBtn:hover { background: var(--sky-dark); }
+
+.trashBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: none;
+  border: 1px solid var(--border-light);
+  color: var(--coral);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.trashBtn i { font-size: 14px; }
+.trashBtn:hover { background: var(--coral-bg); border-color: var(--coral); }
+
+.confirmRow { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text-secondary); }
+.confirmYes, .confirmNo {
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: var(--sans);
+}
+.confirmYes { color: var(--coral); }
+.confirmYes:disabled { opacity: 0.6; cursor: default; }
+.confirmNo { color: var(--text-tertiary); }
+
+/* Empty state */
+.emptyState { text-align: center; padding: 60px 20px; }
+.emptyIcon { font-size: 40px; color: var(--sky); margin-bottom: 14px; display: block; }
+.emptyTitle { font-family: var(--heading); font-size: 21px; font-weight: 400; color: var(--night); margin-bottom: 8px; }
+.emptySub { font-size: 13px; color: var(--text-tertiary); line-height: 1.6; max-width: 420px; margin: 0 auto 20px; }
+.emptyBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 20px;
+  background: var(--sky);
+  color: #fff;
+  border: none;
+  border-radius: 11px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--sans);
+}
+.emptyBtn:hover { background: var(--sky-dark); }
+
+/* Skeleton */
+.skeleton { display: flex; flex-direction: column; gap: 11px; }
+.skelBlock {
+  height: 300px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(90deg, var(--white) 25%, var(--bg) 37%, var(--white) 63%);
+  background-size: 400% 100%;
+  animation: skelShimmer 1.4s ease infinite;
+  border: 1px solid var(--border-light);
+}
+@keyframes skelShimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }

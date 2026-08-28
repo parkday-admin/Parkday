@@ -25,6 +25,7 @@ const PAGE_TITLES = {
   '/packing': 'Packing list',
   '/reminders': 'Reminders',
   '/estimator': 'Estimator',
+  '/estimates': 'Estimates',
   '/account': 'Account',
   '/trip-settings': 'Trip settings',
   '/configurator': 'Plan your trip',
@@ -39,7 +40,7 @@ const TAB_ITEMS = [
   { to: '/itinerary', icon: 'ti-calendar', label: 'Itinerary' },
   { to: '/reminders', icon: 'ti-bell', label: 'Reminders' },
 ]
-const MORE_ROUTES = ['/more', '/payments', '/gifts', '/packing', '/wishlist', '/trip-settings', '/estimator', '/account']
+const MORE_ROUTES = ['/more', '/payments', '/gifts', '/packing', '/wishlist', '/trip-settings', '/estimator', '/estimates', '/account']
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
@@ -51,7 +52,7 @@ const NAV_ITEMS = [
   { to: '/packing', icon: 'ti-backpack', label: 'Packing list' },
   { to: '/reminders', icon: 'ti-bell', label: 'Reminders' },
   { to: '/trip-settings', icon: 'ti-settings', label: 'Trip settings' },
-  { to: '/estimator', icon: 'ti-calculator', label: 'Estimator' },
+  { to: '/estimates', icon: 'ti-calculator', label: 'Estimates' },
 ]
 
 function fmtDateShort(str) {
@@ -248,8 +249,14 @@ export default function AppShell({ session, planType, accountType, collaboratorO
     ? categoryMeta(budgetCatMatch[1]).label
     : PAGE_TITLES[location.pathname] ?? 'Parkday'
 
+  // Editing an existing trip (a tripId in the query string) opens in the
+  // configurator, not a dedicated page — treat that as "on Trip settings"
+  // for nav purposes rather than leaving every item unhighlighted.
+  const editingTripInConfigurator = location.pathname === '/configurator' && !!new URLSearchParams(location.search).get('tripId')
+
   function isNavItemActive(to) {
     if (to === '/budget') return location.pathname === '/budget' || !!budgetCatMatch
+    if (to === '/trip-settings') return location.pathname === '/trip-settings' || editingTripInConfigurator
     return location.pathname === to
   }
 

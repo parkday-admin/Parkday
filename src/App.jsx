@@ -15,6 +15,7 @@ import Configurator from './components/Configurator/Configurator'
 import AppShell from './components/Layout/AppShell'
 import ComingSoon from './pages/ComingSoon'
 import EstimatorPage from './pages/EstimatorPage'
+import Estimates from './pages/Estimates'
 import Account from './pages/Account'
 import TripSettings from './pages/TripSettings'
 import Budget from './pages/Budget'
@@ -244,6 +245,7 @@ function AppRoutes({ session, profile, justSignedIn }) {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/trip-settings" element={<TripSettings />} />
           <Route path="/estimator" element={<EstimatorPage />} />
+          <Route path="/estimates" element={<Estimates />} />
           <Route path="/account" element={<Account />} />
           <Route path="/budget" element={<Budget />} />
           <Route path="/budget/:cat" element={<CategoryDetail />} />

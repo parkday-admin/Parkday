@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useOutletContext } from 'react-router-dom'
 import styles from './Estimator.module.css'
 import {
   STEP_NAMES, EST_TOTAL, DEFAULT_S, LIM, CITIES, EXPERIENCES,
@@ -7,6 +7,7 @@ import {
 } from './estimatorData'
 import { fmt, rng, calc, travelEst, driveStr, milesFrom, expLineTotal, buildEstimatePayload } from './estimatorLogic'
 import { ResortSheet, TicketSheet, LightningLaneSheet, DiningSheet } from './SheetContent'
+import { fetchEstimates, createEstimate, estimatorStateToRow, rowToConfiguratorPrefill, nextEstimateName } from '../../lib/estimates'
 
 const ZIP_REGIONS = [
   [20000, 40.7, -74], [23000, 38.9, -77], [27000, 37.5, -77.4], [29000, 35.5, -79.5],
@@ -55,6 +56,9 @@ function Stepper({ label, hint, value, onDec, onInc }) {
 
 export default function Estimator() {
   const navigate = useNavigate()
+  const outletContext = useOutletContext()
+  const session = outletContext?.session
+  const userId = session?.user?.id
   const [S, setS] = useState(DEFAULT_S)
   const [step, setStep] = useState(0)
   const [skipped, setSkipped] = useState({ travel: false })
@@ -65,6 +69,14 @@ export default function Estimator() {
   const [locBtnLabel, setLocBtnLabel] = useState('Use my location')
   const [expSelected, setExpSelected] = useState(() => new Set())
   const [activeSheet, setActiveSheet] = useState(null)
+  const [savedEstimates, setSavedEstimates] = useState([])
+  const [savingEstimate, setSavingEstimate] = useState(false)
+  const [saveEstimateError, setSaveEstimateError] = useState(null)
+
+  useEffect(() => {
+    if (!userId) return
+    fetchEstimates(userId).then(({ data }) => setSavedEstimates(data))
+  }, [userId])
 
   const setField = (key, value) => setS(prev => ({ ...prev, [key]: value }))
 
@@ -169,6 +181,26 @@ export default function Estimator() {
     const payload = buildEstimatePayload(S, skipped, c)
     localStorage.setItem('pkd_estimate', JSON.stringify(payload))
     navigate('/login')
+  }
+
+  async function saveEstimate() {
+    if (!userId || savedEstimates.length >= 3) return
+    setSavingEstimate(true)
+    setSaveEstimateError(null)
+    const c = calc(S, step, skipped, originMiles)
+    const tv = travelEst(S, skipped, originMiles)
+    const row = estimatorStateToRow(S, skipped, c, tv)
+    const { error } = await createEstimate(userId, { ...row, name: nextEstimateName(savedEstimates) })
+    setSavingEstimate(false)
+    if (error) { setSaveEstimateError(error.message); return }
+    navigate('/estimates')
+  }
+
+  function convertToTrip() {
+    const c = calc(S, step, skipped, originMiles)
+    const tv = travelEst(S, skipped, originMiles)
+    const row = estimatorStateToRow(S, skipped, c, tv)
+    navigate('/configurator', { state: { prefill: rowToConfiguratorPrefill(row) } })
   }
 
   const t = S.adults + S.children
@@ -378,7 +410,15 @@ export default function Estimator() {
             )}
 
             {step === 6 && (
-              <Summary S={S} skipped={skipped} c={c} originMiles={originMiles} onStart={startPlanningTrip} />
+              <Summary
+                S={S} skipped={skipped} c={c} originMiles={originMiles} onStart={startPlanningTrip}
+                session={session}
+                estimateCount={savedEstimates.length}
+                savingEstimate={savingEstimate}
+                saveEstimateError={saveEstimateError}
+                onSaveEstimate={saveEstimate}
+                onConvertToTrip={convertToTrip}
+              />
             )}
 
           </div>
@@ -456,7 +496,10 @@ export default function Estimator() {
   )
 }
 
-function Summary({ S, skipped, c, originMiles, onStart }) {
+function Summary({
+  S, skipped, c, originMiles, onStart,
+  session, estimateCount, savingEstimate, saveEstimateError, onSaveEstimate, onConvertToTrip,
+}) {
   const skippedItems = []
   if (skipped.travel) skippedItems.push('travel costs')
 
@@ -496,9 +539,26 @@ function Summary({ S, skipped, c, originMiles, onStart }) {
         <div className={styles.selRow}><div className={styles.selLbl}>Dining</div><div className={styles.selVal}>{S.ts} TS · {S.qs} QS · {S.character} char · {S.snacks} snacks/day</div></div>
       </div>
       <div className={styles.convertCard}>
-        <div className={styles.ccTitle}>Ready to plan your trip?</div>
-        <div className={styles.ccSub}>Create your account and choose a plan to save this estimate and start building your full trip — dates, resort, and park days.</div>
-        <button type="button" className={styles.ccBtn} onClick={onStart}>Start planning your trip →</button>
+        {session ? (
+          <>
+            <div className={styles.ccTitle}>Ready to plan your trip?</div>
+            <div className={styles.ccSub}>Save this estimate to compare later, or jump straight into the trip planner with these details pre-filled.</div>
+            {saveEstimateError && <p className={styles.ccError}>{saveEstimateError}</p>}
+            <div className={styles.ccBtnRow}>
+              <button type="button" className={styles.ccBtn} onClick={onConvertToTrip}>Convert to trip →</button>
+              <button type="button" className={styles.ccBtnSecondary} disabled={savingEstimate || estimateCount >= 3} onClick={onSaveEstimate}>
+                {savingEstimate ? 'Saving…' : 'Save estimate'}
+              </button>
+            </div>
+            {estimateCount >= 3 && <div className={styles.ccNote}>Delete an estimate to save a new one.</div>}
+          </>
+        ) : (
+          <>
+            <div className={styles.ccTitle}>Ready to plan your trip?</div>
+            <div className={styles.ccSub}>Create your account and choose a plan to save this estimate and start building your full trip — dates, resort, and park days.</div>
+            <button type="button" className={styles.ccBtn} onClick={onStart}>Start planning your trip →</button>
+          </>
+        )}
       </div>
     </>
   )
