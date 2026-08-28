@@ -78,17 +78,17 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
         <div className={styles.summaryDivider} />
         <div className={styles.summaryStat}>
           <div className={styles.summaryLbl}>Planned</div>
-          <div className={styles.summaryVal}>{fmt(totals.planned)}</div>
+          <div className={styles.summaryVal} style={{ color: '#2A6FE0' }}>{fmt(totals.planned)}</div>
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryStat}>
           <div className={styles.summaryLbl}>Spent</div>
-          <div className={styles.summaryVal}>{fmt(totals.actual)}</div>
+          <div className={styles.summaryVal} style={{ color: '#E0533F' }}>{fmt(totals.actual)}</div>
         </div>
         <div className={styles.summaryDivider} />
         <div className={styles.summaryStat}>
           <div className={styles.summaryLbl}>Remaining</div>
-          <div className={styles.summaryVal} style={{ color: totals.remaining >= 0 ? '#2CA58D' : '#FF7A6B' }}>{fmt(totals.remaining)}</div>
+          <div className={styles.summaryVal} style={{ color: totals.remaining >= 0 ? '#2CA58D' : '#E0533F' }}>{fmt(totals.remaining)}</div>
         </div>
       </div>
 
