@@ -92,8 +92,9 @@
 }
 .actionsRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 15px; }
 .actionsRow + .actionsRow { border-top: 1px solid var(--border-light); }
+.actionsRow > div:first-child { flex: 1; min-width: 0; }
 .actionsName { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-.actionsSub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; max-width: 420px; }
+.actionsSub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
 .actionsBtn {
   font-size: 12px;
   font-weight: 600;
@@ -127,6 +128,7 @@
 .dangerTitle { font-size: 13px; font-weight: 600; color: var(--coral); }
 .dangerBody { padding: 14px 15px; display: flex; flex-direction: column; gap: 10px; }
 .dangerRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dangerRow > div:first-child { flex: 1; min-width: 0; }
 .dangerName { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .dangerSub { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
 .dangerBtn {
