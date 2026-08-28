@@ -204,6 +204,7 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
                   <div key={d.label} className={styles.legendRow}>
                     <span className={styles.legendSwatch} style={{ background: d.color }} />
                     {d.label}
+                    <span className={styles.legendPct}>{Math.round((d.value / totals.actual) * 100)}%</span>
                   </div>
                 ))}
               </div>
