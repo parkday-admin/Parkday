@@ -88,10 +88,12 @@ export default function TripSettings() {
     setArchiving(false)
     if (error) { showToast?.(error.message); return }
     showToast?.('Trip archived')
-    // The trip that was active no longer shows up in the active list, so
-    // refetching alone is enough — AppShell's loadTrips falls back to
-    // another active trip (or none) on its own.
-    refetchTrips?.()
+    await refetchTrips?.()
+    // Staying on Trip Settings after archiving is confusing — either it
+    // still shows an "Archive" button for whichever trip AppShell fell
+    // back to (looks like nothing happened), or there's no active trip
+    // left to show settings for at all.
+    navigate('/dashboard')
   }
 
   async function handleDelete() {
@@ -102,7 +104,8 @@ export default function TripSettings() {
     setDeleting(false)
     if (error) { showToast?.(error.message); return }
     showToast?.('Trip deleted')
-    refetchTrips?.()
+    await refetchTrips?.()
+    navigate('/dashboard')
   }
 
   if (loading || (activeTrip && expenses === null)) {
