@@ -277,9 +277,12 @@ export default function AppShell({ session, planType, accountType, collaboratorO
   }
 
   const budgetCatMatch = location.pathname.match(/^\/budget\/(.+)$/)
+  const isArchivedTripView = /^\/archive\/.+$/.test(location.pathname)
   const title = budgetCatMatch
     ? categoryMeta(budgetCatMatch[1]).label
-    : PAGE_TITLES[location.pathname] ?? 'Parkday'
+    : isArchivedTripView
+      ? 'Archived Trip'
+      : PAGE_TITLES[location.pathname] ?? 'Parkday'
 
   // Editing an existing trip (a tripId in the query string) opens in the
   // configurator, not a dedicated page — treat that as "on Trip settings"

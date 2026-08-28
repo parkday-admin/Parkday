@@ -464,7 +464,7 @@ export default function Account() {
                 <button type="button" className={styles.linkBtn} disabled={unarchivingId === t.id} onClick={() => handleUnarchive(t)}>
                   {unarchivingId === t.id ? 'Unarchiving…' : 'Unarchive'}
                 </button>
-                <button type="button" className={styles.linkBtn} onClick={() => showToast?.('Trip archive view coming soon.')}>View</button>
+                <button type="button" className={styles.linkBtn} onClick={() => navigate(`/archive/${t.id}`)}>View</button>
               </div>
             </div>
           ))

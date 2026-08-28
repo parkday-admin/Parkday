@@ -19,6 +19,7 @@ import EstimatorPage from './pages/EstimatorPage'
 import Estimates from './pages/Estimates'
 import Account from './pages/Account'
 import TripSettings from './pages/TripSettings'
+import ArchivedTripView from './pages/ArchivedTripView'
 import Budget from './pages/Budget'
 import CategoryDetail from './pages/CategoryDetail'
 import Itinerary from './pages/Itinerary'
@@ -246,6 +247,7 @@ function AppRoutes({ session, profile, justSignedIn }) {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/today" element={<TodayFullView />} />
           <Route path="/trip-settings" element={<TripSettings />} />
+          <Route path="/archive/:tripId" element={<ArchivedTripView />} />
           <Route path="/estimator" element={<EstimatorPage />} />
           <Route path="/estimates" element={<Estimates />} />
           <Route path="/account" element={<Account />} />

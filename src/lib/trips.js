@@ -36,6 +36,19 @@ export async function fetchTripForDuplication(tripId) {
   return { data, error }
 }
 
+// Every configurator field for a trip — used by the read-only Archived
+// Trip view, which (unlike the duplication flow) also needs to show
+// flight numbers since it's just displaying history, not seeding a copy.
+export async function fetchTripDetail(tripId) {
+  const { data, error } = await supabase
+    .from('trips')
+    .select('id, name, status, arrival_date, departure_date, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, arr_airline, arr_flight, dep_airline, dep_flight, memory_maker')
+    .eq('id', tripId)
+    .single()
+
+  return { data, error }
+}
+
 // Name + arrival year for the Budget page's "carried over from X (YYYY)"
 // staleness banner — a live lookup rather than a value snapshotted at
 // duplication time, so a rename of the source trip is reflected too.
