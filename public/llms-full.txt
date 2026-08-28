@@ -1,0 +1,101 @@
+# Parkday
+
+> Parkday is a web app for planning and budgeting a Walt Disney World vacation — a free trip-cost estimator for anyone, and a full paid planner (trip configurator, category-by-category budget tracker, day-by-day itinerary, wish list, gift card/rewards tracking, payment plan tracking, packing lists, and reminders) for people actively planning a trip. It is not affiliated with the Walt Disney Company. It is installable as a home-screen app (PWA) on iOS and Android.
+
+Parkday's core idea: most people either wildly underestimate what a Disney trip costs, or build a budget once and then lose track of it. Parkday front-loads a realistic cost estimate before booking anything, then — once a real trip exists — gives that budget a home: every dollar planned and spent is tied to a specific category and, where relevant, a specific park day, so the user always knows what's paid, what's outstanding, and what's left to spend.
+
+## Who it's for
+
+Anyone planning a Walt Disney World trip, from the "just curious what this would cost" stage through active on-property, day-of trip use. No account or payment is required to get a cost estimate; an account and a paid plan are required to build and track a real trip.
+
+## Plans
+
+- **Free** — no account needed. The trip-cost Estimator (see below), a basic estimate summary, and a starter budget breakdown.
+- **Trip Pass — $29.99 one-time** — covers exactly one trip. Full trip configurator, the complete budget tracker, itinerary/park-day planner, wish list, gift card & rewards manager, payment/deadline tracking, packing lists, reminders. Access continues through 30 days after the trip's departure date, after which the trip is read-only until upgrading. A Trip Pass account can't be used to plan a second unrelated trip — shifting a trip's dates by more than ~3 weeks in the configurator is blocked with a prompt to upgrade to Plus.
+- **Plus Pass — $59.99/year** — everything in Trip Pass, for unlimited trips, plus a reusable Family Travel Profile (saved family members carried into every future trip) and early access to new features. Renews yearly.
+
+Billing is handled through Stripe (hosted checkout for upgrading, a Stripe customer portal for managing/cancelling an existing subscription or updating a card).
+
+## Collaborator (shared access)
+
+Every paid account gets **one free collaborator seat**. The account owner invites someone by email from Account settings; the invitee gets a unique signup link, creates a free account through it (no payment needed), and immediately gets full view/edit access to the owner's trip data — budget, itinerary, wish list, everything except account-level settings (subscription, payment method, trip archive) and trip-level owner actions (creating, archiving, or deleting a trip). A collaborator's access is entirely derived from the owner's subscription: if the owner's plan lapses, the collaborator is locked out (shown a "paused" screen, not a paywall — they have nothing of their own to buy) until the owner renews. A collaborator can leave the account at any time from their own Account settings, which immediately revokes their access; the owner can also remove them at any time.
+
+## The free Estimator (no account required)
+
+A short multi-step wizard that produces a realistic total-cost estimate (shown as a low–high range plus a per-person figure) for a hypothetical or real trip, without requiring a login. Steps:
+
+1. **Who's going** — number of adults and children, nights at a resort, number of park days.
+2. **Getting there** — flying, driving, or skip; a home city/zip (or "use my location") produces a rough travel-cost estimate (airfare-style pricing + Mears Connect for flying, gas + parking for driving).
+3. **When & where** — travel season (Value/Regular/Peak, with date-range guidance) and resort tier (Value/Moderate/Deluxe/Deluxe Villa/Offsite), each shown with a realistic per-night price range.
+4. **Tickets & Lightning Lane** — park ticket type (Base, Park Hopper, Hopper Plus, Water Park & Sports) and Lightning Lane tier (none/standby only, Multi Pass, Multi Pass + Individual Lightning Lane), each with cost guidance.
+5. **Dining** — how many quick-service meals, table-service meals, character meals, and snacks per day, with a running cost estimate.
+6. **Extras** — an optional-experiences checklist (Memory Maker, Bibbidi Bobbidi Boutique, seasonal after-hours parties, Savi's Workshop/Droid Depot, Wild Africa Trek, dessert parties, VIP tours, and more), each with a description and typical price.
+7. **Summary** — total estimated cost (low–high range) and per-person breakdown, with next steps: sign up (the estimate is preserved and offered again right after signup), save the estimate to a free account (up to 3 saved estimates), or — once signed in — convert the estimate directly into a real trip, which pre-fills the full trip configurator with everything from the estimate.
+
+The Estimator is embedded directly on the Parkday marketing homepage as well as available on its own page in the app.
+
+### Saved Estimates comparison
+
+Signed-in users can save up to 3 estimates and compare them side by side in a table — trip length, party size, season, resort tier, ticket type, Lightning Lane, dining, extras, and total estimated cost per column. Each saved estimate can be renamed inline, deleted, or turned into a real trip ("Plan this trip," which pre-fills the configurator).
+
+## Setting up a real trip: the Configurator
+
+A guided, 5–6 step wizard (day trips skip the accommodations step) used both to create a new trip and to edit an existing one:
+
+1. **Who's going** — select from previously-saved Family Members (name, age, whether they hold an Annual Pass) and/or add extra adults/children for this trip only, plus arrival and departure dates.
+2. **Getting there** — flying (optional airline/flight numbers, MCO arrival transfer choice — Mears Connect / rideshare / rental car, MCO departure transfer, departure parking choice) or driving (Disney transportation vs. driving to parks each day, off-property parking).
+3. **Accommodations** (skipped for day trips) — searchable resort picker grouped by tier (Value/Moderate/Deluxe/Deluxe Villa), plus Swan & Dolphin and an "off property" option; booking type (booked separately, a Disney Vacation Package bundling resort + tickets into one balance, or a Vacation Package + Dining Plan); if a dining plan is chosen, its tier (Quick Service, Standard, or Deluxe); a Memory Maker (unlimited PhotoPass) toggle. Booking type can't be changed once the trip is created.
+4. **Tickets & Lightning Lane** — same ticket-type and Lightning Lane choices as the Estimator, with live cost figures.
+5. **Park days** — an auto-generated day-by-day schedule for the trip's date range; each day can be toggled as a park day and assigned a park (Magic Kingdom, EPCOT, Hollywood Studios, or Animal Kingdom).
+6. **Review & save** — total budget and per-person cost, with every category's dollar amount directly editable before saving.
+
+Editing an existing trip always preserves every expense already logged; only the category budget targets and the park-day schedule get regenerated.
+
+## Budget tracking
+
+The core day-to-day feature. Every dollar in a trip belongs to a category:
+
+- **Trip-level categories:** Resort Package (when booked as a bundle) or separately Accommodations + Park Tickets, plus Travel.
+- **Day-level categories:** Dining, Snacks, Experiences, Lightning Lane, Souvenirs, Transport, Misc.
+
+For each category the app tracks a budgeted target, what's actually been planned (real logged line items), and what's actually been spent (actuals). A summary view shows a total budget/spent/remaining hero, a progress bar, and a tappable list of every category with its own mini progress bar (turns red if over budget) and an inline-editable budget target. Drilling into a category shows every entry in it, grouped by trip-total vs. per-day. A separate "All expenses" view lists every logged line item chronologically across every category, filterable by category, park day, and payment method (a gift card, a reward program, or a manual method like cash/credit/debit/check/PayPal). Every entry can be edited or deleted (with an "Undo" toast) from a single shared entry form used everywhere in the app.
+
+## Itinerary (day-by-day planner)
+
+A day-by-day view of the trip, one day at a time, with left/right navigation (including swipe on mobile) between days. Each day shows a running "spent today" total against what's planned, and every expense/reservation entered for that day — split into "Scheduled" (has a specific time, shown chronologically) and "Day costs" (untimed). Entries support swipe-to-delete and tap-to-edit, and show planned vs. actual amount with the difference highlighted. The Dashboard also shows a compact grid of every planned park day with its date, entry count, and spend.
+
+### Today card & Today view (day-of reference)
+
+When the current date falls within an active trip's date range, the Dashboard shows a "Today" card automatically: the day's park (or "Rest Day"/"Travel Day" for non-park days, with departure day always treated as travel), day number and date, that day's planned vs. spent totals, and a preview of the next upcoming timed entry. Tapping it opens a dedicated **read-only** full-day view — a distraction-free, at-a-glance reference for using mid-trip, with a Planned/Spent/Remaining summary bar and the day's full entry list (soonest-first, with the next upcoming entry visually flagged "Up Next"). Unlike the regular Itinerary, this view has no editing controls at all — it's meant purely for checking the day's plan on the go; actual edits still happen from the Itinerary or Budget tabs.
+
+## Wish list
+
+A saved list of things to do, eat, see, or buy on the trip, organized by category. Items can be added two ways: browsing a curated catalog of rides, restaurants, snacks, experiences, and special events (filterable by category, park, and price range, with a tap-to-save heart), or entering a fully custom item (name, park, category, optional price estimate, notes). Any wish-list item can be "added to trip" — this schedules it as a real budget/itinerary entry on a specific day, after which the wish-list item shows exactly where it landed ("Added to Day 3 · Magic Kingdom") and can jump straight to editing that scheduled entry.
+
+## Gift cards & rewards
+
+Tracks every non-cash funding source for the trip: physical/digital gift cards (retailer, last 4 digits, original amount, running balance) and reward programs (Disney Visa reward dollars, Disney Movie Insiders points, travel credit/miles, or other, each with a current and original value). A savings-goal field drives a progress bar toward the combined total of every funding source. Any logged expense can be paid from a specific gift card or reward balance, which automatically decrements that balance — and each card/reward shows exactly which expenses were paid from it, with a shortcut back to editing that expense.
+
+## Payments (Vacation Package balance tracking)
+
+For trips booked as a Disney Vacation Package, a dedicated view tracks the resort package balance: total cost, amount paid to date, remaining balance, percent paid, and an urgency indicator counting down to the automatic final-payment date (30 days before arrival, per Disney's own policy) — including a projection of what will be auto-charged if no further manual payments are made. Every payment made toward the package is logged individually (amount, method, date, optional note) and can be tied to a gift card or reward balance as its funding source. Trips not booked as a package are directed to track resort/ticket costs as regular budget expenses instead.
+
+## Packing list
+
+An automatically generated, per-person packing checklist — one tab per family member plus a shared "Group" tab — tailored to the specifics of the trip: whether it involves flying, whether it falls in the summer months, and how many park days are planned. Each tab has its own progress bar and a celebratory "All packed!" state. Items can be checked off, removed, or freely added within each category, and a whole tab can be reset back to its auto-generated defaults at any time.
+
+## Reminders
+
+Combines automatically generated, trip-specific reminders with fully custom ones. Auto-generated reminders (recalculated live from the trip's dates, never hand-edited) include: dining reservation window opens (60 days before arrival), special-experience reservation window opens (60 days before arrival), online check-in opens (10 days before arrival), Lightning Lane Multi Pass booking opens (3 or 7 days before arrival depending on the resort's early-access perk), Individual Lightning Lane opens (morning-of, if applicable), final package payment due (30 days before arrival, package bookings only), and a pack-your-bags nudge (2 days before arrival). Custom reminders can be added freely. Reminders are sorted by urgency, can be checked off, and surface on the Dashboard as an upcoming-reminders card and an "urgent reminders" banner; an unread urgent count also badges the Reminders nav item.
+
+## Account settings
+
+Personal info (name, timezone, password reset — or a "signed in with Google" indicator for OAuth accounts), the Family Travel Profile (saved family members reused across every future trip and used to personalize the packing list), collaborator management (see above), current subscription and billing management via Stripe, an archive of past trips (trips can be archived without deleting them, and unarchived later), saved payment method, notification and marketing-email preferences, and account deletion.
+
+## Trip settings
+
+A summary of everything configured for the active trip, organized to mirror the configurator's steps, with quick links back into the configurator to change any of it. The trip name can be renamed directly here. An owner can archive the trip (recoverable) or permanently delete it; collaborators can't do either.
+
+## Platform
+
+A responsive web app (desktop nav drawer / mobile bottom tab bar) built as an installable Progressive Web App — it can be added to the home screen on Android (native install prompt) and iOS (Safari's Share → Add to Home Screen, with an in-app banner walking iOS users through it), after which it runs full-screen like a native app.

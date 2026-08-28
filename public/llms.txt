@@ -1,0 +1,25 @@
+# Parkday
+
+> Parkday is a web app for planning and budgeting a Walt Disney World vacation — a free trip-cost estimator for anyone, and a full paid planner (trip configurator, budget tracker, day-by-day itinerary, wish list, gift card/rewards tracking, payment plan tracking, packing lists, and reminders) for people actively planning a trip. Not affiliated with the Walt Disney Company.
+
+## Plans
+
+- Free — no account needed: trip-cost Estimator, basic summary, starter budget breakdown.
+- Trip Pass ($29.99 one-time) — full planner for one trip, through 30 days after departure.
+- Plus Pass ($59.99/year) — everything in Trip Pass, unlimited trips, a reusable Family Travel Profile.
+- Every paid account gets one free collaborator seat with full edit access, derived from the owner's subscription.
+
+## Core features
+
+- Free multi-step cost Estimator (no login) — produces a low–high total and per-person estimate; up to 3 estimates can be saved and compared once signed in.
+- Trip Configurator — guided setup of party, travel, accommodations, tickets/Lightning Lane, and a day-by-day park schedule.
+- Budget tracker — every dollar tied to a category (Resort/Package, Tickets, Travel, Dining, Snacks, Experiences, Lightning Lane, Souvenirs, Transport, Misc), with budgeted/planned/spent tracking per category and overall.
+- Itinerary — day-by-day view of every planned entry; a Dashboard "Today" card and read-only Today view surface just the current trip day while on-property.
+- Wish list — catalog browsing or custom items, promotable to a scheduled, budgeted itinerary entry.
+- Gift cards & rewards — tracks balances from gift cards and reward programs, and which expenses were paid from each.
+- Payments — resort Vacation Package balance and payment-log tracking, with a final-payment countdown.
+- Packing list — auto-generated per family member based on the trip's specifics.
+- Reminders — auto-generated deadlines (dining/experience booking windows, online check-in, Lightning Lane, final payment) plus custom reminders.
+- Installable as a home-screen app (PWA) on iOS and Android.
+
+Full feature documentation: /llms-full.txt
