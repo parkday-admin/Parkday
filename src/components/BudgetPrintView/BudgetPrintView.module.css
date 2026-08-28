@@ -53,6 +53,34 @@
   .sectionTitle { font-size: 11px; font-weight: 600; color: rgba(13, 35, 64, 0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 24px; }
   .sectionSub { font-size: 10px; color: rgba(13, 35, 64, 0.45); margin-top: 2px; }
 
+  /* Charts */
+  .chartsGrid { display: flex; gap: 14px; margin-top: 18px; }
+  .chartCard {
+    flex: 1; background: #F8F7F5; border: 1px solid rgba(13, 35, 64, 0.08); border-radius: 10px;
+    padding: 12px 14px; margin-top: 14px;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    page-break-inside: avoid;
+  }
+  .chartTitle { font-size: 10px; font-weight: 600; color: rgba(13, 35, 64, 0.55); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+  .chartSvg { width: 100%; height: auto; display: block; }
+  .chartEmpty { font-size: 11px; font-style: italic; color: rgba(13, 35, 64, 0.4); padding: 20px 0; text-align: center; }
+
+  .donutRow { display: flex; align-items: center; gap: 14px; }
+  .donutSvg { width: 90px; height: 90px; flex-shrink: 0; }
+  .legend { display: flex; flex-direction: column; gap: 4px; }
+  .legendRow { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #0D2340; }
+  .legendSwatch { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  .compareList { display: flex; flex-direction: column; gap: 9px; }
+  .compareRow { display: grid; grid-template-columns: 90px 1fr 90px; align-items: center; gap: 10px; }
+  .compareLbl { font-size: 11px; font-weight: 600; color: #0D2340; }
+  .compareTrack { position: relative; height: 9px; background: #EDE9E1; border-radius: 4px; }
+  .compareFill { position: absolute; top: 0; left: 0; height: 100%; border-radius: 4px; }
+  .compareMarker { position: absolute; top: -2px; bottom: -2px; width: 2px; background: #0D2340; }
+  .compareVals { font-size: 10px; color: rgba(13, 35, 64, 0.55); text-align: right; }
+  .compareValsSep { color: rgba(13, 35, 64, 0.3); }
+
   .table { width: 100%; border-collapse: collapse; margin-top: 8px; }
   .table thead th {
     background: #0D2340; color: #fff;

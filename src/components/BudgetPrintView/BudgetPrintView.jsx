@@ -1,6 +1,14 @@
 import { categoryMeta } from '../../lib/categories'
 import { paymentSourceLabel } from '../../lib/payments'
+import { tripDays } from '../../lib/trips'
 import styles from './BudgetPrintView.module.css'
+
+// Fixed hex palette for the category pie chart — the app's own per-category
+// colors repeat (dining/snacks/souvenirs are all "coral"), which reads fine
+// as a single-category accent on screen but makes an all-categories pie
+// chart illegible. This palette instead assigns every category its own
+// distinct, brand-derived hue.
+const PIE_PALETTE = ['#0D2340', '#2A6FE0', '#F5B536', '#E0533F', '#2CA58D', '#1E5AC4', '#C68A12', '#1B7D68', '#F0847A', '#8A8F9B']
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
 
@@ -43,12 +51,101 @@ function categoryStatus(row) {
   return { label: 'On track', cls: 'statusOk' }
 }
 
+// Simple bar chart of actual spend per trip day.
+function DayBarChart({ dayTotals }) {
+  const w = 320, h = 130, padBottom = 20, padTop = 14
+  const max = Math.max(1, ...dayTotals.map(d => d.actual))
+  const n = dayTotals.length
+  const barW = Math.min(30, (w - 20) / n - 8)
+  const gap = (w - 20 - barW * n) / Math.max(1, n - 1)
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={styles.chartSvg}>
+      {dayTotals.map((d, i) => {
+        const x = 10 + i * (barW + gap)
+        const barH = d.actual > 0 ? Math.max(3, (d.actual / max) * (h - padTop - padBottom)) : 0
+        const y = h - padBottom - barH
+        return (
+          <g key={d.day}>
+            {d.actual > 0 && (
+              <text x={x + barW / 2} y={y - 4} textAnchor="middle" fontSize="8" fill="#0D2340">{fmt(d.actual)}</text>
+            )}
+            <rect x={x} y={y} width={barW} height={barH} rx={2} fill="#2A6FE0" />
+            <rect x={x} y={h - padBottom} width={barW} height={1} fill="rgba(13,35,64,0.15)" />
+            <text x={x + barW / 2} y={h - padBottom + 12} textAnchor="middle" fontSize="8" fill="rgba(13,35,64,0.55)">{`D${d.day}`}</text>
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+// Donut chart of actual spend by category, built from stacked stroke-
+// dasharray circles rather than arc paths — simpler and just as reliable
+// for print.
+function CategoryDonut({ slices }) {
+  const total = slices.reduce((s, d) => s + d.value, 0)
+  const r = 42, cx = 60, cy = 60, sw = 20
+  const circumference = 2 * Math.PI * r
+  let offset = 0
+  return (
+    <svg viewBox="0 0 120 120" className={styles.donutSvg}>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#EDE9E1" strokeWidth={sw} />
+      {total > 0 && slices.filter(d => d.value > 0).map(d => {
+        const len = (d.value / total) * circumference
+        const el = (
+          <circle
+            key={d.label}
+            cx={cx} cy={cy} r={r} fill="none"
+            stroke={d.color} strokeWidth={sw}
+            strokeDasharray={`${len} ${circumference - len}`}
+            strokeDashoffset={-offset}
+            transform={`rotate(-90 ${cx} ${cy})`}
+          />
+        )
+        offset += len
+        return el
+      })}
+    </svg>
+  )
+}
+
+// Per-category horizontal bar: filled bar = actual spend, dark tick = the
+// budgeted target, both scaled against the largest budgeted/actual value.
+function ComparisonBars({ rows }) {
+  const relevant = rows.filter(r => r.budgeted > 0 || r.actual > 0)
+  const max = Math.max(1, ...relevant.map(r => Math.max(r.budgeted, r.actual)))
+  return (
+    <div className={styles.compareList}>
+      {relevant.map(r => {
+        const meta = categoryMeta(r.cat)
+        const over = r.actual > r.budgeted
+        return (
+          <div key={r.cat} className={styles.compareRow}>
+            <div className={styles.compareLbl}>{meta.label}</div>
+            <div className={styles.compareTrack}>
+              <div className={styles.compareFill} style={{ width: `${Math.min(100, (r.actual / max) * 100)}%`, background: over ? '#E0533F' : '#2CA58D' }} />
+              <div className={styles.compareMarker} style={{ left: `${Math.min(100, (r.budgeted / max) * 100)}%` }} />
+            </div>
+            <div className={styles.compareVals}>{fmt(r.actual)} <span className={styles.compareValsSep}>/</span> {fmt(r.budgeted)}</div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // Print-only budget report, portalled to document.body and shown only
 // under @media print (see the "Export PDF" trigger in Budget.jsx) — the
 // rest of the app shell is hidden for print via AppShell.module.css.
 export default function BudgetPrintView({ trip, rows, entries, totals, giftCards, rewardPrograms }) {
   const tripRows = rows.filter(r => categoryMeta(r.cat).scope === 'trip')
   const dayRows = rows.filter(r => categoryMeta(r.cat).scope === 'day')
+
+  const dayTotals = tripDays(trip).map(d => ({
+    day: d.day,
+    actual: entries.filter(e => e.day === d.day).reduce((s, e) => s + (e.actual_amt || 0), 0),
+  }))
+  const pieSlices = rows.map((r, i) => ({ label: categoryMeta(r.cat).label, value: r.actual, color: PIE_PALETTE[i % PIE_PALETTE.length] }))
 
   return (
     <div className={styles.report}>
@@ -90,6 +187,36 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
           <div className={styles.summaryLbl}>Remaining</div>
           <div className={styles.summaryVal} style={{ color: totals.remaining >= 0 ? '#2CA58D' : '#E0533F' }}>{fmt(totals.remaining)}</div>
         </div>
+      </div>
+
+      <div className={styles.chartsGrid}>
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>Spending by Day</div>
+          <DayBarChart dayTotals={dayTotals} />
+        </div>
+        <div className={styles.chartCard}>
+          <div className={styles.chartTitle}>Spending by Category</div>
+          {totals.actual > 0 ? (
+            <div className={styles.donutRow}>
+              <CategoryDonut slices={pieSlices} />
+              <div className={styles.legend}>
+                {pieSlices.filter(d => d.value > 0).map(d => (
+                  <div key={d.label} className={styles.legendRow}>
+                    <span className={styles.legendSwatch} style={{ background: d.color }} />
+                    {d.label}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className={styles.chartEmpty}>No spending logged yet.</div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.chartCard}>
+        <div className={styles.chartTitle}>Spent vs. Budgeted</div>
+        <ComparisonBars rows={rows} />
       </div>
 
       <div className={styles.sectionTitle}>Budget by Category</div>
