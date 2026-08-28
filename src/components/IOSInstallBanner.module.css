@@ -67,3 +67,7 @@
 .dismiss:hover {
   opacity: 1;
 }
+
+@media print {
+  .banner { display: none; }
+}

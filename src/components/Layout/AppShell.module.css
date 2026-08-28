@@ -1,5 +1,11 @@
 .shellRoot { min-height: 100svh; background: var(--cream); display: flex; flex-direction: column; align-items: center; }
 
+/* The BudgetPrintView report is portalled to document.body, outside this
+   tree, specifically so it survives hiding the whole app shell here. */
+@media print {
+  .shellRoot { display: none; }
+}
+
 /* Header */
 .hdr { position: fixed; top: 0; left: 0; right: 0; z-index: 60; background: rgba(240, 237, 232, 0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-light); }
 .hdrInner { width: 100%; max-width: 480px; margin: 0 auto; padding: 16px 18px 13px; display: flex; align-items: center; gap: 11px; }

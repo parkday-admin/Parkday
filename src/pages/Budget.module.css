@@ -96,12 +96,27 @@
 }
 
 /* Summary / All Expenses sub-tabs */
+.topBar { display: flex; align-items: center; gap: 8px; margin-bottom: 11px; }
+
 .subTabs {
   display: flex; background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius);
-  padding: 3px; margin-bottom: 11px; gap: 3px;
+  padding: 3px; gap: 3px; flex: 1; min-width: 0;
 }
 .subTab { flex: 1; padding: 8px 10px; border: none; background: none; border-radius: 8px; font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
 .subTabActive { background: var(--sky-bg, rgba(42, 111, 224, 0.1)); color: var(--sky); }
+
+.exportBtn {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+  padding: 0 12px; height: 40px;
+  background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius);
+  font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer;
+}
+.exportBtn:hover { border-color: var(--sky); color: var(--sky); }
+.exportBtn i { font-size: 14px; }
+@media (max-width: 380px) {
+  .exportBtn span { display: none; }
+  .exportBtn { padding: 0 10px; }
+}
 
 /* All Expenses tab */
 .filterBar { display: flex; align-items: center; gap: 10px; margin-bottom: 11px; }

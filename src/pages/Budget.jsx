@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, setCategoryBudget, deleteExpense, createExpense } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
@@ -7,6 +8,7 @@ import { paymentSourceLabel } from '../lib/payments'
 import Fab from '../components/Fab/Fab'
 import EntryCard from '../components/EntryCard/EntryCard'
 import Sheet from '../components/Sheet/Sheet'
+import BudgetPrintView from '../components/BudgetPrintView/BudgetPrintView'
 import styles from './Budget.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -45,6 +47,22 @@ export default function Budget() {
   const [filterCats, setFilterCats] = useState([])
   const [filterDays, setFilterDays] = useState([])
   const [filterMethods, setFilterMethods] = useState([])
+  const [exporting, setExporting] = useState(false)
+
+  // Renders BudgetPrintView into the DOM, waits a frame for it to paint,
+  // then opens the print dialog — cleaned up on 'afterprint' (fires whether
+  // the user saved a PDF or cancelled) rather than immediately after
+  // calling print(), since print() doesn't block until the dialog closes.
+  useEffect(() => {
+    if (!exporting) return
+    const frame = requestAnimationFrame(() => requestAnimationFrame(() => window.print()))
+    function onAfterPrint() { setExporting(false) }
+    window.addEventListener('afterprint', onAfterPrint)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('afterprint', onAfterPrint)
+    }
+  }, [exporting])
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -167,9 +185,14 @@ export default function Budget() {
     <div>
       {error && <p className={styles.error}>{error}</p>}
 
-      <div className={styles.subTabs}>
-        <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
-        <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
+      <div className={styles.topBar}>
+        <div className={styles.subTabs}>
+          <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
+          <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
+        </div>
+        <button type="button" className={styles.exportBtn} onClick={() => setExporting(true)} title="Export PDF">
+          <i className="ti ti-file-download" /> <span>Export PDF</span>
+        </button>
       </div>
 
       {tab === 'summary' && (
@@ -358,6 +381,18 @@ export default function Budget() {
           <span>{typeof toast === 'string' ? toast : toast.message}</span>
           {toast?.actionLabel && <button type="button" className={styles.toastAction} onClick={toast.onAction}>{toast.actionLabel}</button>}
         </div>
+      )}
+
+      {exporting && createPortal(
+        <BudgetPrintView
+          trip={activeTrip}
+          rows={rows}
+          entries={allEntries}
+          totals={{ budgeted: totalBudgeted, planned: totalPlanned, actual: totalActual, remaining }}
+          giftCards={giftCards ?? []}
+          rewardPrograms={rewardPrograms ?? []}
+        />,
+        document.body
       )}
     </div>
   )
