@@ -75,12 +75,17 @@
 .pill { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 20px; font-size: 10.5px; font-weight: 600; }
 .itemAdded { display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--teal-dark); margin-top: 3px; }
 
-.itemActions { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; flex-shrink: 0; }
+.itemActions { display: flex; flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
 .planBtn {
   padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(42, 111, 224, 0.3);
   background: var(--sky-bg); color: var(--sky); font-size: 10.5px; font-weight: 600;
   cursor: pointer; white-space: nowrap; font-family: var(--sans);
 }
 .planBtn:hover { background: rgba(42, 111, 224, 0.16); }
-.removeBtn { background: none; border: none; color: var(--text-tertiary); font-size: 11px; cursor: pointer; padding: 2px; }
-.removeBtn:hover { color: var(--coral); }
+.removeBtn {
+  width: 32px; height: 32px; border-radius: 9px;
+  border: 1.5px solid rgba(224, 83, 63, 0.3); background: rgba(224, 83, 63, 0.06);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.removeBtn:hover { background: rgba(224, 83, 63, 0.15); }
+.removeBtn i { font-size: 15px; color: var(--coral); }
