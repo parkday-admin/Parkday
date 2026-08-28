@@ -55,7 +55,7 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <div className={styles.brandRow}>
-            <div className={styles.logoMark}><i className="ti ti-map-pin" /></div>
+            <img className={styles.logoMark} src="/assets/logos/parkday-icon.svg" alt="" />
             <div className={styles.wordmark}>Parkday</div>
           </div>
           <div className={styles.reportLabel}>Trip Budget Report</div>

@@ -54,6 +54,13 @@ body { margin: 0; }
   flex-direction: column;
 }
 
+/* The BudgetPrintView report is portalled to document.body, outside
+   #root — without this, #root's min-height alone reserves a full blank
+   page before the report (which starts later in the DOM) when printing. */
+@media print {
+  #root { min-height: 0; }
+}
+
 h1, h2, h3 {
   font-family: var(--heading);
   font-weight: 400;
