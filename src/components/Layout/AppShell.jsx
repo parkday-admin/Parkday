@@ -9,8 +9,10 @@ import { fetchGiftCards, fetchRewardPrograms } from '../../lib/giftFunds'
 import { fetchReminders, insertReminders, buildSystemReminders, urgencyLevel } from '../../lib/reminders'
 import { daysUntil } from '../../lib/trips'
 import { categoryMeta } from '../../lib/categories'
+import { loadDuplicationSource } from '../../lib/tripDuplication'
 import ExpenseSheet from '../ExpenseSheet/ExpenseSheet'
 import FamilyMemberSheet from '../FamilyMemberSheet/FamilyMemberSheet'
+import TripDuplicateSheet from '../TripDuplicateSheet/TripDuplicateSheet'
 import Toast from '../Toast/Toast'
 
 const ACTIVE_TRIP_KEY = 'pkd_active_trip_id'
@@ -88,6 +90,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
   const [expensesVersion, setExpensesVersion] = useState(0)
   const [familyMembers, setFamilyMembers] = useState(null)
   const [famSheetState, setFamSheetState] = useState(null)
+  const [duplicateSheetState, setDuplicateSheetState] = useState(null)
   const [giftCards, setGiftCards] = useState(null)
   const [rewardPrograms, setRewardPrograms] = useState(null)
   const [reminders, setReminders] = useState(null)
@@ -239,6 +242,34 @@ export default function AppShell({ session, planType, accountType, collaboratorO
     showToast(message)
   }
 
+  function openDuplicateSheet(sourceTrip) {
+    setDuplicateSheetState({ sourceTrip })
+  }
+
+  function closeDuplicateSheet() {
+    setDuplicateSheetState(null)
+  }
+
+  // Builds the Configurator prefill from the source trip, then hands off
+  // to Step 2 of the duplication flow (setting new dates) via the same
+  // navigate-with-prefill mechanism the estimator's "Plan this trip"
+  // already uses.
+  async function handleDuplicateContinue(newName) {
+    const sourceTrip = duplicateSheetState?.sourceTrip
+    if (!sourceTrip) return
+    const { prefill, error } = await loadDuplicationSource(sourceTrip.id)
+    if (error) { showToast(error.message); return }
+    closeDuplicateSheet()
+    navigate('/configurator', {
+      state: {
+        prefill,
+        duplicateSourceTripId: sourceTrip.id,
+        duplicateSourceName: sourceTrip.name,
+        duplicateNewName: newName,
+      },
+    })
+  }
+
   function setActiveTripId(id) {
     setActiveTripIdState(id)
     localStorage.setItem(ACTIVE_TRIP_KEY, id)
@@ -367,7 +398,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
               openExpenseSheet, expensesVersion, userId: ownerId, showToast, session, planType, accountType,
-              familyMembers, openFamilySheet,
+              familyMembers, openFamilySheet, openDuplicateSheet,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,
             }} />
@@ -408,6 +439,11 @@ export default function AppShell({ session, planType, accountType, collaboratorO
         onSaved={handleFamilySaved}
         onDeleted={handleFamilyDeleted}
         onError={handleFamilyError}
+      />
+      <TripDuplicateSheet
+        state={duplicateSheetState}
+        onClose={closeDuplicateSheet}
+        onContinue={handleDuplicateContinue}
       />
       <Toast toast={toast} />
     </div>

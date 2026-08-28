@@ -101,7 +101,7 @@ function ToggleRow({ name, sub, on, onToggle }) {
 export default function Account() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { session, showToast, activeTrip, familyMembers, openFamilySheet, refetchTrips } = outletContext ?? {}
+  const { session, showToast, activeTrip, familyMembers, openFamilySheet, refetchTrips, openDuplicateSheet } = outletContext ?? {}
   const userId = session?.user?.id
 
   const [profile, setProfile] = useState(null)
@@ -458,6 +458,9 @@ export default function Account() {
                 <div className={styles.sub}>{fmtDateRange(t)}{t.accommodation ? ` · ${t.accommodation}` : ''}</div>
               </div>
               <div className={styles.rowInlineActions}>
+                {isPlus && (
+                  <button type="button" className={styles.linkBtn} onClick={() => openDuplicateSheet?.(t)}>Use as Template</button>
+                )}
                 <button type="button" className={styles.linkBtn} disabled={unarchivingId === t.id} onClick={() => handleUnarchive(t)}>
                   {unarchivingId === t.id ? 'Unarchiving…' : 'Unarchive'}
                 </button>

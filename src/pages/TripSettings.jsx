@@ -51,7 +51,7 @@ function Row({ label, value, locked }) {
 export default function TripSettings() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, refetchTrips, showToast, accountType } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, refetchTrips, showToast, accountType, planType, openDuplicateSheet } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -214,6 +214,17 @@ export default function TripSettings() {
                 {archiving ? 'Archiving…' : 'Archive'}
               </button>
             </div>
+            {planType === 'plus_pass' && (
+              <div className={styles.actionsRow}>
+                <div>
+                  <div className={styles.actionsName}>Duplicate this trip</div>
+                  <div className={styles.actionsSub}>Start a new trip with this one's settings carried over — handy for comparing scenarios.</div>
+                </div>
+                <button type="button" className={styles.actionsBtn} onClick={() => openDuplicateSheet?.(activeTrip)}>
+                  Duplicate
+                </button>
+              </div>
+            )}
           </div>
 
           <div className={styles.dangerCard}>

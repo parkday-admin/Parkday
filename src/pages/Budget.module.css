@@ -7,6 +7,21 @@
   margin-bottom: 14px;
 }
 
+.staleBanner {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--cream); border-left: 3px solid var(--gold); border-radius: var(--radius-sm);
+  padding: 11px 12px; margin-bottom: 11px;
+}
+.staleBannerText { flex: 1; font-size: 12px; color: var(--text-primary); line-height: 1.45; }
+.staleBannerText strong { font-weight: 600; }
+.staleBannerText div { color: var(--text-secondary); margin-top: 2px; }
+.staleBannerClose {
+  flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px; border: none; background: none;
+  color: var(--text-tertiary); cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.staleBannerClose:hover { background: rgba(13, 35, 64, 0.06); color: var(--text-primary); }
+.staleBannerClose i { font-size: 14px; }
+
 .skeleton { display: flex; flex-direction: column; gap: 11px; }
 .skelBlock {
   border-radius: var(--radius-lg);

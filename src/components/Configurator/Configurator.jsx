@@ -13,6 +13,7 @@ import {
 } from './configuratorLogic'
 import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
+import { copyWishListItems } from '../../lib/tripDuplication'
 
 function makeDefaultS(prefill) {
   const base = JSON.parse(JSON.stringify(DEFAULT_S))
@@ -72,6 +73,12 @@ export default function Configurator({ session, planType }) {
   // A "Convert to trip" / "Plan this trip" hand-off from the estimator or
   // Estimates page — only meaningful for a brand-new trip, never an edit.
   const prefill = !tripId ? location.state?.prefill : null
+  // Trip duplication ("Use as Template") hand-off — also only meaningful
+  // for a brand-new trip. duplicateSourceTripId flags doSave() to copy the
+  // wish list and stamp duplicated_from once the new trip is created.
+  const duplicateSourceTripId = !tripId ? location.state?.duplicateSourceTripId : null
+  const duplicateSourceName = !tripId ? location.state?.duplicateSourceName : null
+  const duplicateNewName = !tripId ? location.state?.duplicateNewName : null
 
   const [S, setS] = useState(() => makeDefaultS(prefill))
   const [step, setStep] = useState(0)
@@ -220,6 +227,33 @@ export default function Configurator({ session, planType }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, S.arrival, S.departure])
 
+  // Trip duplication carries the source trip's park-day pattern (which days
+  // were park days, and which park) by day number, not calendar date —
+  // overlaid once onto whatever fresh skeleton the effect above generates
+  // for the new dates. The skeleton's own "best guess" auto-assignment is
+  // fully replaced (not just filled in) for every day within the source
+  // trip's length, including rest days, so a source rest day doesn't
+  // inherit an unrelated auto-guessed park; days beyond the source trip's
+  // length keep the skeleton's own guess since duplication has no pattern
+  // to say otherwise.
+  const duplicateParkPatternRef = useRef(prefill?._duplicateParkPattern ?? null)
+  const duplicateTripLengthRef = useRef(prefill?._duplicateTripLength ?? 0)
+  const appliedDuplicatePatternRef = useRef(false)
+  useEffect(() => {
+    if (!duplicateParkPatternRef.current || appliedDuplicatePatternRef.current || S.parkDays.length === 0) return
+    appliedDuplicatePatternRef.current = true
+    const byDayNum = Object.fromEntries(duplicateParkPatternRef.current.map(p => [p.dayNum, p]))
+    const sourceLength = duplicateTripLengthRef.current
+    setS(prev => ({
+      ...prev,
+      parkDays: prev.parkDays.map(day => {
+        if (day.dayNum > sourceLength) return day
+        const p = byDayNum[day.dayNum]
+        return p ? { ...day, isPark: true, park: p.park } : { ...day, isPark: false, park: '' }
+      }),
+    }))
+  }, [S.parkDays])
+
   function goTo(target) {
     setStep(target)
   }
@@ -298,7 +332,7 @@ export default function Configurator({ session, planType }) {
     const arrivalYear = S.arrival ? parseLocalDate(S.arrival).getFullYear() : new Date().getFullYear()
     const tripFields = {
       user_id: session.user.id,
-      name: `${S.accName || 'Disney'} ${arrivalYear}`,
+      name: duplicateNewName || `${S.accName || 'Disney'} ${arrivalYear}`,
       status: 'active',
       arrival_date: S.arrival,
       departure_date: S.departure,
@@ -331,9 +365,17 @@ export default function Configurator({ session, planType }) {
       await supabase.from('expenses').delete().eq('trip_id', tripId).eq('cat', 'park_day')
       await supabase.from('expenses').delete().eq('trip_id', tripId).eq('is_budget', true)
     } else {
-      const { data: inserted, error: insErr } = await supabase.from('trips').insert(tripFields).select('id').single()
+      const { data: inserted, error: insErr } = await supabase
+        .from('trips')
+        .insert({ ...tripFields, duplicated_from: duplicateSourceTripId || null })
+        .select('id')
+        .single()
       if (insErr) { setError(insErr.message); setSaving(false); return }
       savedTripId = inserted.id
+      if (duplicateSourceTripId) {
+        const { error: wlError } = await copyWishListItems(session.user.id, duplicateSourceTripId, savedTripId)
+        if (wlError) showToast?.(`Trip created, but couldn't copy the wish list: ${wlError.message}`)
+      }
     }
 
     const isPackage = S.booking === 'package' || S.booking === 'package_dining'
@@ -473,6 +515,11 @@ export default function Configurator({ session, planType }) {
                     <Stepper label="Children" hint="Ages 3–9" value={S.extraChildren} onDec={() => setField('extraChildren', Math.max(0, S.extraChildren - 1))} onInc={() => setField('extraChildren', Math.min(6, S.extraChildren + 1))} />
                   </div>
                   <div className={styles.screenSectionLbl}>Travel dates</div>
+                  {duplicateSourceName && (
+                    <div className={styles.infoNote} style={{ marginBottom: 8 }}>
+                      <i className="ti ti-calendar-event" /> Set new dates for this trip — everything else is carried over from {duplicateSourceName}.
+                    </div>
+                  )}
                   <div className={styles.dateRow}>
                     <div className={styles.dateWrap}>
                       <div className={styles.colLbl}>Arrival</div>
@@ -607,6 +654,11 @@ export default function Configurator({ session, planType }) {
                       {editingTrip && (
                         <div className={styles.infoNote} style={{ marginBottom: 8 }}>
                           <i className="ti ti-lock" /> Booking type is locked after the trip is created.
+                        </div>
+                      )}
+                      {duplicateSourceName && S.booking !== 'separate' && (
+                        <div className={styles.infoNote} style={{ marginBottom: 8 }}>
+                          <i className="ti ti-alert-triangle" /> Booking type carried over from {duplicateSourceName} — confirm this matches your new booking before saving.
                         </div>
                       )}
                       <div className={`${styles.og} ${styles.g1}`} style={{ gap: 7, opacity: editingTrip ? 0.55 : 1, pointerEvents: editingTrip ? 'none' : 'auto' }}>

@@ -3,7 +3,7 @@ import { supabase } from '../supabase'
 export async function fetchActiveTrips() {
   const { data, error } = await supabase
     .from('trips')
-    .select('id, name, arrival_date, departure_date, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, arr_airline, arr_flight, dep_airline, dep_flight, memory_maker, gc_savings_goal, final_payment_date, status, created_at')
+    .select('id, name, arrival_date, departure_date, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, arr_airline, arr_flight, dep_airline, dep_flight, memory_maker, gc_savings_goal, final_payment_date, status, created_at, duplicated_from, staleness_banner_dismissed')
     .eq('status', 'active')
     .order('created_at', { ascending: false })
 
@@ -18,6 +18,40 @@ export async function fetchArchivedTrips() {
     .order('created_at', { ascending: false })
 
   return { data: data ?? [], error }
+}
+
+// The full set of configurator fields for a trip being used as a
+// duplication source — deliberately wider than fetchArchivedTrips'/
+// fetchActiveTrips' selects, which only carry what their own screens show.
+// arrival_date/departure_date are included only to derive the source
+// trip's day count (for the park-day pattern overlay) — never copied into
+// the prefill itself.
+export async function fetchTripForDuplication(tripId) {
+  const { data, error } = await supabase
+    .from('trips')
+    .select('id, name, adults, children, accommodation, booking_type, ticket_type, lightning_lane, travel_mode, transfer, departure_transfer, parking, park_transport, memory_maker, arrival_date, departure_date')
+    .eq('id', tripId)
+    .single()
+
+  return { data, error }
+}
+
+// Name + arrival year for the Budget page's "carried over from X (YYYY)"
+// staleness banner — a live lookup rather than a value snapshotted at
+// duplication time, so a rename of the source trip is reflected too.
+export async function fetchTripSourceInfo(tripId) {
+  const { data, error } = await supabase
+    .from('trips')
+    .select('name, arrival_date')
+    .eq('id', tripId)
+    .maybeSingle()
+
+  return { data, error }
+}
+
+export async function dismissStalenessBanner(tripId) {
+  const { error } = await supabase.from('trips').update({ staleness_banner_dismissed: true }).eq('id', tripId)
+  return { error }
 }
 
 export async function updateTripSavingsGoal(tripId, goal) {

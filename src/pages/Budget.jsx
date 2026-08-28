@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, setCategoryBudget, deleteExpense, createExpense } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
-import { tripDays } from '../lib/trips'
+import { tripDays, fetchTripSourceInfo, dismissStalenessBanner } from '../lib/trips'
 import { paymentSourceLabel } from '../lib/payments'
 import Fab from '../components/Fab/Fab'
 import EntryCard from '../components/EntryCard/EntryCard'
@@ -48,6 +48,24 @@ export default function Budget() {
   const [filterDays, setFilterDays] = useState([])
   const [filterMethods, setFilterMethods] = useState([])
   const [exporting, setExporting] = useState(false)
+  const [staleSource, setStaleSource] = useState(null)
+  const [bannerDismissed, setBannerDismissed] = useState(false)
+
+  // Loads the source trip's name/year for the "budget targets carried over"
+  // banner — only when this trip was actually duplicated and hasn't already
+  // had the banner dismissed (persisted, so it doesn't reappear on reload).
+  useEffect(() => {
+    setBannerDismissed(false)
+    if (!activeTrip?.duplicated_from || activeTrip.staleness_banner_dismissed) { setStaleSource(null); return }
+    let cancelled = false
+    fetchTripSourceInfo(activeTrip.duplicated_from).then(({ data }) => { if (!cancelled) setStaleSource(data) })
+    return () => { cancelled = true }
+  }, [activeTrip?.id, activeTrip?.duplicated_from, activeTrip?.staleness_banner_dismissed])
+
+  function dismissBanner() {
+    setBannerDismissed(true)
+    if (activeTrip) dismissStalenessBanner(activeTrip.id)
+  }
 
   // Renders BudgetPrintView into the DOM, waits a frame for it to paint,
   // then opens the print dialog — cleaned up on 'afterprint' (fires whether
@@ -184,6 +202,16 @@ export default function Budget() {
   return (
     <div>
       {error && <p className={styles.error}>{error}</p>}
+
+      {staleSource && !bannerDismissed && totalBudgeted > 0 && (
+        <div className={styles.staleBanner}>
+          <div className={styles.staleBannerText}>
+            <strong>Heads up — budget targets carried over from {staleSource.name} ({staleSource.arrival_date?.slice(0, 4)})</strong>
+            <div>Disney pricing changes year to year. Worth a quick review before you start planning.</div>
+          </div>
+          <button type="button" className={styles.staleBannerClose} onClick={dismissBanner} title="Dismiss"><i className="ti ti-x" /></button>
+        </div>
+      )}
 
       <div className={styles.topBar}>
         <div className={styles.subTabs}>
