@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom'
 import { onAuthStateChange, adoptSessionFromHandoff, buildSessionHandoffHash, getCurrentSession } from './lib/auth'
 import { getProfile } from './lib/profile'
 import { getCollaboratorStatus } from './lib/collaborator'
@@ -138,9 +138,16 @@ function useCollaboratorStatus(profile, pathname) {
 }
 
 function RequirePaidAuth({ session, canAccess }) {
+  // Nested a second time inside AppShell (see the route tree below) to
+  // gate planning routes more strictly than /account and /archive — as a
+  // child of AppShell's own context-carrying Outlet, it must forward that
+  // context along through its own Outlet, or every route nested inside it
+  // loses access to trips/activeTrip/familyMembers/etc. via
+  // useOutletContext() (only /account and /archive/:tripId sit above it).
+  const outletContext = useOutletContext()
   if (!session) return <Navigate to="/login" replace />
   if (!canAccess) return <Navigate to="/paywall" replace />
-  return <Outlet />
+  return <Outlet context={outletContext} />
 }
 
 // After a fresh sign-in (the SIGNED_IN transition — see useSession's
