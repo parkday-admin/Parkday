@@ -11,7 +11,15 @@
 
 .loadingState { text-align: center; padding: 60px 0; color: var(--text-secondary); font-size: 14px; }
 
-.toolbar { display: flex; justify-content: flex-end; margin-bottom: 6px; min-height: 26px; }
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; min-height: 26px; }
+.cancelBtn {
+  background: none; border: none; padding: 6px 4px; cursor: pointer;
+  font-size: 11.5px; font-weight: 500; color: var(--text-secondary);
+  display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+}
+.cancelBtn:hover { color: var(--coral); }
+.cancelBtn i { font-size: 12px; }
+
 .resetBtn {
   background: #fff; border: 1px solid rgba(13, 35, 64, 0.16); border-radius: 20px;
   padding: 6px 12px; cursor: pointer; font-size: 11.5px; font-weight: 500; color: var(--night);

@@ -92,11 +92,16 @@ export default function Configurator({ session, planType }) {
   const [error, setError] = useState(null)
   const [dateAlert, setDateAlert] = useState(null)
   const [originalArrival, setOriginalArrival] = useState(null)
-  // Prefilled party counts (extraAdults/extraChildren) already reflect the
-  // estimate's totals — skip the auto-select-everyone effect below so it
-  // doesn't add family members on top of them.
-  const [famSeeded, setFamSeeded] = useState(!!prefill)
-  const editTripPartyRef = useRef(null)
+  // An estimate hand-off's prefilled party counts (extraAdults/
+  // extraChildren) already reflect the estimate's totals with no family
+  // member association — skip the auto-select-everyone effect below so it
+  // doesn't add family members on top of them. A trip-duplication hand-off
+  // is different: its counts *do* come from a real trip's adults/children,
+  // so it goes through the same reconcile-against-family-members path as
+  // editing an existing trip (seeded into editTripPartyRef below) instead
+  // of skipping seeding altogether.
+  const [famSeeded, setFamSeeded] = useState(!!prefill && !duplicateSourceTripId)
+  const editTripPartyRef = useRef(duplicateSourceTripId ? { adults: prefill?.extraAdults || 0, children: prefill?.extraChildren || 0 } : null)
 
   const setField = (key, value) => setS(prev => ({ ...prev, [key]: value }))
   const { adults, children } = computeParty(S, familyMembers)
@@ -459,16 +464,23 @@ export default function Configurator({ session, planType }) {
       <div className={styles.shell}>
 
           <div className={styles.toolbar}>
-            {!editingTrip && (
-              <button type="button" className={styles.resetBtn} onClick={() => { setS(makeDefaultS()); setStep(0); setSelectedResort(null); setResortQuery('') }}>
-                <i className="ti ti-rotate-2" />Reset
+            <div>
+              <button type="button" className={styles.cancelBtn} onClick={() => navigate('/trip-settings')}>
+                <i className="ti ti-x" />Cancel
               </button>
-            )}
-            {editingTrip && (
-              <button type="button" className={styles.quickSaveBtn} onClick={saveTrip} disabled={saving}>
-                <i className="ti ti-check" />{saving ? 'Saving…' : 'Save'}
-              </button>
-            )}
+            </div>
+            <div>
+              {!editingTrip && (
+                <button type="button" className={styles.resetBtn} onClick={() => { setS(makeDefaultS()); setStep(0); setSelectedResort(null); setResortQuery('') }}>
+                  <i className="ti ti-rotate-2" />Reset
+                </button>
+              )}
+              {editingTrip && (
+                <button type="button" className={styles.quickSaveBtn} onClick={saveTrip} disabled={saving}>
+                  <i className="ti ti-check" />{saving ? 'Saving…' : 'Save'}
+                </button>
+              )}
+            </div>
           </div>
 
           <div className={styles.progWrap}>
