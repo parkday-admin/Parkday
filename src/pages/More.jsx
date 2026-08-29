@@ -94,7 +94,7 @@ export default function More() {
       </DashboardCard>
 
       <DashboardCard icon="ti-map-2" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)" title="Plan">
-        <Row icon="ti-heart" iconBg="rgba(224,83,63,0.12)" iconColor="var(--coral)" label="Wish list" onClick={() => navigate('/wishlist')} />
+        <Row icon="ti-bell" iconBg="rgba(224,83,63,0.1)" iconColor="var(--coral)" label="Reminders" onClick={() => navigate('/reminders')} />
         <Row icon="ti-backpack" iconBg="rgba(44,165,141,0.18)" iconColor="var(--teal-dark)" label="Packing list" onClick={() => navigate('/packing')} />
         <Row icon="ti-settings" iconBg="var(--border-light)" iconColor="var(--text-secondary)" label="Trip settings" onClick={() => navigate('/trip-settings')} />
       </DashboardCard>

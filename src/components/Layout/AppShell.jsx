@@ -41,9 +41,9 @@ const TAB_ITEMS = [
   { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
   { to: '/budget', icon: 'ti-chart-pie', label: 'Budget' },
   { to: '/itinerary', icon: 'ti-calendar', label: 'Itinerary' },
-  { to: '/reminders', icon: 'ti-bell', label: 'Reminders' },
+  { to: '/wishlist', icon: 'ti-heart', label: 'Wish list' },
 ]
-const MORE_ROUTES = ['/more', '/payments', '/gifts', '/packing', '/wishlist', '/trip-settings', '/estimator', '/estimates', '/account']
+const MORE_ROUTES = ['/more', '/payments', '/gifts', '/packing', '/reminders', '/trip-settings', '/estimator', '/estimates', '/account']
 
 const NAV_ITEMS = [
   { to: '/dashboard', icon: 'ti-layout-dashboard', label: 'Dashboard' },
