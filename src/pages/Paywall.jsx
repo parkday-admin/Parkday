@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { createCheckoutSession } from '../lib/stripe'
 import { signOutAndRedirect } from '../lib/auth'
 import styles from './Paywall.module.css'
@@ -106,7 +107,12 @@ export default function Paywall({ session, currentPlanType = null, lapsedPlanTyp
         </div>
 
         {lapsedMessage && (
-          <p className={styles.notice}><i className="ti ti-alert-circle" />{lapsedMessage}</p>
+          <>
+            <p className={styles.notice}><i className="ti ti-alert-circle" />{lapsedMessage}</p>
+            <p className={styles.noticeLink}>
+              <Link to="/account">View your archived trip{lapsedPlanType === 'plus_pass' ? 's' : ''} or manage your account →</Link>
+            </p>
+          </>
         )}
 
         {error && <p className={styles.error}>{error}</p>}

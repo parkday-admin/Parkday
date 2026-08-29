@@ -117,6 +117,22 @@
   flex-shrink: 0;
 }
 
+.noticeLink {
+  text-align: center;
+  font-size: 12.5px;
+  margin: -12px 0 20px;
+}
+
+.noticeLink a {
+  color: var(--sky);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.noticeLink a:hover {
+  text-decoration: underline;
+}
+
 .cards {
   display: flex;
   gap: 14px;

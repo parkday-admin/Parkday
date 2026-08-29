@@ -71,7 +71,7 @@ function tripDateRange(trip) {
   return `${fmtDateShort(trip.arrival_date)} – ${fmtDateShort(trip.departure_date)}, ${dy || ay}`
 }
 
-export default function AppShell({ session, planType, accountType, collaboratorOf }) {
+export default function AppShell({ session, planType, accountType, collaboratorOf, canAccess }) {
   const location = useLocation()
   const navigate = useNavigate()
   // Account-level data (family members, gift funds, reminders — and every
@@ -367,7 +367,11 @@ export default function AppShell({ session, planType, accountType, collaboratorO
               </div>
             )}
             {accountType !== 'collaborator' && (
-              planType === 'trip_pass' ? (
+              !canAccess ? (
+                <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
+                  <i className="ti ti-crown" /> Reactivate to plan a trip
+                </button>
+              ) : planType === 'trip_pass' ? (
                 <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
                   <i className="ti ti-crown" /> Upgrade to add a trip
                 </button>
@@ -400,7 +404,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
           <div className={styles.scroll}>
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
-              openExpenseSheet, expensesVersion, userId: ownerId, showToast, session, planType, accountType,
+              openExpenseSheet, expensesVersion, userId: ownerId, showToast, session, planType, accountType, canAccess,
               familyMembers, openFamilySheet, openDuplicateSheet, refetchFamilyMembers: loadFamilyMembers,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,

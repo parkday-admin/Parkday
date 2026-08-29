@@ -199,6 +199,13 @@ function AppRoutes({ session, profile, justSignedIn }) {
   const statusLoading = isCollaborator && collaboratorStatus === undefined
 
   const canAccess = isCollaborator ? !!collaboratorStatus?.ownerActive : profile?.status === 'active'
+  // A lapsed (not brand-new) owner account — status is only ever
+  // 'inactive' after a real purchase expires or gets cancelled, never for
+  // a signup that hasn't bought anything (that's null) — still gets into
+  // the app shell, but only as far as /account and /archive/:tripId; see
+  // the nested RequirePaidAuth below.
+  const isLapsedPass = !isCollaborator && profile?.status === 'inactive'
+  const canEnterShell = canAccess || isLapsedPass
   const destination = canAccess ? '/dashboard' : '/paywall'
 
   // Called unconditionally (before the statusLoading early return) so hook
@@ -244,28 +251,34 @@ function AppRoutes({ session, profile, justSignedIn }) {
         }
       />
 
-      <Route element={<RequirePaidAuth session={session} canAccess={canAccess} />}>
-        <Route element={<AppShell session={session} planType={profile?.planType ?? null} accountType={profile?.accountType ?? 'owner'} collaboratorOf={profile?.collaboratorOf ?? null} />}>
-          <Route
-            path="/configurator"
-            element={<Configurator session={session} planType={profile?.planType ?? null} />}
-          />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/today" element={<TodayFullView />} />
-          <Route path="/trip-settings" element={<TripSettings />} />
-          <Route path="/archive/:tripId" element={<ArchivedTripView />} />
-          <Route path="/estimator" element={<EstimatorPage />} />
-          <Route path="/estimates" element={<Estimates />} />
+      <Route element={<RequirePaidAuth session={session} canAccess={canEnterShell} />}>
+        <Route element={<AppShell session={session} planType={profile?.planType ?? null} accountType={profile?.accountType ?? 'owner'} collaboratorOf={profile?.collaboratorOf ?? null} canAccess={canAccess} />}>
+          {/* Reachable on a lapsed pass too, unlike everything below —
+              read/download the archived trip and manage the account
+              (export, delete, reactivate) without full planning access. */}
           <Route path="/account" element={<Account />} />
-          <Route path="/budget" element={<Budget />} />
-          <Route path="/budget/:cat" element={<CategoryDetail />} />
-          <Route path="/itinerary" element={<Itinerary />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/payments" element={<Payments />} />
-          <Route path="/gifts" element={<Gifts />} />
-          <Route path="/packing" element={<Packing />} />
-          <Route path="/reminders" element={<Reminders />} />
-          <Route path="/more" element={<More />} />
+          <Route path="/archive/:tripId" element={<ArchivedTripView />} />
+
+          <Route element={<RequirePaidAuth session={session} canAccess={canAccess} />}>
+            <Route
+              path="/configurator"
+              element={<Configurator session={session} planType={profile?.planType ?? null} />}
+            />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/today" element={<TodayFullView />} />
+            <Route path="/trip-settings" element={<TripSettings />} />
+            <Route path="/estimator" element={<EstimatorPage />} />
+            <Route path="/estimates" element={<Estimates />} />
+            <Route path="/budget" element={<Budget />} />
+            <Route path="/budget/:cat" element={<CategoryDetail />} />
+            <Route path="/itinerary" element={<Itinerary />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/payments" element={<Payments />} />
+            <Route path="/gifts" element={<Gifts />} />
+            <Route path="/packing" element={<Packing />} />
+            <Route path="/reminders" element={<Reminders />} />
+            <Route path="/more" element={<More />} />
+          </Route>
         </Route>
       </Route>
 

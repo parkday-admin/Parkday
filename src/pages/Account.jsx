@@ -470,9 +470,11 @@ export default function Account() {
                 {isPlus && (
                   <button type="button" className={styles.linkBtn} onClick={() => openDuplicateSheet?.(t)}>Use as Template</button>
                 )}
-                <button type="button" className={styles.linkBtn} disabled={unarchivingId === t.id} onClick={() => handleUnarchive(t)}>
-                  {unarchivingId === t.id ? 'Unarchiving…' : 'Unarchive'}
-                </button>
+                {!isInactive && (
+                  <button type="button" className={styles.linkBtn} disabled={unarchivingId === t.id} onClick={() => handleUnarchive(t)}>
+                    {unarchivingId === t.id ? 'Unarchiving…' : 'Unarchive'}
+                  </button>
+                )}
                 <button type="button" className={styles.linkBtn} onClick={() => navigate(`/archive/${t.id}`)}>View</button>
               </div>
             </div>

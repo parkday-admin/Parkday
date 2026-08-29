@@ -62,15 +62,16 @@ function Row({ label, value }) {
 }
 
 // A static snapshot of a trip that's been set aside — no editing, no swipe
-// gestures, no FAB. Trip Pass users in particular land here to look back at
-// an old trip without any path to keep using it; Plus Pass users can still
-// unarchive from here as a convenience. See Account.jsx's Trip archive
-// card, the only entry point into this page.
+// gestures, no FAB. A user whose pass has lapsed (Trip Pass expired or
+// Plus Pass cancelled) lands here to look back at an old trip with no path
+// to keep using it until they reactivate; an active Plus Pass user can
+// still unarchive from here as a convenience. See Account.jsx's Trip
+// archive card, the only entry point into this page.
 export default function ArchivedTripView() {
   const navigate = useNavigate()
   const { tripId } = useParams()
   const outletContext = useOutletContext()
-  const { userId, showToast, refetchTrips } = outletContext ?? {}
+  const { userId, showToast, refetchTrips, canAccess } = outletContext ?? {}
   const [trip, setTrip] = useState(undefined)
   const [expenses, setExpenses] = useState(null)
   const [wishlist, setWishlist] = useState(null)
@@ -218,9 +219,11 @@ export default function ArchivedTripView() {
           <button type="button" className={styles.unarchiveBtn} onClick={() => setExporting(true)}>
             <i className="ti ti-file-download" /> Export PDF
           </button>
-          <button type="button" className={styles.unarchiveBtn} disabled={unarchiving} onClick={handleUnarchive}>
-            {unarchiving ? 'Unarchiving…' : 'Unarchive'}
-          </button>
+          {canAccess && (
+            <button type="button" className={styles.unarchiveBtn} disabled={unarchiving} onClick={handleUnarchive}>
+              {unarchiving ? 'Unarchiving…' : 'Unarchive'}
+            </button>
+          )}
         </div>
       </div>
 
