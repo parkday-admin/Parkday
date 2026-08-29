@@ -1,7 +1,13 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { useSheetDrag } from './useSheetDrag'
 import styles from './Sheet.module.css'
+
+// Tracks which open sheets are stacked on top of one another (e.g.
+// AddCustomItemSheet over FamilyMemberSheet) so Escape dismisses only the
+// topmost one instead of the whole stack at once.
+let openStack = []
+let nextId = 0
 
 // Shared bottom-sheet shell: full-viewport backdrop (portaled to <body> so
 // it always sits above the nav drawer regardless of where the sheet is
@@ -11,6 +17,8 @@ import styles from './Sheet.module.css'
 // instead of reimplementing backdrop/positioning/drag itself.
 export default function Sheet({ open, onClose, children }) {
   const { elRef, dragY, onPointerDown, reset } = useSheetDrag(onClose)
+  const idRef = useRef(null)
+  if (idRef.current === null) idRef.current = nextId++
 
   useEffect(() => {
     if (open) reset()
@@ -19,7 +27,17 @@ export default function Sheet({ open, onClose, children }) {
 
   useEffect(() => {
     if (!open) return
-    function onKeyDown(e) { if (e.key === 'Escape') onClose?.() }
+    openStack.push(idRef.current)
+    return () => { openStack = openStack.filter(id => id !== idRef.current) }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    function onKeyDown(e) {
+      if (e.key !== 'Escape') return
+      if (openStack[openStack.length - 1] !== idRef.current) return
+      onClose?.()
+    }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [open, onClose])
