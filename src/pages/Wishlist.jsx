@@ -166,8 +166,8 @@ export default function Wishlist() {
                             <i className="ti ti-pencil" />
                           </button>
                         ) : (
-                          <button type="button" className={styles.planBtn} onClick={() => setPlanState({ item })}>
-                            Add to trip
+                          <button type="button" className={styles.editBtn} title="Add to trip" onClick={() => setPlanState({ item })}>
+                            <i className="ti ti-calendar-plus" />
                           </button>
                         )}
                         <button type="button" className={styles.removeBtn} title="Remove" onClick={() => handleRemove(item)}>
