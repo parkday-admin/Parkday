@@ -82,6 +82,13 @@
   cursor: pointer; white-space: nowrap; font-family: var(--sans);
 }
 .planBtn:hover { background: rgba(42, 111, 224, 0.16); }
+.editBtn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1.5px solid rgba(42, 111, 224, 0.3); background: rgba(42, 111, 224, 0.06);
+  cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.editBtn:hover { background: rgba(42, 111, 224, 0.16); }
+.editBtn i { font-size: 15px; color: var(--sky); }
 .removeBtn {
   width: 32px; height: 32px; border-radius: 9px;
   border: 1.5px solid rgba(224, 83, 63, 0.3); background: rgba(224, 83, 63, 0.06);

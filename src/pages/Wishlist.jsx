@@ -161,9 +161,15 @@ export default function Wishlist() {
                         )}
                       </div>
                       <div className={styles.itemActions}>
-                        <button type="button" className={styles.planBtn} onClick={() => setPlanState({ item })}>
-                          {item.planned_expense_id ? 'Edit trip' : 'Add to trip'}
-                        </button>
+                        {item.planned_expense_id ? (
+                          <button type="button" className={styles.editBtn} title="Edit trip" onClick={() => setPlanState({ item })}>
+                            <i className="ti ti-pencil" />
+                          </button>
+                        ) : (
+                          <button type="button" className={styles.planBtn} onClick={() => setPlanState({ item })}>
+                            Add to trip
+                          </button>
+                        )}
                         <button type="button" className={styles.removeBtn} title="Remove" onClick={() => handleRemove(item)}>
                           <i className="ti ti-trash" />
                         </button>

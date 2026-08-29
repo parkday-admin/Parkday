@@ -178,8 +178,8 @@ export default function Payments() {
                 <div className={styles.pmtSub}>{dateLabel(p.date)}{p.note ? ` · ${p.note}` : ''}</div>
               </div>
               <div className={styles.pmtActions}>
-                <button type="button" className={styles.editBtn} onClick={() => setSheetState({ editingPayment: p })}>
-                  Edit payment
+                <button type="button" className={styles.editBtn} title="Edit payment" onClick={() => setSheetState({ editingPayment: p })}>
+                  <i className="ti ti-pencil" />
                 </button>
                 <button type="button" className={styles.removeBtn} title="Remove payment" onClick={() => handleDeleteRow(p)}>
                   <i className="ti ti-trash" />
