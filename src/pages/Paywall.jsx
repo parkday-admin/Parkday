@@ -11,14 +11,24 @@ const PLANS = [
     price: '$29.99',
     period: 'one-time',
     tagline: 'Perfect for your first Disney trip.',
+    theme: 'gold',
+    badge: 'Most popular',
     features: [
-      '1 trip',
-      'Full planner access',
-      'Budget tracker',
-      'Wish List',
+      'Save & compare trip estimates',
+      'Complete trip budget planner',
+      'Planned vs. actual expense tracking',
+      'Gift card & rewards manager',
+      'Curated wish list with Disney catalog',
+      'Park-day itinerary planner',
+      'Auto-generated booking window reminders',
+      'Payment milestone & deadline tracker',
+      'Individual and group packing lists',
+      'Basic family member travel profiles',
+      'Collaborator access — invite a co-planner',
+      'PDF budget and trip summary exports',
+      'Full access through 30 days after trip ends',
     ],
     cta: 'Get Trip Pass',
-    highlight: false,
   },
   {
     id: 'plus_pass',
@@ -27,13 +37,18 @@ const PLANS = [
     price: '$59.99',
     period: '/year',
     tagline: 'Best value if you Disney more than once.',
+    theme: 'sky',
+    badge: 'Best value',
     features: [
-      'Unlimited trips',
       'Everything in Trip Pass',
-      'Early access to new features',
+      'Unlimited trips',
+      'Duplicate past trips as templates for new trips',
+      'Archived trip library — all your trips, not just one',
+      'Family favorites — saved wish list and packing lists for all trips',
+      'Trip spending comparison across trips (coming soon)',
+      'Annual Pass optimization (coming soon)',
     ],
     cta: 'Get Plus Pass',
-    highlight: true,
   },
 ]
 
@@ -98,18 +113,20 @@ export default function Paywall({ session, currentPlanType = null, lapsedPlanTyp
 
         <div className={styles.cards}>
           {plans.map(plan => (
-            <div key={plan.id} className={`${styles.card} ${plan.highlight ? styles.highlight : ''}`}>
-              {plan.highlight && <span className={styles.badge}>Recommended</span>}
+            <div key={plan.id} className={`${styles.card} ${plan.theme === 'gold' ? styles.cardGold : styles.cardSky}`}>
+              <span className={`${styles.badge} ${plan.theme === 'gold' ? styles.badgeGold : styles.badgeSky}`}>{plan.badge}</span>
               <h2 className={styles.planName}>{plan.name}</h2>
               <p className={styles.price}>
                 {plan.price} <span className={styles.period}>{plan.period}</span>
               </p>
               <p className={styles.subtitle}>{plan.tagline}</p>
               <ul className={styles.features}>
-                {plan.features.map(f => <li key={f}><i className="ti ti-check" />{f}</li>)}
+                {plan.features.map(f => (
+                  <li key={f}><i className="ti ti-check" style={{ color: plan.theme === 'gold' ? 'var(--gold-dark)' : 'var(--sky)' }} />{f}</li>
+                ))}
               </ul>
               <button
-                className={`${styles.cta} ${plan.highlight ? styles.ctaPrimary : styles.ctaSecondary}`}
+                className={`${styles.cta} ${plan.theme === 'gold' ? styles.ctaGold : styles.ctaSky}`}
                 onClick={() => handleSelect(plan)}
                 disabled={loadingPlan !== null}
               >

@@ -141,9 +141,14 @@
   padding: 24px 20px;
 }
 
-.card.highlight {
+.cardGold {
   border-color: var(--gold);
   box-shadow: 0 4px 18px rgba(245, 181, 54, 0.22);
+}
+
+.cardSky {
+  border-color: var(--sky);
+  box-shadow: 0 4px 18px rgba(42, 111, 224, 0.16);
 }
 
 .badge {
@@ -151,8 +156,6 @@
   top: -11px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--gold);
-  color: var(--night);
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -160,6 +163,16 @@
   padding: 4px 12px;
   border-radius: 20px;
   white-space: nowrap;
+}
+
+.badgeGold {
+  background: var(--gold);
+  color: #3d2900;
+}
+
+.badgeSky {
+  background: var(--sky);
+  color: var(--white);
 }
 
 .planName {
@@ -236,13 +249,13 @@
   cursor: not-allowed;
 }
 
-.ctaPrimary {
+.ctaGold {
   background: var(--gold);
-  color: var(--night);
+  color: #3d2900;
 }
 
-.ctaSecondary {
-  background: var(--night);
+.ctaSky {
+  background: var(--sky);
   color: var(--white);
 }
 

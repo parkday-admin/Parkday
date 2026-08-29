@@ -300,26 +300,48 @@ export default function Home() {
                 <div className={styles.planPrice}>$29 <span className={styles.period}>/trip</span></div>
                 <div className={styles.planSub}>Unlock planning tools for one Disney vacation.</div>
                 <div className={styles.planFeatures}>
-                  {['Full budget planner', 'Scenario comparison', 'Budget Tracker', 'Gift Card Manager', 'Park-day planner', 'Planning checklists', 'Payment and deadline tracking', 'Share/export trip plan', 'Access through 30 days after your trip'].map(f => (
+                  {[
+                    'Save & compare trip estimates',
+                    'Complete trip budget planner',
+                    'Planned vs. actual expense tracking',
+                    'Gift card & rewards manager',
+                    'Curated wish list with Disney catalog',
+                    'Park-day itinerary planner',
+                    'Auto-generated booking window reminders',
+                    'Payment milestone & deadline tracker',
+                    'Individual and group packing lists',
+                    'Basic family member travel profiles',
+                    'Collaborator access — invite a co-planner',
+                    'PDF budget and trip summary exports',
+                    'Full access through 30 days after trip ends',
+                  ].map(f => (
                     <div className={styles.planFeature} key={f}><i className="ti ti-check" style={{ color: 'var(--gold-dark)' }} /><span>{f}</span></div>
                   ))}
                 </div>
-                <Link to="/login" className={`${styles.btn} ${styles.btnGold} ${styles.btnBlock}`}>Unlock one trip</Link>
+                <Link to="/login" className={`${styles.btn} ${styles.btnGold} ${styles.btnBlock}`}>Get Trip Pass</Link>
               </div>
             </div>
 
             <div className={`${styles.plan} ${styles.planPlus}`}>
               <div className={styles.planBody}>
                 <div className={styles.planBadge} style={{ background: 'var(--sky)', color: '#fff' }}>Best value</div>
-                <div className={styles.planName} style={{ color: 'var(--sky-dark)' }}>Parkday Plus</div>
+                <div className={styles.planName} style={{ color: 'var(--sky-dark)' }}>Parkday Plus Pass</div>
                 <div className={styles.planPrice}>$59<span className={styles.period}>/year</span></div>
                 <div className={styles.planSub}>For families planning more than one Disney trip.</div>
                 <div className={styles.planFeatures}>
-                  {['Unlimited trips', 'All Single Pass features', 'Compare multiple vacations', 'Family Travel Profile', 'Reusable trip preferences', 'Early access to new planning tools'].map(f => (
+                  {[
+                    'Everything in Trip Pass',
+                    'Unlimited trips',
+                    'Duplicate past trips as templates for new trips',
+                    'Archived trip library — all your trips, not just one',
+                    'Family favorites — saved wish list and packing lists for all trips',
+                    'Trip spending comparison across trips (coming soon)',
+                    'Annual Pass optimization (coming soon)',
+                  ].map(f => (
                     <div className={styles.planFeature} key={f}><i className="ti ti-check" style={{ color: 'var(--sky)' }} /><span>{f}</span></div>
                   ))}
                 </div>
-                <Link to="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}>Start Parkday Plus</Link>
+                <Link to="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}>Get Plus Pass</Link>
               </div>
             </div>
           </div>
