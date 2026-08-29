@@ -234,7 +234,13 @@ function AppRoutes({ session, profile, justSignedIn }) {
               ? <Navigate to="/dashboard" replace />
               : isCollaborator
                 ? <PausedAccess ownerName={collaboratorStatus?.ownerName ?? 'The account owner'} />
-                : <Paywall session={session} currentPlanType={canAccess ? profile?.planType : null} />
+                : (
+                  <Paywall
+                    session={session}
+                    currentPlanType={canAccess ? profile?.planType : null}
+                    lapsedPlanType={!canAccess ? profile?.planType ?? null : null}
+                  />
+                )
         }
       />
 

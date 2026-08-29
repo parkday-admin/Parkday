@@ -98,6 +98,25 @@
   text-align: center;
 }
 
+.notice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--coral);
+  padding: 10px 14px;
+  background: rgba(224, 83, 63, 0.08);
+  border: 1px solid rgba(224, 83, 63, 0.2);
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  line-height: 1.45;
+}
+
+.notice i {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
 .cards {
   display: flex;
   gap: 14px;

@@ -37,11 +37,17 @@ const PLANS = [
   },
 ]
 
-export default function Paywall({ session, currentPlanType = null }) {
+const LAPSED_MESSAGE = {
+  trip_pass: 'Your Trip Pass has expired 30 days after your trip. Purchase a plan to reactivate your account, create a new trip, or access your archived trip.',
+  plus_pass: 'Your Plus Pass subscription has ended. Purchase a plan to reactivate your account and get back to planning.',
+}
+
+export default function Paywall({ session, currentPlanType = null, lapsedPlanType = null }) {
   const [loadingPlan, setLoadingPlan] = useState(null)
   const [error, setError] = useState(null)
 
   const isUpgrading = currentPlanType === 'trip_pass'
+  const lapsedMessage = lapsedPlanType ? LAPSED_MESSAGE[lapsedPlanType] : null
   // A Trip Pass holder landing here (the app's "Upgrade" buttons) is here
   // to move to Plus, not to buy a second one-time Trip Pass for the same
   // trip — showing that option back to them would just be confusing.
@@ -83,6 +89,10 @@ export default function Paywall({ session, currentPlanType = null }) {
               : 'One-time purchase. No subscription required unless you want one.'}
           </p>
         </div>
+
+        {lapsedMessage && (
+          <p className={styles.notice}><i className="ti ti-alert-circle" />{lapsedMessage}</p>
+        )}
 
         {error && <p className={styles.error}>{error}</p>}
 
