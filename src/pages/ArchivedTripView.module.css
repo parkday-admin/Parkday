@@ -1,11 +1,14 @@
 .hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 13px; gap: 12px; }
+.hdrActions { display: flex; align-items: center; gap: 8px; }
 .backLink { display: flex; align-items: center; gap: 6px; background: none; border: none; font-size: 13px; font-weight: 500; color: var(--sky); cursor: pointer; padding: 0; }
 .backLink:hover { color: var(--sky-dark); }
 .backLink i { font-size: 13px; }
 .unarchiveBtn {
+  display: flex; align-items: center; gap: 5px;
   font-size: 12px; font-weight: 600; padding: 8px 14px; border-radius: 20px;
   background: var(--white); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer;
 }
+.unarchiveBtn i { font-size: 12px; }
 .unarchiveBtn:hover { border-color: var(--sky); color: var(--sky); }
 .unarchiveBtn:disabled { opacity: 0.6; cursor: default; }
 

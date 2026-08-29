@@ -134,10 +134,15 @@ function ComparisonBars({ rows }) {
   )
 }
 
-// Print-only budget report, portalled to document.body and shown only
-// under @media print (see the "Export PDF" trigger in Budget.jsx) — the
-// rest of the app shell is hidden for print via AppShell.module.css.
-export default function BudgetPrintView({ trip, rows, entries, totals, giftCards, rewardPrograms }) {
+// Print-only budget/trip report, portalled to document.body and shown only
+// under @media print (see the "Export PDF" triggers in Budget.jsx and
+// ArchivedTripView.jsx) — the rest of the app shell is hidden for print via
+// AppShell.module.css.
+//
+// tripDetail and wishlist are optional — only ArchivedTripView passes them
+// (an array of {title, rows: [{label, value}]} sections, and scheduled
+// wish-list items respectively), so Budget.jsx's export is unaffected.
+export default function BudgetPrintView({ trip, rows, entries, totals, giftCards, rewardPrograms, tripDetail, wishlist }) {
   const tripRows = rows.filter(r => categoryMeta(r.cat).scope === 'trip')
   const dayRows = rows.filter(r => categoryMeta(r.cat).scope === 'day')
 
@@ -155,7 +160,7 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
             <img className={styles.logoMark} src="/assets/logos/parkday-icon.svg" alt="" />
             <div className={styles.wordmark}>Parkday</div>
           </div>
-          <div className={styles.reportLabel}>Trip Budget Report</div>
+          <div className={styles.reportLabel}>{tripDetail ? 'Trip Report' : 'Trip Budget Report'}</div>
         </div>
         <div className={styles.headerRight}>
           <div className={styles.tripName}>{trip.name}</div>
@@ -166,6 +171,25 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
           <div className={styles.generatedOn}>Generated {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
         </div>
       </div>
+
+      {tripDetail && tripDetail.length > 0 && (
+        <>
+          <div className={styles.sectionTitle}>Trip Details</div>
+          <div className={styles.detailGrid}>
+            {tripDetail.map(section => (
+              <div key={section.title} className={styles.detailCard}>
+                <div className={styles.detailTitle}>{section.title}</div>
+                {section.rows.map(r => (
+                  <div key={r.label} className={styles.detailRow}>
+                    <span className={styles.detailLbl}>{r.label}</span>
+                    <span className={styles.detailVal}>{r.value}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className={styles.summaryBar}>
         <div className={styles.summaryStat}>
@@ -298,6 +322,31 @@ export default function BudgetPrintView({ trip, rows, entries, totals, giftCards
           })}
         </tbody>
       </table>
+
+      {wishlist && wishlist.length > 0 && (
+        <>
+          <div className={styles.sectionTitle}>Wish List</div>
+          <div className={styles.sectionSub}>Scheduled items · {wishlist.length} {wishlist.length === 1 ? 'item' : 'items'}</div>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th className={styles.thLeft}>Day</th>
+                <th className={styles.thLeft}>Park</th>
+                <th className={styles.thLeft}>Item</th>
+              </tr>
+            </thead>
+            <tbody>
+              {wishlist.map(w => (
+                <tr key={w.id}>
+                  <td className={styles.tdLeft}>Day {w.planned_day}</td>
+                  <td className={styles.tdLeft}>{w.park || '—'}</td>
+                  <td className={styles.tdLeft}>{w.name}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
       <div className={styles.footer}>
         <span>Parkday · planyourparkday.com</span>

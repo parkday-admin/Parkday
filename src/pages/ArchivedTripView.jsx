@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom'
 import { fetchTripDetail, unarchiveTrip } from '../lib/trips'
 import { fetchExpenses } from '../lib/expenses'
 import { fetchWishList } from '../lib/wishlist'
 import { categoriesForTrip, categoryMeta, categoryTotals } from '../lib/categories'
 import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS } from '../components/Configurator/configuratorData'
+import BudgetPrintView from '../components/BudgetPrintView/BudgetPrintView'
 import styles from './ArchivedTripView.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -73,6 +75,20 @@ export default function ArchivedTripView() {
   const [expenses, setExpenses] = useState(null)
   const [wishlist, setWishlist] = useState(null)
   const [unarchiving, setUnarchiving] = useState(false)
+  const [exporting, setExporting] = useState(false)
+
+  // Same pattern as Budget.jsx's export: render BudgetPrintView into the
+  // DOM, wait a frame for it to paint, then open the print dialog.
+  useEffect(() => {
+    if (!exporting) return
+    const frame = requestAnimationFrame(() => requestAnimationFrame(() => window.print()))
+    function onAfterPrint() { setExporting(false) }
+    window.addEventListener('afterprint', onAfterPrint)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('afterprint', onAfterPrint)
+    }
+  }, [exporting])
 
   useEffect(() => {
     if (!tripId || !userId) return
@@ -128,6 +144,7 @@ export default function ArchivedTripView() {
     return { cat, budgeted, planned, actual, count }
   }).filter(c => c.budgeted > 0 || c.planned > 0 || c.actual > 0)
   const totalBudgeted = catRows.reduce((s, c) => s + c.budgeted, 0)
+  const totalPlanned = catRows.reduce((s, c) => s + c.planned, 0)
   const totalActual = catRows.reduce((s, c) => s + c.actual, 0)
 
   const entries = expenses
@@ -140,15 +157,71 @@ export default function ArchivedTripView() {
 
   const scheduledWishlist = wishlist.filter(w => w.planned_day != null)
 
+  // Same section/row shape ArchivedTripView already renders on screen,
+  // handed to BudgetPrintView's optional tripDetail prop.
+  const tripDetailSections = [
+    {
+      title: 'Dates & Party',
+      rows: [
+        { label: 'Length of stay', value: dayTrip ? `Day trip · ${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''}` : `${nights} night${nights !== 1 ? 's' : ''} · ${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''}` },
+        { label: 'Adults', value: trip.adults },
+        { label: 'Children', value: trip.children },
+      ],
+    },
+    {
+      title: 'Getting There',
+      rows: trip.travel_mode === 'driving'
+        ? [
+          { label: 'Travel method', value: 'Driving' },
+          { label: 'Park transport', value: trip.park_transport === 'drive' ? 'Drive each day' : trip.park_transport === 'disney_transport' ? 'Disney transport' : 'Not set' },
+        ]
+        : [
+          { label: 'Travel method', value: 'Flying into MCO' },
+          { label: 'MCO arrival transfer', value: TRANSFER_LABELS[trip.transfer] || 'Not set' },
+          { label: 'MCO departure transfer', value: TRANSFER_LABELS[trip.departure_transfer] || 'Not set' },
+          { label: 'Airport parking', value: PARKING_LABELS[trip.parking] || 'Not set' },
+          ...(trip.arr_airline || trip.arr_flight ? [{ label: 'Arrival flight', value: [trip.arr_airline, trip.arr_flight].filter(Boolean).join(' ') }] : []),
+          ...(trip.dep_airline || trip.dep_flight ? [{ label: 'Departure flight', value: [trip.dep_airline, trip.dep_flight].filter(Boolean).join(' ') }] : []),
+        ],
+    },
+    ...(!dayTrip ? [{
+      title: 'Accommodations',
+      rows: [
+        { label: 'Resort', value: trip.accommodation || 'Off Property' },
+        ...(resort ? [{ label: 'Tier', value: TIER_LABELS[resort.tier] }] : []),
+        { label: 'Booking type', value: BOOKING_LABELS[trip.booking_type] || trip.booking_type },
+        { label: 'Memory Maker', value: trip.memory_maker ? 'Yes' : 'No' },
+      ],
+    }] : []),
+    {
+      title: 'Tickets & Access',
+      rows: [
+        { label: 'Ticket type', value: TICKET_LABELS[trip.ticket_type] || trip.ticket_type },
+        { label: 'Lightning Lane', value: LL_LABELS[trip.lightning_lane] || trip.lightning_lane },
+      ],
+    },
+    {
+      title: 'Park Days',
+      rows: dayRows.length === 0
+        ? [{ label: 'Park days', value: 'Not set' }]
+        : dayRows.map(d => ({ label: `Day ${d.day} · ${fmtDate(dateForDay(trip.arrival_date, d.day))}`, value: d.label })),
+    },
+  ]
+
   return (
     <div>
       <div className={styles.hdr}>
         <button type="button" className={styles.backLink} onClick={() => navigate('/account')}>
           <i className="ti ti-arrow-left" /> Trip archive
         </button>
-        <button type="button" className={styles.unarchiveBtn} disabled={unarchiving} onClick={handleUnarchive}>
-          {unarchiving ? 'Unarchiving…' : 'Unarchive'}
-        </button>
+        <div className={styles.hdrActions}>
+          <button type="button" className={styles.unarchiveBtn} onClick={() => setExporting(true)}>
+            <i className="ti ti-file-download" /> Export PDF
+          </button>
+          <button type="button" className={styles.unarchiveBtn} disabled={unarchiving} onClick={handleUnarchive}>
+            {unarchiving ? 'Unarchiving…' : 'Unarchive'}
+          </button>
+        </div>
       </div>
 
       <div className={styles.tripHero}>
@@ -251,6 +324,20 @@ export default function ArchivedTripView() {
           )}
         </div>
       </div>
+
+      {exporting && createPortal(
+        <BudgetPrintView
+          trip={trip}
+          rows={catRows}
+          entries={entries}
+          totals={{ budgeted: totalBudgeted, planned: totalPlanned, actual: totalActual, remaining: totalBudgeted - totalActual }}
+          giftCards={[]}
+          rewardPrograms={[]}
+          tripDetail={tripDetailSections}
+          wishlist={scheduledWishlist}
+        />,
+        document.body
+      )}
     </div>
   )
 }

@@ -53,6 +53,15 @@
   .sectionTitle { font-size: 11px; font-weight: 600; color: rgba(13, 35, 64, 0.45); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 24px; }
   .sectionSub { font-size: 10px; color: rgba(13, 35, 64, 0.45); margin-top: 2px; }
 
+  /* Trip details (ArchivedTripView export only) */
+  .detailGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .detailCard { border: 1px solid rgba(13, 35, 64, 0.1); border-radius: 8px; padding: 8px 10px; page-break-inside: avoid; }
+  .detailTitle { font-size: 9px; font-weight: 600; color: rgba(13, 35, 64, 0.45); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .detailRow { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; border-top: 1px solid rgba(13, 35, 64, 0.06); }
+  .detailRow:first-of-type { border-top: none; }
+  .detailLbl { font-size: 10px; color: rgba(13, 35, 64, 0.5); }
+  .detailVal { font-size: 10px; font-weight: 600; color: #0D2340; text-align: right; }
+
   /* Charts */
   .chartsGrid { display: flex; gap: 14px; margin-top: 18px; }
   .chartCard {
