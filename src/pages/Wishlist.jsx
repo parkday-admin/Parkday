@@ -149,6 +149,9 @@ export default function Wishlist() {
                       <div className={styles.itemIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
                       <div className={styles.itemMain}>
                         <div className={styles.itemName}>{item.name}</div>
+                        {item.favorited_by?.length > 1 && (
+                          <div className={styles.itemFavoritedBy}>Favorited by {item.favorited_by.join(' and ')}</div>
+                        )}
                         <div className={styles.itemSub}>
                           {item.park && <span className={styles.itemPark}>{WL_PARK_LABEL[item.park] || item.park}</span>}
                           <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{meta.label.replace(/s$/, '')}</span>

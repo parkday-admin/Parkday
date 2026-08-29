@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { addCustomWishListItem } from '../../lib/wishlist'
+import { addCustomWishFavorite } from '../../lib/familyFavorites'
 import Sheet from '../Sheet/Sheet'
 import styles from './AddCustomItemSheet.module.css'
 
@@ -21,7 +22,7 @@ const CATEGORIES = [
   { value: 'misc', label: 'Misc' },
 ]
 
-export default function AddCustomItemSheet({ trip, userId, open, onClose, onSaved, onError }) {
+export default function AddCustomItemSheet({ trip, userId, open, onClose, onSaved, onError, favoritesMode = false, familyMemberId = null }) {
   const [name, setName] = useState('')
   const [park, setPark] = useState('')
   const [category, setCategory] = useState('ride')
@@ -42,16 +43,20 @@ export default function AddCustomItemSheet({ trip, userId, open, onClose, onSave
     if (!trimmed) { setNameError(true); return }
     const priceNum = Number(price) || 0
 
-    setSaving(true)
-    const { data, error } = await addCustomWishListItem(userId, trip.id, {
+    const fields = {
       name: trimmed, park: park || null, category,
       price_label: priceNum ? `~$${priceNum}` : 'No estimate', price_mid: priceNum,
       notes: notes.trim() || null,
-    })
+    }
+
+    setSaving(true)
+    const { data, error } = favoritesMode
+      ? await addCustomWishFavorite(userId, familyMemberId, fields)
+      : await addCustomWishListItem(userId, trip.id, fields)
     setSaving(false)
 
     if (error) { onError?.(error.message); return }
-    onSaved?.('Added to wish list', data)
+    onSaved?.(favoritesMode ? 'Saved as favorite' : 'Added to wish list', data)
   }
 
   return (
@@ -101,7 +106,7 @@ export default function AddCustomItemSheet({ trip, userId, open, onClose, onSave
           </div>
 
         <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save to wish list'}
+          <i className="ti ti-check" /> {saving ? 'Saving…' : favoritesMode ? 'Save as favorite' : 'Save to wish list'}
         </button>
       </div>
     </Sheet>

@@ -1,0 +1,42 @@
+.filterBar { display: flex; gap: 8px; margin-bottom: 14px; }
+.filterSelect {
+  flex: 1; min-width: 0; border: 1.5px solid var(--border-light); background: var(--white);
+  border-radius: 10px; padding: 8px 10px; font-family: var(--sans); font-size: 11.5px; color: var(--ink); outline: none;
+}
+.filterSelect:focus { border-color: var(--sky); }
+
+.emptyPrompt { text-align: center; padding: 40px 16px; }
+.emptyPrompt i { font-size: 30px; color: var(--text-tertiary); margin-bottom: 10px; display: block; }
+.emptyTitle { font-family: var(--heading); font-size: 16px; font-weight: 400; color: var(--night); margin-bottom: 3px; }
+.emptySub { font-size: 12px; color: var(--text-tertiary); }
+
+.catCard {
+  background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg);
+  padding: 13px 14px; margin-bottom: 10px; position: relative;
+}
+.catCardTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.itemIcon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.itemIcon i { font-size: 15px; }
+.catCardName { font-size: 13px; font-weight: 600; color: var(--ink); }
+.catCardPark { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
+.pill { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; }
+
+.heartBtn {
+  width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border-light);
+  background: var(--white); color: var(--text-tertiary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px;
+}
+.heartBtn.saved { border-color: var(--coral); background: rgba(224, 83, 63, 0.1); color: var(--coral); }
+
+.catCardDesc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin: 7px 0; }
+.catCardBottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.catCardPrice { font-size: 11px; font-weight: 600; color: var(--ink); }
+
+/* Compact variant — used inline in the family member sheet, where the grid
+   sits in a much narrower, already-scrolling column. */
+.compact .catCard { padding: 9px 10px; margin-bottom: 7px; }
+.compact .itemIcon { width: 26px; height: 26px; border-radius: 7px; }
+.compact .itemIcon i { font-size: 13px; }
+.compact .catCardName { font-size: 12px; }
+.compact .catCardDesc { display: none; }
+.compact .heartBtn { width: 26px; height: 26px; font-size: 12px; }

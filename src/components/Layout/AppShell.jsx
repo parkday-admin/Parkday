@@ -441,6 +441,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
       )}
       <FamilyMemberSheet
         userId={ownerId}
+        planType={planType}
         state={famSheetState}
         onClose={closeFamilySheet}
         onSaved={handleFamilySaved}

@@ -35,7 +35,7 @@ export async function fetchCatalog() {
 export async function fetchWishList(userId, tripId) {
   const { data, error } = await supabase
     .from('wish_list_items')
-    .select('id, catalog_id, name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day')
+    .select('id, catalog_id, name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day, favorited_by')
     .eq('user_id', userId)
     .eq('trip_id', tripId)
     .order('created_at')
@@ -88,7 +88,7 @@ export async function updateWishListItem(id, fields) {
     .from('wish_list_items')
     .update(fields)
     .eq('id', id)
-    .select('id, catalog_id, name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day')
+    .select('id, catalog_id, name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day, favorited_by')
     .single()
 
   return { data, error }

@@ -7,8 +7,9 @@ export const PACK_CAT_META = {
   clothing: { label: 'Clothing', icon: 'ti-shirt' },
   medical: { label: 'Medical', icon: 'ti-first-aid-kit' },
   resort: { label: 'Resort Room', icon: 'ti-bed' },
+  personal: { label: 'Personal items', icon: 'ti-star' },
 }
-export const PACK_CAT_ORDER = ['documents', 'parkbag', 'clothing', 'medical', 'resort']
+export const PACK_CAT_ORDER = ['documents', 'parkbag', 'clothing', 'medical', 'resort', 'personal']
 
 const SELECT = 'id, family_member_id, category, text, checked, custom, sort_order'
 

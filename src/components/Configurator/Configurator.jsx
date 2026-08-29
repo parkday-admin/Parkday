@@ -15,6 +15,7 @@ import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
 import { copyWishListItems } from '../../lib/tripDuplication'
 import { hasExistingTrip } from '../../lib/trips'
+import { applyFamilyFavorites } from '../../lib/familyFavorites'
 
 function makeDefaultS(prefill) {
   const base = JSON.parse(JSON.stringify(DEFAULT_S))
@@ -393,6 +394,12 @@ export default function Configurator({ session, planType }) {
       if (duplicateSourceTripId) {
         const { error: wlError } = await copyWishListItems(session.user.id, duplicateSourceTripId, savedTripId)
         if (wlError) showToast?.(`Trip created, but couldn't copy the wish list: ${wlError.message}`)
+      }
+      if (planType === 'plus_pass') {
+        const { wishAdded } = await applyFamilyFavorites(session.user.id, savedTripId, S.selectedFamily, familyMembers)
+        if (wishAdded > 0) {
+          showToast?.('Wish list pre-filled from family favorites', { actionLabel: 'View wish list →', onAction: () => navigate('/wishlist') })
+        }
       }
     }
 
