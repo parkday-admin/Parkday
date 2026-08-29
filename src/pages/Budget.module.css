@@ -46,6 +46,7 @@
 .emptyHeadline { font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--night); }
 .emptySubhead { font-size: 14px; color: var(--text-secondary); margin-bottom: 18px; }
 .planBtn {
+  display: inline-flex; align-items: center; gap: 6px;
   padding: 12px 24px; background: var(--sky); color: var(--white); border: none;
   border-radius: var(--radius); font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s;
 }

@@ -4,6 +4,7 @@ import { supabase } from '../supabase'
 import { fetchExpenses } from '../lib/expenses'
 import { archiveTrip, deleteTrip } from '../lib/trips'
 import { RESORTS, TIER_LABELS, BOOKING_LABELS, TICKET_LABELS, LL_LABELS, TRANSFER_LABELS, PARKING_LABELS } from '../components/Configurator/configuratorData'
+import useTripPassUsed from '../hooks/useTripPassUsed'
 import styles from './TripSettings.module.css'
 
 function parseLocalDate(str) {
@@ -51,7 +52,8 @@ function Row({ label, value, locked }) {
 export default function TripSettings() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, refetchTrips, showToast, accountType, planType, openDuplicateSheet } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, refetchTrips, showToast, accountType, planType, openDuplicateSheet, userId } = outletContext ?? { activeTrip: null, loading: true }
+  const tripPassUsed = useTripPassUsed(activeTrip, planType, userId)
   const [expenses, setExpenses] = useState(null)
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
@@ -121,7 +123,11 @@ export default function TripSettings() {
           {accountType === 'collaborator' ? "The account owner hasn't planned a trip yet." : 'Plan a trip to see its settings here.'}
         </p>
         {accountType !== 'collaborator' && (
-          <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+          tripPassUsed ? (
+            <button className={styles.planBtn} onClick={() => navigate('/paywall')}><i className="ti ti-crown" /> Upgrade to plan another trip</button>
+          ) : (
+            <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+          )
         )}
       </div>
     )

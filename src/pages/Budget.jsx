@@ -9,6 +9,7 @@ import Fab from '../components/Fab/Fab'
 import EntryCard from '../components/EntryCard/EntryCard'
 import Sheet from '../components/Sheet/Sheet'
 import BudgetPrintView from '../components/BudgetPrintView/BudgetPrintView'
+import useTripPassUsed from '../hooks/useTripPassUsed'
 import styles from './Budget.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -36,7 +37,8 @@ function methodLabel(source, giftCards, rewardPrograms) {
 export default function Budget() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { activeTrip, loading, expensesVersion, openExpenseSheet, userId, giftCards, rewardPrograms } = outletContext ?? { activeTrip: null, loading: true }
+  const { activeTrip, loading, expensesVersion, openExpenseSheet, userId, giftCards, rewardPrograms, planType } = outletContext ?? { activeTrip: null, loading: true }
+  const tripPassUsed = useTripPassUsed(activeTrip, planType, userId)
   const [expenses, setExpenses] = useState(null)
   const [error, setError] = useState(null)
   const [editingCat, setEditingCat] = useState(null)
@@ -115,7 +117,11 @@ export default function Budget() {
         <i className={`ti ti-chart-pie ${styles.emptyIcon}`} />
         <h1 className={styles.emptyHeadline}>No active trip</h1>
         <p className={styles.emptySubhead}>Plan a trip to start tracking your budget.</p>
-        <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+        {tripPassUsed ? (
+          <button className={styles.planBtn} onClick={() => navigate('/paywall')}><i className="ti ti-crown" /> Upgrade to plan another trip</button>
+        ) : (
+          <button className={styles.planBtn} onClick={() => navigate('/configurator')}>Plan a trip</button>
+        )}
       </div>
     )
   }
