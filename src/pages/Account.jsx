@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { getFullProfile, updateProfile, deleteAccount } from '../lib/profile'
 import { fetchArchivedTrips, unarchiveTrip } from '../lib/trips'
-import { familyMemberAge, familyMemberBirthdateLabel } from '../lib/familyMembers'
+import { familyMemberAge, familyMemberBirthdateLabel, deleteFamilyMember } from '../lib/familyMembers'
 import { createPortalSession, fetchPaymentMethod } from '../lib/stripe'
 import { signOutAndRedirect, sendPasswordReset } from '../lib/auth'
 import {
@@ -101,7 +101,7 @@ function ToggleRow({ name, sub, on, onToggle }) {
 export default function Account() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { session, showToast, activeTrip, familyMembers, openFamilySheet, refetchTrips, openDuplicateSheet } = outletContext ?? {}
+  const { session, showToast, activeTrip, familyMembers, openFamilySheet, refetchTrips, openDuplicateSheet, refetchFamilyMembers } = outletContext ?? {}
   const userId = session?.user?.id
 
   const [profile, setProfile] = useState(null)
@@ -249,6 +249,15 @@ export default function Account() {
     loadCollaboratorState()
   }
 
+  async function handleDeleteFamilyMember(member) {
+    const ok = window.confirm(`Remove ${member.name} from your family list?`)
+    if (!ok) return
+    const { error } = await deleteFamilyMember(member.id)
+    if (error) { showToast?.(error.message); return }
+    showToast?.('Family member removed')
+    refetchFamilyMembers?.()
+  }
+
   async function handleRemoveCollaborator() {
     const who = collaboratorState.collaborator.full_name || collaboratorState.collaborator.email
     const ok = window.confirm(`Are you sure? ${who} will immediately lose access to your trips.`)
@@ -338,6 +347,9 @@ export default function Account() {
                 <button type="button" className={styles.famEditBtn} title="Edit" onClick={() => openFamilySheet?.({ editingMember: m })}>
                   <i className="ti ti-pencil" />
                 </button>
+                <button type="button" className={styles.trash} title="Remove family member" onClick={() => handleDeleteFamilyMember(m)}>
+                  <i className="ti ti-trash" />
+                </button>
               </div>
             )
           })
@@ -352,18 +364,15 @@ export default function Account() {
           {collaboratorState === undefined ? (
             <div className={styles.empty}>Loading…</div>
           ) : collaboratorState.type === 'active' ? (
-            <>
-              <div className={styles.rowInline}>
-                <div>
-                  <div className={styles.val}>{collaboratorState.collaborator.full_name || collaboratorState.collaborator.email}</div>
-                  {collaboratorState.collaborator.full_name && <div className={styles.sub}>{collaboratorState.collaborator.email}</div>}
-                </div>
-                <span className={`${styles.planBadge} ${styles.badgePlus}`}>Active</span>
+            <div className={styles.rowInline}>
+              <div>
+                <div className={styles.val}>{collaboratorState.collaborator.full_name || collaboratorState.collaborator.email}</div>
+                {collaboratorState.collaborator.full_name && <div className={styles.sub}>{collaboratorState.collaborator.email}</div>}
               </div>
-              <button type="button" className={`${styles.dangerBtn} ${styles.solid}`} style={{ marginTop: 10 }} onClick={handleRemoveCollaborator}>
-                Remove collaborator
+              <button type="button" className={styles.trash} title="Remove collaborator" onClick={handleRemoveCollaborator}>
+                <i className="ti ti-trash" />
               </button>
-            </>
+            </div>
           ) : collaboratorState.type === 'pending' ? (
             <>
               <div className={styles.rowInline}>

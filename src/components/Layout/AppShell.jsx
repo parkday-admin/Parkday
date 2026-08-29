@@ -401,7 +401,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
             <Outlet context={{
               trips, activeTrip, setActiveTripId, loading: trips === null, refetchTrips: loadTrips,
               openExpenseSheet, expensesVersion, userId: ownerId, showToast, session, planType, accountType,
-              familyMembers, openFamilySheet, openDuplicateSheet,
+              familyMembers, openFamilySheet, openDuplicateSheet, refetchFamilyMembers: loadFamilyMembers,
               giftCards: giftCards ?? [], rewardPrograms: rewardPrograms ?? [], refetchGiftFunds: loadGiftFunds,
               reminders: reminders ?? [], refetchReminders: loadReminders,
             }} />
