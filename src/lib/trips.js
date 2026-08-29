@@ -10,6 +10,22 @@ export async function fetchActiveTrips() {
   return { data: data ?? [], error }
 }
 
+// Trip Pass covers exactly one trip, ever — not just "one active at a
+// time". A Trip Pass user could otherwise archive their sole trip and use
+// the now-empty Dashboard/Configurator flow to create another one for
+// free, so trip-creation gates check this rather than just "no active
+// trip" (deleted trips don't count — deleting one is meant to be a clean
+// do-over, unlike archiving).
+export async function hasExistingTrip(userId) {
+  const { count, error } = await supabase
+    .from('trips')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .neq('status', 'deleted')
+
+  return { hasTrip: (count ?? 0) > 0, error }
+}
+
 export async function fetchArchivedTrips() {
   const { data, error } = await supabase
     .from('trips')

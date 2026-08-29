@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPackageBooking } from '../lib/categories'
 import { giftFundsTotals } from '../lib/giftFunds'
-import { daysUntil, effectiveFinalPaymentDate, dateActiveTrip } from '../lib/trips'
+import { daysUntil, effectiveFinalPaymentDate, dateActiveTrip, hasExistingTrip } from '../lib/trips'
 import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
 import { urgencyLevel as reminderUrgencyLevel } from '../lib/reminders'
 import Fab from '../components/Fab/Fab'
@@ -112,11 +112,24 @@ function countdown(trip) {
 export default function Dashboard() {
   const navigate = useNavigate()
   const outletContext = useOutletContext()
-  const { trips, activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId, accountType } = outletContext ?? { activeTrip: null, loading: true }
+  const { trips, activeTrip, loading, expensesVersion, openExpenseSheet, giftCards, rewardPrograms, reminders, userId, accountType, planType } = outletContext ?? { activeTrip: null, loading: true }
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [error, setError] = useState(null)
   const [columns, setColumns] = useState(() => loadColumns(userId))
+  // Trip Pass covers one trip, ever — a Trip Pass user who's already used
+  // theirs (even if it's since been archived, hence no activeTrip) gets an
+  // upgrade prompt here instead of a free do-over. Defaults to false so a
+  // brand-new Trip Pass purchaser (landing here straight from checkout,
+  // with genuinely zero trips) isn't blocked while this resolves.
+  const [tripPassUsed, setTripPassUsed] = useState(false)
+
+  useEffect(() => {
+    if (activeTrip || planType !== 'trip_pass' || !userId) { setTripPassUsed(false); return }
+    let cancelled = false
+    hasExistingTrip(userId).then(({ hasTrip }) => { if (!cancelled) setTripPassUsed(hasTrip) })
+    return () => { cancelled = true }
+  }, [activeTrip, planType, userId])
 
   useEffect(() => { setColumns(loadColumns(userId)) }, [userId])
 
@@ -168,9 +181,15 @@ export default function Dashboard() {
           {accountType === 'collaborator' ? "The account owner hasn't planned a trip yet." : 'Set up your first trip to get started.'}
         </p>
         {accountType !== 'collaborator' && (
-          <button className={styles.planBtn} onClick={() => navigate('/configurator')}>
-            Plan a trip
-          </button>
+          tripPassUsed ? (
+            <button className={styles.planBtn} onClick={() => navigate('/paywall')}>
+              <i className="ti ti-crown" /> Upgrade to plan another trip
+            </button>
+          ) : (
+            <button className={styles.planBtn} onClick={() => navigate('/configurator')}>
+              Plan a trip
+            </button>
+          )
         )}
       </div>
     )

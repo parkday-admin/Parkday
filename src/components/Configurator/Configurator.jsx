@@ -14,6 +14,7 @@ import {
 import { findBudgetRow, isPackageBooking } from '../../lib/categories'
 import { familyMemberAge, familyMemberIsAdult } from '../../lib/familyMembers'
 import { copyWishListItems } from '../../lib/tripDuplication'
+import { hasExistingTrip } from '../../lib/trips'
 
 function makeDefaultS(prefill) {
   const base = JSON.parse(JSON.stringify(DEFAULT_S))
@@ -326,6 +327,23 @@ export default function Configurator({ session, planType }) {
   }
 
   async function doSave() {
+    // Trip Pass covers one trip, ever — archiving/deleting the trip this
+    // pass already covered doesn't free up a new one. This is the hard
+    // backstop: it applies no matter which "Plan a trip" button got the
+    // user here, not just the ones that already show an upgrade prompt.
+    if (!editingTrip && planType === 'trip_pass') {
+      const { hasTrip, error: checkErr } = await hasExistingTrip(session.user.id)
+      if (checkErr) { setError(checkErr.message); return }
+      if (hasTrip) {
+        setDateAlert({
+          upgrade: true,
+          title: 'Trip Pass covers one trip',
+          text: 'This account has already used its Trip Pass on another trip — archiving or deleting it doesn\'t free up a new one. Upgrade to Plus Pass to plan more than one trip.',
+        })
+        return
+      }
+    }
+
     setSaving(true)
     setError(null)
 
@@ -963,7 +981,7 @@ function ReviewStep({ S, editingTrip, adults, children, nights, dayTrip, setFiel
         <ReviewRow label="Length" value={dayTrip ? 'Day trip' : (nights > 0 ? `${nights} nights · ${parkCount} park days` : 'Not set')} />
         {dateAlert && (
           <div className={styles.cfgDateAlert}>
-            <div className={styles.cfgDateAlertTitle}><i className="ti ti-alert-triangle" /> This looks like a different trip</div>
+            <div className={styles.cfgDateAlertTitle}><i className="ti ti-alert-triangle" /> {dateAlert.title || 'This looks like a different trip'}</div>
             {dateAlert.text}
             {dateAlert.upgrade && (
               <button type="button" className={styles.cfgDateAlertUpgradeBtn} onClick={() => window.location.assign('/paywall')}><i className="ti ti-crown" /> Upgrade to plan another trip</button>
