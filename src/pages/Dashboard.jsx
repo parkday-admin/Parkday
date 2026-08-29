@@ -3,8 +3,8 @@ import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPackageBooking } from '../lib/categories'
 import { giftFundsTotals } from '../lib/giftFunds'
-import { daysUntil, effectiveFinalPaymentDate, dateActiveTrip } from '../lib/trips'
-import { fetchPayments, paymentsPaidTotal, paymentUrgencyLevel } from '../lib/payments'
+import { daysUntil, dateActiveTrip } from '../lib/trips'
+import { fetchPayments, paymentsPaidTotal } from '../lib/payments'
 import { urgencyLevel as reminderUrgencyLevel } from '../lib/reminders'
 import Fab from '../components/Fab/Fab'
 import DashboardCard from '../components/DashboardCard/DashboardCard'
@@ -316,9 +316,6 @@ export default function Dashboard() {
     const totalCost = packageRow?.planned_amt || 0
     const paid = paymentsPaidTotal(payments)
     const payRemaining = Math.max(0, totalCost - paid)
-    const finalPaymentDate = effectiveFinalPaymentDate(activeTrip)
-    const daysOut = daysUntil(finalPaymentDate) ?? 0
-    const lvl = paymentUrgencyLevel(daysOut)
     const paidInFull = payRemaining <= 0
     nodes.payments = (
       <DashboardCard
@@ -327,25 +324,28 @@ export default function Dashboard() {
         title="Resort package" sub={`${payments.length} payment${payments.length === 1 ? '' : 's'} logged`}
         onView={() => navigate('/payments')}
       >
-        <div className={styles.row}>
-          <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
-          <div className={styles.rowBody}>
-            <div className={styles.rowLabel}>Paid to date</div>
-            <div className={styles.rowMeta}>of {fmt(totalCost)} total</div>
+        {paidInFull ? (
+          <div className={styles.row}>
+            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
+            <div className={styles.rowBody}>
+              <div className={styles.rowLabel}>Package paid in full</div>
+              <div className={styles.rowMeta}>Nothing further will be charged</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div className={styles.rowValue}>{fmt(totalCost)}</div>
+              <Badge tone="green">Paid</Badge>
+            </div>
           </div>
-          <div className={styles.rowValue}>{fmt(paid)}</div>
-        </div>
-        <div className={styles.row}>
-          <div className={styles.rowIcon} style={{ background: 'var(--border-light)' }}><i className="ti ti-wallet" style={{ color: 'var(--text-tertiary)' }} /></div>
-          <div className={styles.rowBody}>
-            <div className={styles.rowLabel}>{paidInFull ? 'Package paid in full' : 'Remaining balance'}</div>
-            <div className={styles.rowMeta}>{paidInFull ? 'Nothing further will be charged' : `Final payment ${finalPaymentDate ? new Date(finalPaymentDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`}</div>
+        ) : (
+          <div className={styles.row}>
+            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
+            <div className={styles.rowBody}>
+              <div className={styles.rowLabel}>Paid to date</div>
+              <div className={styles.rowMeta}>of {fmt(totalCost)} total</div>
+            </div>
+            <div className={styles.rowValue}>{fmt(paid)}</div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div className={styles.rowValue}>{fmt(payRemaining)}</div>
-            {paidInFull ? <Badge tone="green">Paid</Badge> : <Badge tone={REMINDER_BADGE_TONE[lvl]}>{`Due in ${daysOut}d`}</Badge>}
-          </div>
-        </div>
+        )}
       </DashboardCard>
     )
   }
