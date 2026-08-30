@@ -24,7 +24,7 @@ export default function UsageSheet({ trip, expenses, state, onClose, onJump }) {
           <div className={styles.empty}>Not used on anything yet.</div>
         ) : items.map(e => {
           const meta = categoryMeta(e.cat)
-          const dayLabel = meta.scope === 'trip' ? 'Trip cost' : `Day ${e.day} · ${dayParkLabel(trip, expenses, e.day)}`
+          const dayLabel = e.day == null ? 'Trip cost' : `Day ${e.day} · ${dayParkLabel(trip, expenses, e.day)}`
           return (
             <div key={e.id} className={styles.row} onClick={() => onJump(e)}>
               <div className={styles.icon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>

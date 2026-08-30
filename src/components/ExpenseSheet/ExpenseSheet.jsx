@@ -51,7 +51,7 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
       setLabel(editing.label || '')
       setPlanned(editing.planned_amt != null ? String(editing.planned_amt) : '')
       setActual(editing.actual_amt != null ? String(editing.actual_amt) : '')
-      setDay(editing.day || 1)
+      setDay(editing.day ?? null)
       setTime(fmtTimeInput(editing.time))
       setLlType(editing.ll_type || 'multipass')
       setStatus(editing.status || null)
@@ -62,7 +62,12 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
       setLabel('')
       setPlanned('')
       setActual('')
-      setDay(state.presetDay || days[0]?.day || 1)
+      // A preset day (e.g. adding from a specific day's view) always wins.
+      // Otherwise default to a real day for day-ish categories and leave it
+      // blank (trip expense) for ones that are usually trip-level — either
+      // way it's just a starting point, not a lock; the picker below always
+      // has the "Trip expense" option too.
+      setDay(state.presetDay || (categoryMeta(initialCat).scope === 'day' ? (days[0]?.day || 1) : null))
       setTime('')
       setLlType('multipass')
       setStatus(null)
@@ -75,7 +80,6 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
   if (!state) return null
 
   const meta = categoryMeta(cat)
-  const tripLevel = meta.scope === 'trip'
   const showTime = CATS_WITH_TIME.has(cat) || (cat === 'll' && llType === 'singlepass')
   const showLlType = cat === 'll'
   const showStatus = CATS_WITH_STATUS.has(cat)
@@ -113,12 +117,12 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
 
     const fields = {
       cat,
-      // Trip-level entries have no day to fall back on for display, so
-      // default to the category name when left blank.
-      label: label.trim() || (tripLevel ? meta.label : null),
+      // A dayless (trip-level) entry has no day to fall back on for
+      // display, so default to the category name when left blank.
+      label: label.trim() || (day == null ? meta.label : null),
       planned_amt: finalPlanned,
       actual_amt: actualNum,
-      day: tripLevel ? null : day,
+      day,
       time: showTime ? fmtTimeOutput(time) : null,
       ll_type: showLlType ? llType : null,
       status: showStatus ? status : null,
@@ -225,18 +229,19 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
           <input className={styles.textInp} type="text" placeholder={meta.label} value={label} onChange={e => setLabel(e.target.value)} />
         </div>
 
-        {!tripLevel && (
-            <div className={styles.field}>
-              <div className={styles.fieldLbl}>Day</div>
-              <div className={styles.dayGrid}>
-                {days.map(d => (
-                  <button key={d.day} type="button" className={`${styles.segBtn} ${day === d.day ? styles.sel : ''}`} onClick={() => setDay(d.day)}>
-                    Day {d.day}<br />{d.dow}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        <div className={styles.field}>
+          <div className={styles.fieldLbl}>Day <span className={styles.optional}>(optional)</span></div>
+          <div className={styles.dayGrid}>
+            <button type="button" className={`${styles.segBtn} ${day == null ? styles.sel : ''}`} onClick={() => setDay(null)}>
+              Trip<br />expense
+            </button>
+            {days.map(d => (
+              <button key={d.day} type="button" className={`${styles.segBtn} ${day === d.day ? styles.sel : ''}`} onClick={() => setDay(d.day)}>
+                Day {d.day}<br />{d.dow}
+              </button>
+            ))}
+          </div>
+        </div>
 
           {showLlType && (
             <div className={styles.field}>
