@@ -2,7 +2,7 @@ import { supabase } from '../supabase'
 import { fetchWishList, updateWishListItem } from './wishlist'
 import { insertPackingItems } from './packing'
 
-const WISH_SELECT = 'id, family_member_id, source, catalog_id, name, park, category, price_label, price_mid, notes'
+const WISH_SELECT = 'id, family_member_id, source, catalog_id, name, park, category, price_label, price_mid, notes, lightning_lane_tier'
 const PACK_SELECT = 'id, family_member_id, label'
 
 export async function fetchWishFavorites(familyMemberId) {
@@ -21,6 +21,7 @@ export async function addCatalogWishFavorite(userId, familyMemberId, item) {
     .insert({
       user_id: userId, family_member_id: familyMemberId, source: 'catalog', catalog_id: item.id,
       name: item.name, park: item.park, category: item.category, price_label: item.price_label, price_mid: item.price_mid,
+      lightning_lane_tier: item.lightning_lane_tier ?? null,
     })
     .select(WISH_SELECT)
     .single()
@@ -118,6 +119,7 @@ export async function applyFamilyFavorites(userId, tripId, familyMemberIds, fami
         user_id: userId, trip_id: tripId, catalog_id: item.catalog_id, custom: false,
         name: item.name, park: item.park, category: item.category,
         price_label: item.price_label, price_mid: item.price_mid, favorited_by: favoritedBy,
+        lightning_lane_tier: item.lightning_lane_tier,
       })
     }
     wishAdded++

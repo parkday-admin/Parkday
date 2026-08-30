@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { WL_CAT_ORDER, WL_PARK_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
+import { WL_CAT_ORDER, WL_PARK_LABEL, LL_TIER_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
 import styles from './CatalogGrid.module.css'
 
 const CAT_OPTIONS = [{ value: 'all', label: 'All categories' }, ...WL_CAT_ORDER.map(k => ({ value: k, label: wlCatMeta(k).label }))]
@@ -66,6 +66,11 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                   <div className={styles.catCardName}>{c.name}</div>
                   <div className={styles.catCardPark}>
                     {c.park === 'All parks' ? 'All parks' : (WL_PARK_LABEL[c.park] || c.park)} · <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{meta.label.replace(/s$/, '')}</span>
+                    {c.lightning_lane_tier && (
+                      <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
+                        <i className="ti ti-bolt" /> {LL_TIER_LABEL[c.lightning_lane_tier] || c.lightning_lane_tier}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <button

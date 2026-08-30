@@ -19,7 +19,8 @@
 .itemIcon i { font-size: 15px; }
 .catCardName { font-size: 13px; font-weight: 600; color: var(--ink); }
 .catCardPark { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
-.pill { display: inline-flex; align-items: center; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; margin-left: 4px; }
+.catCardPark .pill:first-of-type { margin-left: 0; }
 
 .heartBtn {
   width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border-light);
