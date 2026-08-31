@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense } from '../lib/expenses'
 import {
   fetchCatalog, fetchWishList, addCatalogItemToWishList, removeWishListItemByCatalogId,
-  deleteWishListItem, WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, LL_TIER_LABEL, DINING_TIER_LABEL, wlCatMeta,
+  deleteWishListItem, WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta,
 } from '../lib/wishlist'
 import { dayParkLabel } from '../lib/trips'
 import BrowseCatalogSheet from '../components/BrowseCatalogSheet/BrowseCatalogSheet'
@@ -165,9 +165,20 @@ export default function Wishlist() {
                               {DINING_TIER_LABEL[item.dining_tier] || item.dining_tier}
                             </span>
                           )}
+                          {item.item_type && (
+                            <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
+                              {ITEM_TYPE_LABEL[item.item_type] || item.item_type}
+                            </span>
+                          )}
                           {item.price_label && <span className={styles.itemPrice}>{item.price_label}</span>}
                         </div>
                         {item.cuisine && <div className={styles.itemCuisine}>{item.cuisine}</div>}
+                        {item.location_detail && <div className={styles.itemCuisine}>{item.location_detail}</div>}
+                        {item.tags?.length > 0 && (
+                          <div className={styles.itemTags}>
+                            {item.tags.map(t => <span key={t} className={styles.tagChip}>{t}</span>)}
+                          </div>
+                        )}
                         {item.planned_expense_id && (
                           <div className={styles.itemAdded}>
                             <i className="ti ti-circle-check-filled" /> Added to Day {item.planned_day} · {dayParkLabel(activeTrip, expenses, item.planned_day)}

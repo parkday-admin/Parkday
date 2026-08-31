@@ -1,8 +1,13 @@
 import { supabase } from '../supabase'
 import { categoryMeta } from './categories'
 
-export const WL_CAT_ORDER = ['ride', 'show', 'restaurant', 'snack', 'experience', 'event', 'misc']
-export const WL_CAT_LABEL = { ride: 'Rides', show: 'Shows', restaurant: 'Dining', snack: 'Snacks and Sips', experience: 'Experiences', event: 'Events', misc: 'Misc' }
+// 'kiosk' covers seasonal festival booths (e.g. EPCOT Food & Wine) — a
+// discovery/planning location like 'restaurant', budgeted the same way
+// ('dining'). The food/drink items sold at those booths reuse the existing
+// 'snack' category rather than getting their own, since they're genuine
+// snack-shaped items (single food/drink, real per-item price).
+export const WL_CAT_ORDER = ['ride', 'show', 'restaurant', 'kiosk', 'snack', 'experience', 'event', 'misc']
+export const WL_CAT_LABEL = { ride: 'Rides', show: 'Shows', restaurant: 'Dining', kiosk: 'Festival Booths', snack: 'Snacks and Sips', experience: 'Experiences', event: 'Events', misc: 'Misc' }
 // Shorter form for the compact catalog-card pill — most categories just
 // singularize (Rides -> Ride), but Snacks and Sips reads oddly cut down to
 // "Snacks and Sip", so it keeps its full label there.
@@ -10,7 +15,7 @@ export const WL_CAT_PILL_LABEL = { ...WL_CAT_LABEL, snack: 'Snacks and Sips' }
 for (const key of Object.keys(WL_CAT_PILL_LABEL)) {
   if (key !== 'snack') WL_CAT_PILL_LABEL[key] = WL_CAT_PILL_LABEL[key].replace(/s$/, '')
 }
-export const WL_CAT_TO_EXPENSE_CAT = { ride: 'll', show: 'experience', restaurant: 'dining', snack: 'snacks', experience: 'experience', event: 'experience', misc: 'misc' }
+export const WL_CAT_TO_EXPENSE_CAT = { ride: 'll', show: 'experience', restaurant: 'dining', kiosk: 'dining', snack: 'snacks', experience: 'experience', event: 'experience', misc: 'misc' }
 
 export const WL_PARK_LABEL = {
   MK: 'Magic Kingdom', EPCOT: 'EPCOT', HS: 'Hollywood Studios', AK: 'Animal Kingdom', DS: 'Disney Springs',
@@ -50,8 +55,29 @@ export const DINING_TIER_LABEL = {
   dinner_show: 'Dinner Show',
 }
 
-const CATALOG_FIELDS = 'name, park, category, description, price_label, price_mid, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits'
-const WISH_ITEM_FIELDS = 'name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day, favorited_by, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits'
+export const ITEM_TYPE_LABEL = { food: 'Food', drink: 'Drink', both: 'Food & Drink' }
+
+const CATALOG_FIELDS = 'name, park, category, description, price_label, price_mid, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits, seasonal, tags, location_detail, item_type, booth_id'
+const WISH_ITEM_FIELDS = 'name, park, category, price_label, price_mid, notes, custom, planned_expense_id, planned_day, favorited_by, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits, seasonal, tags, location_detail, item_type, booth_id'
+
+// 'MM-DD' -> 'Aug 27' for display, independent of year.
+function fmtMonthDay(md) {
+  const [m, d] = md.split('-').map(Number)
+  return new Date(2001, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+}
+
+// Null when the given trip date ('YYYY-MM-DD') falls inside the item's
+// seasonal window, else a warning string to surface to the user. Compares
+// month-day only (seasonal{} carries no year) and handles a window that
+// wraps the new year (e.g. a Nov-Jan holiday festival).
+export function seasonalWarning(seasonal, dateStr) {
+  if (!seasonal?.start || !seasonal?.end || !dateStr) return null
+  const md = dateStr.slice(5)
+  const { start, end } = seasonal
+  const inWindow = start <= end ? (md >= start && md <= end) : (md >= start || md <= end)
+  if (inWindow) return null
+  return `This item is only available during ${seasonal.festival} (${fmtMonthDay(start)}–${fmtMonthDay(end)}).`
+}
 
 // Wish list categories reuse the same icon/color as the expense category
 // they map to, so the catalog and the itinerary/budget stay visually
@@ -98,6 +124,8 @@ export async function addCatalogItemToWishList(userId, tripId, item) {
       name: item.name, park: item.park, category: item.category,
       price_label: item.price_label, price_mid: item.price_mid, lightning_lane_tier: item.lightning_lane_tier ?? null,
       dining_tier: item.dining_tier ?? null, cuisine: item.cuisine ?? null, dining_plan_credits: item.dining_plan_credits ?? null,
+      seasonal: item.seasonal ?? null, tags: item.tags ?? null, location_detail: item.location_detail ?? null,
+      item_type: item.item_type ?? null, booth_id: item.booth_id ?? null,
     })
     .select(`id, catalog_id, ${WISH_ITEM_FIELDS}`)
     .single()

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createExpense, updateExpense } from '../../lib/expenses'
-import { updateWishListItem, wlCatMeta } from '../../lib/wishlist'
+import { updateWishListItem, wlCatMeta, seasonalWarning } from '../../lib/wishlist'
 import { tripDays, dayParkLabel } from '../../lib/trips'
 import Sheet from '../Sheet/Sheet'
 import styles from './AddToTripSheet.module.css'
@@ -30,6 +30,7 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
 
   const meta = wlCatMeta(item.category)
   const day = days[dayIndex]
+  const warning = day ? seasonalWarning(item.seasonal, day.date) : null
 
   async function handleSave() {
     const trimmedNotes = notes.trim()
@@ -78,6 +79,14 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
               ))}
             </div>
           </div>
+
+          {warning && (
+            <div className={styles.field}>
+              <div className={styles.seasonalWarning}>
+                <i className="ti ti-alert-triangle" /> {warning}
+              </div>
+            </div>
+          )}
 
           <div className={styles.field}>
             <div className={styles.toggleRow}>

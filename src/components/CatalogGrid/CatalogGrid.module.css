@@ -23,6 +23,12 @@
 .pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; margin-left: 4px; }
 .catCardPark .pill:first-of-type { margin-left: 0; }
 
+.catCardTags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.tagChip {
+  font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: 20px;
+  background: rgba(42, 111, 224, 0.08); color: var(--sky-dark, var(--sky));
+}
+
 .heartBtn {
   width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border-light);
   background: var(--white); color: var(--text-tertiary); cursor: pointer;

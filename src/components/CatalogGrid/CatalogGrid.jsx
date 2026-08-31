@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
+import { WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
 import styles from './CatalogGrid.module.css'
 
 const CAT_OPTIONS = [{ value: 'all', label: 'All categories' }, ...WL_CAT_ORDER.map(k => ({ value: k, label: wlCatMeta(k).label }))]
@@ -73,8 +73,19 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                         {DINING_TIER_LABEL[c.dining_tier] || c.dining_tier}
                       </span>
                     )}
+                    {c.item_type && (
+                      <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
+                        {ITEM_TYPE_LABEL[c.item_type] || c.item_type}
+                      </span>
+                    )}
                   </div>
                   {c.cuisine && <div className={styles.catCardCuisine}>{c.cuisine}</div>}
+                  {c.location_detail && <div className={styles.catCardCuisine}>{c.location_detail}</div>}
+                  {c.tags?.length > 0 && (
+                    <div className={styles.catCardTags}>
+                      {c.tags.map(t => <span key={t} className={styles.tagChip}>{t}</span>)}
+                    </div>
+                  )}
                 </div>
                 <button
                   type="button"
