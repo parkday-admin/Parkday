@@ -1,7 +1,7 @@
 import { supabase } from '../supabase'
 import { normalizeCat } from './categories'
 
-const SELECT = 'id, day, cat, label, time, status, ll_type, planned_amt, actual_amt, is_budget, payment_source, no_cost, booth_name, festival'
+const SELECT = 'id, day, cat, label, time, status, ll_type, planned_amt, actual_amt, is_budget, payment_source, no_cost, booth_name, festival, location_detail, lightning_lane_tier, dining_tier'
 
 export async function fetchExpenses(tripId) {
   const { data, error } = await supabase

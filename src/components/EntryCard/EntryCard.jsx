@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { LL_TYPE_LABEL } from '../../lib/categories'
+import { LL_TIER_LABEL, DINING_TIER_LABEL } from '../../lib/wishlist'
 import styles from './EntryCard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -64,6 +65,16 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
             {entry.time && <span>{entry.time}</span>}
             {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{LL_TYPE_LABEL[entry.ll_type] || entry.ll_type}</span>}
             {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
+            {entry.lightning_lane_tier && (
+              <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
+                <i className="ti ti-bolt" /> {LL_TIER_LABEL[entry.lightning_lane_tier] || entry.lightning_lane_tier}
+              </span>
+            )}
+            {entry.dining_tier && (
+              <span className={styles.pill} style={{ background: 'rgba(245,181,54,0.18)', color: 'var(--gold-dark)' }}>
+                {DINING_TIER_LABEL[entry.dining_tier] || entry.dining_tier}
+              </span>
+            )}
             {entry.booth_name && (
               <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
                 <i className="ti ti-tent" /> {entry.booth_name}
@@ -72,6 +83,11 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
             {entry.festival && (
               <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
                 <i className="ti ti-confetti" /> {entry.festival}
+              </span>
+            )}
+            {entry.location_detail && (
+              <span className={styles.pill} style={{ background: 'var(--border-light)', color: 'var(--text-secondary)' }}>
+                <i className="ti ti-map-pin" /> {entry.location_detail}
               </span>
             )}
           </div>

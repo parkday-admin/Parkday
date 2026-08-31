@@ -37,9 +37,15 @@ export default function AddToTripSheet({ trip, expenses, catalog = [], userId, s
     const label = item.name + (trimmedNotes ? ` — ${trimmedNotes}` : '')
     const boothName = item.booth_id ? catalog.find(c => c.id === item.booth_id)?.name ?? null : null
     const festival = item.seasonal?.festival ?? null
+    const pillFields = {
+      booth_name: boothName, festival,
+      location_detail: item.location_detail ?? null,
+      lightning_lane_tier: item.lightning_lane_tier ?? null,
+      dining_tier: item.dining_tier ?? null,
+    }
     const fields = hasCost
-      ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false, booth_name: boothName, festival }
-      : { day: day.day, cat: meta.expenseCat, label, planned_amt: null, actual_amt: null, no_cost: true, booth_name: boothName, festival }
+      ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false, ...pillFields }
+      : { day: day.day, cat: meta.expenseCat, label, planned_amt: null, actual_amt: null, no_cost: true, ...pillFields }
 
     setSaving(true)
     const { data: expenseRow, error: expenseError } = item.planned_expense_id
