@@ -41,6 +41,7 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
   const [llType, setLlType] = useState('multipass')
   const [status, setStatus] = useState(null)
   const [paymentSource, setPaymentSource] = useState('')
+  const [noCost, setNoCost] = useState(false)
   const [plannedError, setPlannedError] = useState(false)
   const [saving, setSaving] = useState(false)
 
@@ -56,6 +57,7 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
       setLlType(editing.ll_type || 'multipass')
       setStatus(editing.status || null)
       setPaymentSource(editing.payment_source || '')
+      setNoCost(!!editing.no_cost)
     } else {
       const initialCat = state.presetCat && cats.includes(state.presetCat) ? state.presetCat : cats.find(c => categoryMeta(c).scope === 'day') || cats[0]
       setCat(initialCat)
@@ -72,6 +74,7 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
       setLlType('multipass')
       setStatus(null)
       setPaymentSource('')
+      setNoCost(false)
     }
     setPlannedError(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -113,15 +116,22 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
 
     let finalPlanned = plannedNum
     if (finalPlanned == null && actualNum != null) finalPlanned = actualNum
-    if (finalPlanned == null) { setPlannedError(true); return }
+
+    // A no-cost entry (e.g. added from the wish list with the cost toggle
+    // off) has no amount by design — only require one when the entry isn't
+    // staying no-cost, so editing other fields (like adding a time) doesn't
+    // force the user to enter a planned/actual amount.
+    const stayingNoCost = noCost && finalPlanned == null
+    if (finalPlanned == null && !stayingNoCost) { setPlannedError(true); return }
 
     const fields = {
       cat,
       // A dayless (trip-level) entry has no day to fall back on for
       // display, so default to the category name when left blank.
       label: label.trim() || (day == null ? meta.label : null),
-      planned_amt: finalPlanned,
-      actual_amt: actualNum,
+      planned_amt: stayingNoCost ? null : finalPlanned,
+      actual_amt: stayingNoCost ? null : actualNum,
+      no_cost: stayingNoCost,
       day,
       time: showTime ? fmtTimeOutput(time) : null,
       ll_type: showLlType ? llType : null,
@@ -182,6 +192,9 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
             </div>
           </div>
           {plannedError && <div className={styles.errMsg}>Enter a planned or actual amount</div>}
+          {!plannedError && noCost && planned === '' && actual === '' && (
+            <div className={styles.optional} style={{ marginTop: 5 }}>No cost — leave blank to keep it off the budget.</div>
+          )}
         </div>
 
         <div className={styles.field}>
