@@ -14,8 +14,16 @@ const PRICE_OPTIONS = [
 // Filterable catalog card grid with a heart toggle — the shared body of the
 // full-screen wish list catalog browser (BrowseCatalogSheet) and the
 // compact inline version used for family member favorites.
-export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact = false }) {
-  const [search, setSearch] = useState('')
+// search/onSearchChange make the search box controlled by a parent that
+// wants to render it elsewhere (BrowseCatalogSheet puts it in its header,
+// next to the back button, instead of here) — pass hideSearchBar to skip
+// rendering the built-in one in that case. Omit both for the default
+// self-contained search box (used by the compact family-favorites view).
+export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact = false, search: controlledSearch, onSearchChange, hideSearchBar = false }) {
+  const [internalSearch, setInternalSearch] = useState('')
+  const controlled = onSearchChange != null
+  const search = controlled ? controlledSearch : internalSearch
+  const setSearch = controlled ? onSearchChange : setInternalSearch
   const [catFilter, setCatFilter] = useState('all')
   const [parkFilter, setParkFilter] = useState('all')
   const [priceFilter, setPriceFilter] = useState('all')
@@ -35,16 +43,18 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
 
   return (
     <div className={compact ? styles.compact : undefined}>
-      <div className={styles.searchWrap}>
-        <i className="ti ti-search" />
-        <input
-          className={styles.searchInp}
-          type="text"
-          placeholder="Search catalog"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-        />
-      </div>
+      {!hideSearchBar && (
+        <div className={styles.searchWrap}>
+          <i className="ti ti-search" />
+          <input
+            className={styles.searchInp}
+            type="text"
+            placeholder="Search catalog"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+      )}
 
       <div className={styles.filterBar}>
         <select className={styles.filterSelect} value={catFilter} onChange={e => setCatFilter(e.target.value)}>
