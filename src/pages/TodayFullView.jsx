@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
-import { categoryMeta } from '../lib/categories'
+import { categoryMeta, LL_TYPE_LABEL } from '../lib/categories'
 import { dateActiveTrip, tripDays, tripDayNumberForToday, dayTypeInfo } from '../lib/trips'
 import styles from './TodayFullView.module.css'
 
@@ -130,7 +130,7 @@ export default function TodayFullView() {
                   <div className={styles.entryName}>{e.label || meta.label}</div>
                   <div className={styles.entryMeta}>
                     {e.time && <span>{e.time}</span>}
-                    {e.cat === 'll' && e.ll_type && <span className={styles.pill}>{e.ll_type === 'singlepass' ? 'Single Pass' : 'Multi Pass'}</span>}
+                    {e.cat === 'll' && e.ll_type && <span className={styles.pill}>{LL_TYPE_LABEL[e.ll_type] || e.ll_type}</span>}
                     {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
                   </div>
                 </div>

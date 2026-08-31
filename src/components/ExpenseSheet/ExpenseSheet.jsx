@@ -249,6 +249,7 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
               <div className={styles.seg2}>
                 <button type="button" className={`${styles.segBtn} ${llType === 'multipass' ? styles.sel : ''}`} onClick={() => setLlType('multipass')}>Multi Pass</button>
                 <button type="button" className={`${styles.segBtn} ${llType === 'singlepass' ? styles.sel : ''}`} onClick={() => setLlType('singlepass')}>Single Pass</button>
+                <button type="button" className={`${styles.segBtn} ${llType === 'premierpass' ? styles.sel : ''}`} onClick={() => setLlType('premierpass')}>Premier Pass</button>
               </div>
             </div>
           )}

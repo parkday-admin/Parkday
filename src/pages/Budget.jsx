@@ -158,7 +158,7 @@ export default function Budget() {
   // auto-generated park_day placeholders aren't transactions), sorted the
   // same way the Itinerary's day view sorts a day's Scheduled section.
   const allEntries = expenses
-    .filter(e => !e.is_budget && e.cat !== 'park_day')
+    .filter(e => !e.is_budget && e.cat !== 'park_day' && !e.no_cost)
     .sort((a, b) => {
       const dayA = a.day ?? -1, dayB = b.day ?? -1
       if (dayA !== dayB) return dayA - dayB

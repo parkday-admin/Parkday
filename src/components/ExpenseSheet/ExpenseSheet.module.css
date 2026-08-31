@@ -57,7 +57,7 @@
 .copyBtn i { font-size: 13px; color: var(--ink); }
 
 .dayGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.seg2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .seg3 { display: flex; gap: 6px; }
 
 .segBtn {

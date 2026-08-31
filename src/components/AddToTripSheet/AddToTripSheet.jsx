@@ -10,6 +10,7 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
   const days = trip ? tripDays(trip) : []
 
   const [dayIndex, setDayIndex] = useState(0)
+  const [hasCost, setHasCost] = useState(false)
   const [amount, setAmount] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
@@ -19,6 +20,7 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
     const existingExpense = item.planned_expense_id ? expenses.find(e => e.id === item.planned_expense_id) : null
     const initialDay = item.planned_day || days[0]?.day || 1
     setDayIndex(Math.max(0, days.findIndex(d => d.day === initialDay)))
+    setHasCost(existingExpense ? !existingExpense.no_cost : false)
     setAmount(String(existingExpense?.planned_amt ?? item.price_mid ?? ''))
     setNotes(item.notes || '')
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -30,10 +32,11 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
   const day = days[dayIndex]
 
   async function handleSave() {
-    const amt = Number(amount) || 0
     const trimmedNotes = notes.trim()
     const label = item.name + (trimmedNotes ? ` — ${trimmedNotes}` : '')
-    const fields = { day: day.day, cat: meta.expenseCat, label, planned_amt: amt }
+    const fields = hasCost
+      ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false }
+      : { day: day.day, cat: meta.expenseCat, label, planned_amt: null, actual_amt: null, no_cost: true }
 
     setSaving(true)
     const { data: expenseRow, error: expenseError } = item.planned_expense_id
@@ -77,12 +80,26 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Planned amount</div>
-            <div className={styles.amtWrap}>
-              <div className={styles.amtPre}>$</div>
-              <input className={styles.amtInp} type="number" min="0" placeholder="0" value={amount} onChange={e => setAmount(e.target.value)} />
+            <div className={styles.toggleRow}>
+              <div className={styles.toggleLeft}>
+                <div className={styles.toggleName}>Add a cost for this?</div>
+                <div className={styles.toggleSub}>
+                  {hasCost ? "It'll count toward your budget." : "It'll show on your itinerary but won't count toward your budget."}
+                </div>
+              </div>
+              <button type="button" className={`${styles.toggle} ${hasCost ? styles.on : ''}`} onClick={() => setHasCost(h => !h)} />
             </div>
           </div>
+
+          {hasCost && (
+            <div className={styles.field}>
+              <div className={styles.fieldLbl}>Planned amount</div>
+              <div className={styles.amtWrap}>
+                <div className={styles.amtPre}>$</div>
+                <input className={styles.amtInp} type="number" min="0" placeholder="0" value={amount} onChange={e => setAmount(e.target.value)} />
+              </div>
+            </div>
+          )}
 
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Notes <span className={styles.optional}>(optional)</span></div>

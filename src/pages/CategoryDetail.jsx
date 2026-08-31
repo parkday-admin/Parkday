@@ -52,7 +52,7 @@ export default function CategoryDetail() {
   const meta = categoryMeta(cat)
   const es = expenses.filter(e => e.cat === cat)
   const { budgetRow, planned, actual } = categoryTotals(es, cat)
-  const entries = es.filter(e => e !== budgetRow)
+  const entries = es.filter(e => e !== budgetRow && !e.no_cost)
   const hasSpend = actual > 0
 
   const tripLevelEntries = entries.filter(e => e.day == null)

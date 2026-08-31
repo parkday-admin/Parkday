@@ -19,6 +19,8 @@ export const CATEGORY_ORDER = ['resort', 'tickets', 'travel', 'dining', 'snacks'
 export const CATS_WITH_TIME = new Set(['dining', 'experience', 'transport', 'travel'])
 export const CATS_WITH_STATUS = new Set(['dining', 'experience'])
 
+export const LL_TYPE_LABEL = { multipass: 'Multi Pass', singlepass: 'Single Pass', premierpass: 'Premier Pass' }
+
 // Superseded cat keys from an earlier schema, kept so already-saved rows
 // (e.g. trips created before this categories rework) still resolve.
 const CAT_ALIASES = { accommodations: 'resort', lightning_lane: 'll', experiences: 'experience' }
@@ -52,7 +54,7 @@ export function findBudgetRow(rows, cat) {
 // triggers) — there's no separate "entry" to log a package payment against.
 export function categoryTotals(rows, cat) {
   const budgetRow = findBudgetRow(rows, cat)
-  const entries = rows.filter(r => r !== budgetRow)
+  const entries = rows.filter(r => r !== budgetRow && !r.no_cost)
   return {
     budgetRow,
     budgeted: budgetRow?.planned_amt || 0,

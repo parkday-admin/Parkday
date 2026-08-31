@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { LL_TYPE_LABEL } from '../../lib/categories'
 import styles from './EntryCard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -61,28 +62,30 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
           <div className={styles.entryMeta}>
             {dayLabel && <span>{dayLabel}</span>}
             {entry.time && <span>{entry.time}</span>}
-            {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{entry.ll_type === 'singlepass' ? 'Single Pass' : 'Multi Pass'}</span>}
+            {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{LL_TYPE_LABEL[entry.ll_type] || entry.ll_type}</span>}
             {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
           </div>
         </div>
-        <div className={styles.entryAmts}>
-          {hasActual ? (
-            <>
-              <div className={styles.entryStrike}>{fmt(entry.planned_amt)}</div>
-              <div className={styles.entryPaidRow}>
-                <span className={styles.entryActualAmt} style={{ color: underBudget ? 'var(--teal-dark)' : 'var(--coral)' }}>{fmt(entry.actual_amt)}</span>
-                <span className={`${styles.entryDelta} ${underBudget ? styles.deltaUnder : styles.deltaOver}`}>
-                  {underBudget ? '-' : '+'}{fmt(Math.abs(delta))}
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className={styles.entryPlanned}>{fmt(entry.planned_amt)}</div>
-              <div className={styles.entryPlannedLbl}>planned</div>
-            </>
-          )}
-        </div>
+        {!entry.no_cost && (
+          <div className={styles.entryAmts}>
+            {hasActual ? (
+              <>
+                <div className={styles.entryStrike}>{fmt(entry.planned_amt)}</div>
+                <div className={styles.entryPaidRow}>
+                  <span className={styles.entryActualAmt} style={{ color: underBudget ? 'var(--teal-dark)' : 'var(--coral)' }}>{fmt(entry.actual_amt)}</span>
+                  <span className={`${styles.entryDelta} ${underBudget ? styles.deltaUnder : styles.deltaOver}`}>
+                    {underBudget ? '-' : '+'}{fmt(Math.abs(delta))}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.entryPlanned}>{fmt(entry.planned_amt)}</div>
+                <div className={styles.entryPlannedLbl}>planned</div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
