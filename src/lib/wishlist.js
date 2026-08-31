@@ -1,13 +1,14 @@
 import { supabase } from '../supabase'
 import { categoryMeta } from './categories'
 
-// 'kiosk' covers seasonal festival booths (e.g. EPCOT Food & Wine) — a
-// discovery/planning location like 'restaurant', budgeted the same way
-// ('dining'). The food/drink items sold at those booths reuse the existing
-// 'snack' category rather than getting their own, since they're genuine
-// snack-shaped items (single food/drink, real per-item price).
-export const WL_CAT_ORDER = ['ride', 'show', 'restaurant', 'kiosk', 'snack', 'experience', 'event', 'misc']
-export const WL_CAT_LABEL = { ride: 'Rides', show: 'Shows', restaurant: 'Dining', kiosk: 'Festival Booths', snack: 'Snacks and Sips', experience: 'Experiences', event: 'Events', misc: 'Misc' }
+// Seasonal festival booths (e.g. EPCOT Food & Wine kiosks) are physical
+// dining locations, so they live under 'restaurant' rather than their own
+// category — the seasonal{} field (surfaced as a festival pill) is what
+// distinguishes them from a year-round restaurant. The food/drink items
+// sold at those booths reuse the existing 'snack' category, since they're
+// genuine snack-shaped items (single food/drink, real per-item price).
+export const WL_CAT_ORDER = ['ride', 'show', 'restaurant', 'snack', 'experience', 'event', 'misc']
+export const WL_CAT_LABEL = { ride: 'Rides', show: 'Shows', restaurant: 'Dining', snack: 'Snacks and Sips', experience: 'Experiences', event: 'Events', misc: 'Misc' }
 // Shorter form for the compact catalog-card pill — most categories just
 // singularize (Rides -> Ride), but Snacks and Sips reads oddly cut down to
 // "Snacks and Sip", so it keeps its full label there.
@@ -15,7 +16,7 @@ export const WL_CAT_PILL_LABEL = { ...WL_CAT_LABEL, snack: 'Snacks and Sips' }
 for (const key of Object.keys(WL_CAT_PILL_LABEL)) {
   if (key !== 'snack') WL_CAT_PILL_LABEL[key] = WL_CAT_PILL_LABEL[key].replace(/s$/, '')
 }
-export const WL_CAT_TO_EXPENSE_CAT = { ride: 'll', show: 'experience', restaurant: 'dining', kiosk: 'dining', snack: 'snacks', experience: 'experience', event: 'experience', misc: 'misc' }
+export const WL_CAT_TO_EXPENSE_CAT = { ride: 'll', show: 'experience', restaurant: 'dining', snack: 'snacks', experience: 'experience', event: 'experience', misc: 'misc' }
 
 export const WL_PARK_LABEL = {
   MK: 'Magic Kingdom', EPCOT: 'EPCOT', HS: 'Hollywood Studios', AK: 'Animal Kingdom', DS: 'Disney Springs',

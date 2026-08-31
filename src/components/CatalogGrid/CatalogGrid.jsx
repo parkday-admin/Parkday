@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
 import styles from './CatalogGrid.module.css'
 
@@ -18,6 +18,10 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
   const [catFilter, setCatFilter] = useState('all')
   const [parkFilter, setParkFilter] = useState('all')
   const [priceFilter, setPriceFilter] = useState('all')
+
+  // Items only carry booth_id — resolve the booth's name from the same
+  // catalog list rather than denormalizing a booth_name column.
+  const boothNameById = useMemo(() => new Map(catalog.map(c => [c.id, c.name])), [catalog])
 
   const filtered = catalog.filter(c => {
     if (catFilter !== 'all' && c.category !== catFilter) return false
@@ -76,6 +80,16 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                     {c.item_type && (
                       <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
                         {ITEM_TYPE_LABEL[c.item_type] || c.item_type}
+                      </span>
+                    )}
+                    {c.booth_id && boothNameById.get(c.booth_id) && (
+                      <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
+                        <i className="ti ti-tent" /> {boothNameById.get(c.booth_id)}
+                      </span>
+                    )}
+                    {c.seasonal?.festival && (
+                      <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
+                        <i className="ti ti-confetti" /> {c.seasonal.festival}
                       </span>
                     )}
                   </div>

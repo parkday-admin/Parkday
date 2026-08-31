@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense } from '../lib/expenses'
 import {
@@ -21,6 +21,10 @@ export default function Wishlist() {
   const [browseOpen, setBrowseOpen] = useState(false)
   const [customOpen, setCustomOpen] = useState(false)
   const [planState, setPlanState] = useState(null)
+
+  // Items only carry booth_id — resolve the booth's name from the same
+  // catalog list rather than denormalizing a booth_name column.
+  const boothNameById = useMemo(() => new Map((catalog ?? []).map(c => [c.id, c.name])), [catalog])
 
   async function reload() {
     if (!activeTrip) return
@@ -168,6 +172,16 @@ export default function Wishlist() {
                           {item.item_type && (
                             <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
                               {ITEM_TYPE_LABEL[item.item_type] || item.item_type}
+                            </span>
+                          )}
+                          {item.booth_id && boothNameById.get(item.booth_id) && (
+                            <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
+                              <i className="ti ti-tent" /> {boothNameById.get(item.booth_id)}
+                            </span>
+                          )}
+                          {item.seasonal?.festival && (
+                            <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
+                              <i className="ti ti-confetti" /> {item.seasonal.festival}
                             </span>
                           )}
                           {item.price_label && <span className={styles.itemPrice}>{item.price_label}</span>}
