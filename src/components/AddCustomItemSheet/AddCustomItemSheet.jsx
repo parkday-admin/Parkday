@@ -1,26 +1,13 @@
 import { useEffect, useState } from 'react'
-import { addCustomWishListItem } from '../../lib/wishlist'
+import { addCustomWishListItem, WL_CAT_ORDER, WL_CAT_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS } from '../../lib/wishlist'
 import { addCustomWishFavorite } from '../../lib/familyFavorites'
 import Sheet from '../Sheet/Sheet'
 import styles from './AddCustomItemSheet.module.css'
 
-const PARKS = [
-  { value: '', label: '—' },
-  { value: 'MK', label: 'Magic Kingdom' },
-  { value: 'EPCOT', label: 'EPCOT' },
-  { value: 'HS', label: 'Hollywood Studios' },
-  { value: 'AK', label: 'Animal Kingdom' },
-  { value: 'All parks', label: 'All parks' },
-]
-
-const CATEGORIES = [
-  { value: 'ride', label: 'Ride' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'snack', label: 'Snack' },
-  { value: 'experience', label: 'Experience' },
-  { value: 'event', label: 'Event' },
-  { value: 'misc', label: 'Misc' },
-]
+// Sourced from the same lists the catalog filter/browse UI uses, so a new
+// wish list category or park/resort added there shows up here too instead
+// of drifting out of sync.
+const CATEGORIES = WL_CAT_ORDER.map(value => ({ value, label: WL_CAT_LABEL[value] }))
 
 export default function AddCustomItemSheet({ trip, userId, open, onClose, onSaved, onError, favoritesMode = false, familyMemberId = null }) {
   const [name, setName] = useState('')
@@ -81,7 +68,13 @@ export default function AddCustomItemSheet({ trip, userId, open, onClose, onSave
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Park <span className={styles.optional}>(optional)</span></div>
             <select className={styles.textInp} value={park} onChange={e => setPark(e.target.value)}>
-              {PARKS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+              <option value="">—</option>
+              <option value="All parks">All parks</option>
+              {WL_PARK_GROUPS.map(g => (
+                <optgroup key={g.label} label={g.label}>
+                  {g.options.map(code => <option key={code} value={code}>{WL_PARK_LABEL[code]}</option>)}
+                </optgroup>
+              ))}
             </select>
           </div>
 
