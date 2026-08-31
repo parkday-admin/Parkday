@@ -2,7 +2,7 @@ import { supabase } from '../supabase'
 import { fetchWishList, updateWishListItem } from './wishlist'
 import { insertPackingItems } from './packing'
 
-const WISH_SELECT = 'id, family_member_id, source, catalog_id, name, park, category, price_label, price_mid, notes, lightning_lane_tier'
+const WISH_SELECT = 'id, family_member_id, source, catalog_id, name, park, category, price_label, price_mid, notes, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits'
 const PACK_SELECT = 'id, family_member_id, label'
 
 export async function fetchWishFavorites(familyMemberId) {
@@ -22,6 +22,7 @@ export async function addCatalogWishFavorite(userId, familyMemberId, item) {
       user_id: userId, family_member_id: familyMemberId, source: 'catalog', catalog_id: item.id,
       name: item.name, park: item.park, category: item.category, price_label: item.price_label, price_mid: item.price_mid,
       lightning_lane_tier: item.lightning_lane_tier ?? null,
+      dining_tier: item.dining_tier ?? null, cuisine: item.cuisine ?? null, dining_plan_credits: item.dining_plan_credits ?? null,
     })
     .select(WISH_SELECT)
     .single()
@@ -120,6 +121,7 @@ export async function applyFamilyFavorites(userId, tripId, familyMemberIds, fami
         name: item.name, park: item.park, category: item.category,
         price_label: item.price_label, price_mid: item.price_mid, favorited_by: favoritedBy,
         lightning_lane_tier: item.lightning_lane_tier,
+        dining_tier: item.dining_tier, cuisine: item.cuisine, dining_plan_credits: item.dining_plan_credits,
       })
     }
     wishAdded++

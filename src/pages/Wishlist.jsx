@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense } from '../lib/expenses'
 import {
   fetchCatalog, fetchWishList, addCatalogItemToWishList, removeWishListItemByCatalogId,
-  deleteWishListItem, WL_CAT_ORDER, WL_PARK_LABEL, LL_TIER_LABEL, wlCatMeta,
+  deleteWishListItem, WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, LL_TIER_LABEL, DINING_TIER_LABEL, wlCatMeta,
 } from '../lib/wishlist'
 import { dayParkLabel } from '../lib/trips'
 import BrowseCatalogSheet from '../components/BrowseCatalogSheet/BrowseCatalogSheet'
@@ -154,14 +154,20 @@ export default function Wishlist() {
                         )}
                         <div className={styles.itemSub}>
                           {item.park && <span className={styles.itemPark}>{WL_PARK_LABEL[item.park] || item.park}</span>}
-                          <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{meta.label.replace(/s$/, '')}</span>
+                          <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{WL_CAT_PILL_LABEL[item.category] || meta.label}</span>
                           {item.lightning_lane_tier && (
                             <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
                               <i className="ti ti-bolt" /> {LL_TIER_LABEL[item.lightning_lane_tier] || item.lightning_lane_tier}
                             </span>
                           )}
+                          {item.dining_tier && (
+                            <span className={styles.pill} style={{ background: 'rgba(245,181,54,0.18)', color: 'var(--gold-dark)' }}>
+                              {DINING_TIER_LABEL[item.dining_tier] || item.dining_tier}
+                            </span>
+                          )}
                           {item.price_label && <span className={styles.itemPrice}>{item.price_label}</span>}
                         </div>
+                        {item.cuisine && <div className={styles.itemCuisine}>{item.cuisine}</div>}
                         {item.planned_expense_id && (
                           <div className={styles.itemAdded}>
                             <i className="ti ti-circle-check-filled" /> Added to Day {item.planned_day} · {dayParkLabel(activeTrip, expenses, item.planned_day)}

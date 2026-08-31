@@ -1,16 +1,8 @@
 import { useState } from 'react'
-import { WL_CAT_ORDER, WL_PARK_LABEL, LL_TIER_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
+import { WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
 import styles from './CatalogGrid.module.css'
 
 const CAT_OPTIONS = [{ value: 'all', label: 'All categories' }, ...WL_CAT_ORDER.map(k => ({ value: k, label: wlCatMeta(k).label }))]
-const PARK_OPTIONS = [
-  { value: 'all', label: 'All parks' },
-  { value: 'MK', label: 'Magic Kingdom' },
-  { value: 'EPCOT', label: 'EPCOT' },
-  { value: 'HS', label: 'Hollywood Studios' },
-  { value: 'AK', label: 'Animal Kingdom' },
-  { value: 'Resort', label: 'Resort' },
-]
 const PRICE_OPTIONS = [
   { value: 'all', label: 'Any price' },
   { value: 'free', label: 'Free' },
@@ -41,7 +33,12 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
           {CAT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
         <select className={styles.filterSelect} value={parkFilter} onChange={e => setParkFilter(e.target.value)}>
-          {PARK_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+          <option value="all">All parks</option>
+          {WL_PARK_GROUPS.map(g => (
+            <optgroup key={g.label} label={g.label}>
+              {g.options.map(code => <option key={code} value={code}>{WL_PARK_LABEL[code]}</option>)}
+            </optgroup>
+          ))}
         </select>
         <select className={styles.filterSelect} value={priceFilter} onChange={e => setPriceFilter(e.target.value)}>
           {PRICE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -65,13 +62,19 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={styles.catCardName}>{c.name}</div>
                   <div className={styles.catCardPark}>
-                    {c.park === 'All parks' ? 'All parks' : (WL_PARK_LABEL[c.park] || c.park)} · <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{meta.label.replace(/s$/, '')}</span>
+                    {c.park === 'All parks' ? 'All parks' : (WL_PARK_LABEL[c.park] || c.park)} · <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{WL_CAT_PILL_LABEL[c.category] || meta.label}</span>
                     {c.lightning_lane_tier && (
                       <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
                         <i className="ti ti-bolt" /> {LL_TIER_LABEL[c.lightning_lane_tier] || c.lightning_lane_tier}
                       </span>
                     )}
+                    {c.dining_tier && (
+                      <span className={styles.pill} style={{ background: 'rgba(245,181,54,0.18)', color: 'var(--gold-dark)' }}>
+                        {DINING_TIER_LABEL[c.dining_tier] || c.dining_tier}
+                      </span>
+                    )}
                   </div>
+                  {c.cuisine && <div className={styles.catCardCuisine}>{c.cuisine}</div>}
                 </div>
                 <button
                   type="button"

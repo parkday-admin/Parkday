@@ -76,8 +76,8 @@ export async function copyWishListItems(userId, sourceTripId, newTripId) {
   if (error) return { error }
   if (!items.length) return { error: null }
 
-  const rows = items.map(({ catalog_id, name, park, category, price_label, price_mid, notes, custom, lightning_lane_tier }) => ({
-    user_id: userId, trip_id: newTripId, catalog_id, name, park, category, price_label, price_mid, notes, custom, lightning_lane_tier,
+  const rows = items.map(({ catalog_id, name, park, category, price_label, price_mid, notes, custom, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits }) => ({
+    user_id: userId, trip_id: newTripId, catalog_id, name, park, category, price_label, price_mid, notes, custom, lightning_lane_tier, dining_tier, cuisine, dining_plan_credits,
     planned_expense_id: null, planned_day: null,
   }))
   const { error: insertError } = await supabase.from('wish_list_items').insert(rows)
