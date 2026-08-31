@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { LL_TYPE_LABEL } from '../../lib/categories'
-import { LL_TIER_LABEL, DINING_TIER_LABEL } from '../../lib/wishlist'
+import { LL_TIER_LABEL, DINING_TIER_LABEL, llTierToExpenseType } from '../../lib/wishlist'
 import styles from './EntryCard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
@@ -39,6 +39,14 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
     if (deltaX < -50) { setSwiped(true); setDx(0) } else { setSwiped(false); setDx(0) }
   }
 
+  // The catalog's lightning_lane_tier pill (with real tier granularity) and
+  // the expense's own ll_type pill (what was actually booked) usually agree
+  // — only show ll_type when it diverges from what the tier implies (e.g.
+  // the guest bought a Premier Pass for a Multi Pass ride), so a matching
+  // pair doesn't render as two identical-looking pills.
+  const impliedLlType = llTierToExpenseType(entry.lightning_lane_tier)
+  const showLlTypePill = entry.cat === 'll' && entry.ll_type && entry.ll_type !== impliedLlType
+
   const statusInfo = entry.status && STATUS_STYLE[entry.status]
   const hasActual = entry.actual_amt != null
   const delta = hasActual ? (entry.planned_amt || 0) - entry.actual_amt : 0
@@ -63,7 +71,7 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
           <div className={styles.entryMeta}>
             {dayLabel && <span>{dayLabel}</span>}
             {entry.time && <span>{entry.time}</span>}
-            {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{LL_TYPE_LABEL[entry.ll_type] || entry.ll_type}</span>}
+            {showLlTypePill && <span className={styles.pill}>{LL_TYPE_LABEL[entry.ll_type] || entry.ll_type}</span>}
             {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
             {entry.lightning_lane_tier && (
               <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>

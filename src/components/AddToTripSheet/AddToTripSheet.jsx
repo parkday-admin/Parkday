@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createExpense, updateExpense } from '../../lib/expenses'
-import { updateWishListItem, wlCatMeta, seasonalWarning } from '../../lib/wishlist'
+import { updateWishListItem, wlCatMeta, seasonalWarning, llTierToExpenseType } from '../../lib/wishlist'
 import { tripDays, dayParkLabel } from '../../lib/trips'
 import Sheet from '../Sheet/Sheet'
 import styles from './AddToTripSheet.module.css'
@@ -42,6 +42,14 @@ export default function AddToTripSheet({ trip, expenses, catalog = [], userId, s
       location_detail: item.location_detail ?? null,
       lightning_lane_tier: item.lightning_lane_tier ?? null,
       dining_tier: item.dining_tier ?? null,
+    }
+    // Seed ll_type from the ride's catalog tier so a freshly-added ride
+    // starts with the right expense-sheet selection instead of its
+    // 'multipass' default — only on create, so re-saving an existing entry
+    // (e.g. changing the day) never overwrites an ll_type the user already
+    // picked by hand.
+    if (!item.planned_expense_id && meta.expenseCat === 'll') {
+      pillFields.ll_type = llTierToExpenseType(item.lightning_lane_tier)
     }
     const fields = hasCost
       ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false, ...pillFields }

@@ -45,6 +45,20 @@ export const LL_TIER_LABEL = {
   standby_only: 'Standby only',
 }
 
+// The expense's ll_type (multipass/singlepass/premierpass — what the user
+// actually books, editable in the expense sheet) and a ride's catalog
+// lightning_lane_tier (its real tier classification, e.g. "Multi Pass ·
+// Tier 2") are different concepts that usually agree. This maps a catalog
+// tier to the ll_type it implies, so a freshly-added ride starts with the
+// right selection instead of the expense sheet's 'multipass' default, and
+// so a matching pair can be deduped down to one pill instead of two.
+export function llTierToExpenseType(tier) {
+  if (tier === 'single_pass') return 'singlepass'
+  if (tier === 'standby_only') return null
+  if (tier === 'multi_pass' || tier === 'multi_pass_tier1' || tier === 'multi_pass_tier2') return 'multipass'
+  return null
+}
+
 export const DINING_TIER_LABEL = {
   signature: 'Signature',
   character_dining: 'Character Dining',
