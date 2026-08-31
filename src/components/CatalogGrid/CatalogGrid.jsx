@@ -15,6 +15,7 @@ const PRICE_OPTIONS = [
 // full-screen wish list catalog browser (BrowseCatalogSheet) and the
 // compact inline version used for family member favorites.
 export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact = false }) {
+  const [search, setSearch] = useState('')
   const [catFilter, setCatFilter] = useState('all')
   const [parkFilter, setParkFilter] = useState('all')
   const [priceFilter, setPriceFilter] = useState('all')
@@ -23,7 +24,9 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
   // catalog list rather than denormalizing a booth_name column.
   const boothNameById = useMemo(() => new Map(catalog.map(c => [c.id, c.name])), [catalog])
 
+  const searchTerm = search.trim().toLowerCase()
   const filtered = catalog.filter(c => {
+    if (searchTerm && !c.name.toLowerCase().includes(searchTerm) && !c.cuisine?.toLowerCase().includes(searchTerm)) return false
     if (catFilter !== 'all' && c.category !== catFilter) return false
     if (parkFilter !== 'all' && c.park !== parkFilter && c.park !== 'All parks') return false
     if (priceFilter !== 'all' && priceBucket(c.price_mid) !== priceFilter) return false
@@ -32,6 +35,17 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
 
   return (
     <div className={compact ? styles.compact : undefined}>
+      <div className={styles.searchWrap}>
+        <i className="ti ti-search" />
+        <input
+          className={styles.searchInp}
+          type="text"
+          placeholder="Search catalog"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
       <div className={styles.filterBar}>
         <select className={styles.filterSelect} value={catFilter} onChange={e => setCatFilter(e.target.value)}>
           {CAT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
