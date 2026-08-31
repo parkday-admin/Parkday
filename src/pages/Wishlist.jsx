@@ -184,10 +184,14 @@ export default function Wishlist() {
                               <i className="ti ti-confetti" /> {item.seasonal.festival}
                             </span>
                           )}
+                          {item.location_detail && (
+                            <span className={styles.pill} style={{ background: 'var(--border-light)', color: 'var(--text-secondary)' }}>
+                              <i className="ti ti-map-pin" /> {item.location_detail}
+                            </span>
+                          )}
                           {item.price_label && <span className={styles.itemPrice}>{item.price_label}</span>}
                         </div>
                         {item.cuisine && <div className={styles.itemCuisine}>{item.cuisine}</div>}
-                        {item.location_detail && <div className={styles.itemCuisine}>{item.location_detail}</div>}
                         {item.tags?.length > 0 && (
                           <div className={styles.itemTags}>
                             {item.tags.map(t => <span key={t} className={styles.tagChip}>{t}</span>)}

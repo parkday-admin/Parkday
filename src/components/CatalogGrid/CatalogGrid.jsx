@@ -92,9 +92,13 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                         <i className="ti ti-confetti" /> {c.seasonal.festival}
                       </span>
                     )}
+                    {c.location_detail && (
+                      <span className={styles.pill} style={{ background: 'var(--border-light)', color: 'var(--text-secondary)' }}>
+                        <i className="ti ti-map-pin" /> {c.location_detail}
+                      </span>
+                    )}
                   </div>
                   {c.cuisine && <div className={styles.catCardCuisine}>{c.cuisine}</div>}
-                  {c.location_detail && <div className={styles.catCardCuisine}>{c.location_detail}</div>}
                   {c.tags?.length > 0 && (
                     <div className={styles.catCardTags}>
                       {c.tags.map(t => <span key={t} className={styles.tagChip}>{t}</span>)}
