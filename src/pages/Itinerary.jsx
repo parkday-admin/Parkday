@@ -140,8 +140,8 @@ export default function Itinerary() {
     showToast?.('Expense deleted', {
       actionLabel: 'Undo',
       onAction: async () => {
-        const { cat, label, time, status, ll_type, planned_amt, actual_amt, day: d } = entry
-        await createExpense(userId, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day: d })
+        const { cat, label, time, status, ll_type, planned_amt, actual_amt, day: d, booth_name, festival } = entry
+        await createExpense(userId, activeTrip.id, { cat, label, time, status, ll_type, planned_amt, actual_amt, day: d, booth_name, festival })
         fetchExpenses(activeTrip.id).then(({ data }) => data && setExpenses(data))
       },
     })

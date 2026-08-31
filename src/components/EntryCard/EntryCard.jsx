@@ -64,6 +64,16 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
             {entry.time && <span>{entry.time}</span>}
             {entry.cat === 'll' && entry.ll_type && <span className={styles.pill}>{LL_TYPE_LABEL[entry.ll_type] || entry.ll_type}</span>}
             {statusInfo && <span className={`${styles.pill} ${styles[statusInfo.cls]}`}>{statusInfo.label}</span>}
+            {entry.booth_name && (
+              <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
+                <i className="ti ti-tent" /> {entry.booth_name}
+              </span>
+            )}
+            {entry.festival && (
+              <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
+                <i className="ti ti-confetti" /> {entry.festival}
+              </span>
+            )}
           </div>
         </div>
         {!entry.no_cost && (

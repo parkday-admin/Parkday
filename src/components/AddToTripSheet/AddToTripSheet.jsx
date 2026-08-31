@@ -5,7 +5,7 @@ import { tripDays, dayParkLabel } from '../../lib/trips'
 import Sheet from '../Sheet/Sheet'
 import styles from './AddToTripSheet.module.css'
 
-export default function AddToTripSheet({ trip, expenses, userId, state, onClose, onSaved, onError }) {
+export default function AddToTripSheet({ trip, expenses, catalog = [], userId, state, onClose, onSaved, onError }) {
   const item = state?.item ?? null
   const days = trip ? tripDays(trip) : []
 
@@ -35,9 +35,11 @@ export default function AddToTripSheet({ trip, expenses, userId, state, onClose,
   async function handleSave() {
     const trimmedNotes = notes.trim()
     const label = item.name + (trimmedNotes ? ` — ${trimmedNotes}` : '')
+    const boothName = item.booth_id ? catalog.find(c => c.id === item.booth_id)?.name ?? null : null
+    const festival = item.seasonal?.festival ?? null
     const fields = hasCost
-      ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false }
-      : { day: day.day, cat: meta.expenseCat, label, planned_amt: null, actual_amt: null, no_cost: true }
+      ? { day: day.day, cat: meta.expenseCat, label, planned_amt: Number(amount) || 0, no_cost: false, booth_name: boothName, festival }
+      : { day: day.day, cat: meta.expenseCat, label, planned_amt: null, actual_amt: null, no_cost: true, booth_name: boothName, festival }
 
     setSaving(true)
     const { data: expenseRow, error: expenseError } = item.planned_expense_id

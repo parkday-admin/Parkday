@@ -233,6 +233,7 @@ export default function Wishlist() {
       <AddToTripSheet
         trip={activeTrip}
         expenses={expenses}
+        catalog={catalog}
         userId={userId}
         state={planState}
         onClose={() => setPlanState(null)}
