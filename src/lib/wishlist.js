@@ -20,6 +20,7 @@ export const WL_CAT_TO_EXPENSE_CAT = { ride: 'll', show: 'experience', restauran
 
 export const WL_PARK_LABEL = {
   MK: 'Magic Kingdom', EPCOT: 'EPCOT', HS: 'Hollywood Studios', AK: 'Animal Kingdom', DS: 'Disney Springs',
+  TL: 'Typhoon Lagoon',
   CR: 'Contemporary', GF: 'Grand Floridian', POLY: 'Polynesian', WL: 'Wilderness Lodge',
   AKL: 'Animal Kingdom Lodge', BC: 'Beach Club', YC: 'Yacht Club', BW: 'BoardWalk', RIV: 'Riviera Resort',
   SS: 'Saratoga Springs', OKW: 'Old Key West', POFQ: 'Port Orleans French Quarter', PORS: 'Port Orleans Riverside',
@@ -27,9 +28,10 @@ export const WL_PARK_LABEL = {
 }
 
 // Grouped for the catalog filter dropdown — a flat list of 20+ parks/resorts
-// is too much to scan, so it's split into Parks / Disney Springs / Resorts.
+// is too much to scan, so it's split into Parks / Water Parks / Disney Springs / Resorts.
 export const WL_PARK_GROUPS = [
   { label: 'Parks', options: ['MK', 'EPCOT', 'HS', 'AK'] },
+  { label: 'Water Parks', options: ['TL'] },
   { label: 'Disney Springs', options: ['DS'] },
   {
     label: 'Resorts',
