@@ -28,7 +28,7 @@ export const DEFAULT_S = {
 export const BOOKING_LABELS = { separate: 'Book separately', package: 'Vacation Package', package_dining: 'Package + Dining Plan' }
 export const DINING_LABELS = { quick_service: 'Quick Service Plan', standard: 'Standard Dining Plan', deluxe: 'Deluxe Dining Plan' }
 export const TICKET_LABELS = { base: 'Base (one park/day)', hopper: 'Park Hopper', hopper_plus: 'Hopper Plus', water_sports: 'Water Park & Sports' }
-export const LL_LABELS = { none: 'None — standby only', multipass: 'Lightning Lane Multi Pass', singles: 'Multi Pass + Singles' }
+export const LL_LABELS = { none: 'None — standby only', multipass: 'Lightning Lane Multi Pass', singles: 'Multi Pass + Singles', premierpass: 'Lightning Lane Premier Pass' }
 export const TRANSFER_LABELS = { mears: 'Mears Connect', rideshare: 'Rideshare (Uber/Lyft)', rental: 'Rental Car' }
 export const PARKING_LABELS = { dropoff: 'Drop-off', parking: 'Parking', rideshare: 'Rideshare both ways' }
 

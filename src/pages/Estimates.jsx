@@ -10,7 +10,7 @@ const TBODY_ROW_COUNT = 10
 const SEASON_LABELS = { value: 'Value', regular: 'Regular', peak: 'Peak' }
 const RESORT_LABELS = { value: 'Value', moderate: 'Moderate', deluxe: 'Deluxe', deluxe_villa: 'Deluxe Villa', off_property: 'Off Property' }
 const TICKET_LABELS = { base: 'Base', water_park: 'Water Park & Sports', hopper: 'Park Hopper', hopper_plus: 'Hopper Plus' }
-const LL_LABELS = { none: 'None', multi_pass: 'Multi Pass', mp_plus_singles: 'MP + Singles' }
+const LL_LABELS = { none: 'None', multi_pass: 'Multi Pass', mp_plus_singles: 'MP + Singles', premier_pass: 'Premier Pass' }
 
 function fmtCreated(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })

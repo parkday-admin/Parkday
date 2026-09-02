@@ -52,7 +52,7 @@ export function nextEstimateName(existingEstimates) {
 // configurator's own field values so a saved row is legible on its own.
 const RESORT_TO_ROW = { value: 'value', moderate: 'moderate', deluxe: 'deluxe', villa: 'deluxe_villa', offsite: 'off_property' }
 const TICKET_TO_ROW = { base: 'base', wpas: 'water_park', hopper: 'hopper', hopperplus: 'hopper_plus' }
-const LL_TO_ROW = { none: 'none', multipass: 'multi_pass', singles: 'mp_plus_singles' }
+const LL_TO_ROW = { none: 'none', multipass: 'multi_pass', singles: 'mp_plus_singles', premierpass: 'premier_pass' }
 
 export function estimatorStateToRow(S, skipped, c, tv) {
   return {
@@ -80,7 +80,7 @@ export function estimatorStateToRow(S, skipped, c, tv) {
 }
 
 const TICKET_TO_CFG = { base: 'base', water_park: 'water_sports', hopper: 'hopper', hopper_plus: 'hopper_plus' }
-const LL_TO_CFG = { none: 'none', multi_pass: 'multipass', mp_plus_singles: 'singles' }
+const LL_TO_CFG = { none: 'none', multi_pass: 'multipass', mp_plus_singles: 'singles', premier_pass: 'premierpass' }
 
 // Estimates are rough scenarios with no real travel dates, so this seeds the
 // configurator with a placeholder arrival of today (+ nights) — the user
@@ -112,7 +112,7 @@ export function rowToConfiguratorPrefill(row) {
 
 const ROW_TO_RESORT_RATE_KEY = { value: 'value', moderate: 'moderate', deluxe: 'deluxe', deluxe_villa: 'villa', off_property: 'offsite' }
 const ROW_TO_TICKET_RATE_KEY = { base: 'base', water_park: 'wpas', hopper: 'hopper', hopper_plus: 'hopperplus' }
-const ROW_TO_LL_RATE_KEY = { none: 'none', multi_pass: 'multipass', mp_plus_singles: 'singles' }
+const ROW_TO_LL_RATE_KEY = { none: 'none', multi_pass: 'multipass', mp_plus_singles: 'singles', premier_pass: 'premierpass' }
 
 const mid = ({ lo, hi }) => Math.round((lo + hi) / 2)
 
