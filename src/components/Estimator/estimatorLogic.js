@@ -63,13 +63,24 @@ export function diningCalc(S) {
 }
 
 export function calc(S, step, skipped, originMiles) {
-  const t = S.adults + S.children, bk = bkt(S.parkdays), se = S.season
-  const r = RESORT_RATES[S.resort][se], rLo = r[0] * S.nights, rHi = r[1] * S.nights
+  const bk = bkt(S.parkdays), se = S.season
+  const apCount = S.apHolderCount || 0
+  const apDiscountApplied = apCount > 0 && S.nights > 0
+  const resortMult = apDiscountApplied ? 0.9 : 1
+  const r = RESORT_RATES[S.resort][se], rLo = r[0] * S.nights * resortMult, rHi = r[1] * S.nights * resortMult
+  // AP holders need no ticket; the estimator doesn't track which specific
+  // members hold APs, so holders are assumed to come from adults first,
+  // then children, when splitting the remaining ticketed party.
+  const apFromAdults = Math.min(apCount, S.adults)
+  const apFromChildren = Math.min(apCount - apFromAdults, S.children)
+  const ticketedAdults = S.adults - apFromAdults
+  const ticketedChildren = S.children - apFromChildren
+  const ticketedParty = ticketedAdults + ticketedChildren
   const tp = TPD[se][bk], tpc = TPD_CHILD[se][bk], ph = PH[S.ticket]
   const pAdLo = (tp[0] + ph[0]) * S.parkdays, pAdHi = (tp[1] + ph[1]) * S.parkdays
   const pChLo = (tpc[0] + ph[0]) * S.parkdays, pChHi = (tpc[1] + ph[1]) * S.parkdays
-  const tkLo = pAdLo * S.adults + pChLo * S.children, tkHi = pAdHi * S.adults + pChHi * S.children
-  const ll = LLR[S.ll], llLo = ll[0] * t * S.parkdays, llHi = ll[1] * t * S.parkdays
+  const tkLo = pAdLo * ticketedAdults + pChLo * ticketedChildren, tkHi = pAdHi * ticketedAdults + pChHi * ticketedChildren
+  const ll = LLR[S.ll], llLo = ll[0] * ticketedParty * S.parkdays, llHi = ll[1] * ticketedParty * S.parkdays
   const d = diningCalc(S)
   const includeDining = step >= 4
   const dLo = includeDining ? d.totalLo : 0, dHi = includeDining ? d.totalHi : 0
@@ -99,7 +110,7 @@ export function calc(S, step, skipped, originMiles) {
   if (S.souvenirs > 0) lines.push({ icon: 'ti-gift', bg: 'rgba(224,83,63,0.12)', ic: '#E0533F', name: 'Souvenirs', lo: S.souvenirs, hi: S.souvenirs })
   if (S.experiences > 0) lines.push({ icon: 'ti-stars', bg: 'rgba(245,181,54,0.16)', ic: '#C68A12', name: 'Experiences', lo: S.experiences, hi: S.experiences })
   lines.push({ icon: 'ti-dots', bg: 'rgba(13,35,64,0.08)', ic: '#0D2340', name: 'Buffer (10%)', lo: mLo, hi: mHi })
-  return { total, totalLo, totalHi, lines, dining: d }
+  return { total, totalLo, totalHi, lines, dining: d, apDiscountApplied, ticketedParty }
 }
 
 export function expLineTotal(e, S) {

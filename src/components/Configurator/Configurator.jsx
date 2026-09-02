@@ -107,6 +107,15 @@ export default function Configurator({ session, planType }) {
   const { adults, children } = computeParty(S, familyMembers)
   const dayTrip = isDayTrip(S)
 
+  // Annual Pass holders never need a park ticket and their AP is never
+  // budgeted as part of the trip — this is separate from any of them
+  // toggling Disney's Vacation Package, which is incompatible with an AP.
+  const selectedFamilyMembers = (familyMembers || []).filter(m => S.selectedFamily.includes(m.id))
+  const apFamilyMembers = selectedFamilyMembers.filter(m => m.annual_pass_tier != null)
+  const hasApTier = apFamilyMembers.length > 0
+  const nonApPartyCount = Math.max(0, adults + children - apFamilyMembers.length)
+  const allApTier = hasApTier && nonApPartyCount === 0
+
   // --- Load existing trip for edit mode ---
   useEffect(() => {
     if (!tripId) return
@@ -306,8 +315,8 @@ export default function Configurator({ session, planType }) {
 
   const nights = nightsBetween(S)
   const bookingPkg = selectedResort ? selectedResort.pkg : (S.isOffProperty ? 'separate_only' : null)
-  const pkgDisabled = bookingPkg === 'separate_only'
-  const pkgDiningDisabled = bookingPkg === 'separate_only' || bookingPkg === 'package_only' || nights < 2
+  const pkgDisabled = bookingPkg === 'separate_only' || hasApTier
+  const pkgDiningDisabled = bookingPkg === 'separate_only' || bookingPkg === 'package_only' || nights < 2 || hasApTier
   const showSwanNote = bookingPkg === 'package_only' || (bookingPkg && bookingPkg !== 'separate_only' && nights === 1)
 
   function setBooking(val) {
@@ -315,6 +324,17 @@ export default function Configurator({ session, planType }) {
     if (val === 'package_dining' && pkgDiningDisabled) return
     setField('booking', val)
   }
+
+  // Disney doesn't allow a Vacation Package for a party that includes an
+  // Annual Pass holder — if AP status changes underneath an already-chosen
+  // package (e.g. toggling a family member's selection), fall back to
+  // booking separately rather than leaving an invalid selection in place.
+  useEffect(() => {
+    if (hasApTier && (S.booking === 'package' || S.booking === 'package_dining')) {
+      setField('booking', 'separate')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasApTier])
 
   function saveTrip() {
     setDateAlert(null)
@@ -410,7 +430,7 @@ export default function Configurator({ session, planType }) {
 
     const isPackage = S.booking === 'package' || S.booking === 'package_dining'
     const budgetRows = BUDGET_CATEGORIES
-      .filter(({ cat }) => !(isPackage && cat === 'tickets'))
+      .filter(({ cat }) => !((isPackage || allApTier) && cat === 'tickets'))
       .map(({ cat, key }) => ({
         cat: isPackage && cat === 'resort' ? 'package' : cat,
         amt: isPackage && cat === 'resort' ? (S.budgetAccommodations || 0) : (S[key] || 0),
@@ -698,6 +718,11 @@ export default function Configurator({ session, planType }) {
                           <i className="ti ti-alert-triangle" /> Booking type carried over from {duplicateSourceName} — confirm this matches your new booking before saving.
                         </div>
                       )}
+                      {hasApTier && (
+                        <div className={styles.infoNote} style={{ marginBottom: 8 }}>
+                          <i className="ti ti-info-circle" /> Vacation Packages are not available for Annual Pass holders. Book your room and tickets separately.
+                        </div>
+                      )}
                       <div className={`${styles.og} ${styles.g1}`} style={{ gap: 7, opacity: editingTrip ? 0.55 : 1, pointerEvents: editingTrip ? 'none' : 'auto' }}>
                         <Option name="Book separately" sub="Hotel and tickets purchased independently" selected={S.booking === 'separate'} onClick={() => setBooking('separate')} disabled={editingTrip} />
                         <Option name="Vacation Package" sub="Resort + tickets bundled through Disney — one balance, one payment schedule" selected={S.booking === 'package'} onClick={() => setBooking('package')} disabled={editingTrip || pkgDisabled} />
@@ -737,18 +762,49 @@ export default function Configurator({ session, planType }) {
                 <>
                   <div className={styles.secTitle}>Tickets & Lightning Lane</div>
                   <div className={styles.secDesc}>What kind of park tickets did you purchase?</div>
-                  <div className={styles.screenSectionLbl}>Ticket type</div>
-                  <div className={`${styles.og} ${styles.g2}`}>
-                    <Option name="Base" sub="One park per day" badge="Standard" badgeClass="bg" selected={S.ticketType === 'base'} onClick={() => setField('ticketType', 'base')} />
-                    <Option name="Park Hopper" sub="Visit multiple parks per day after 2pm" badge="+$65–90/ticket" badgeClass="bb" selected={S.ticketType === 'hopper'} onClick={() => setField('ticketType', 'hopper')} />
-                    <Option name="Hopper Plus" sub="Park Hopper + water parks & ESPN" badge="+$85–110/ticket" badgeClass="bo" selected={S.ticketType === 'hopper_plus'} onClick={() => setField('ticketType', 'hopper_plus')} />
-                    <Option name="Water Park & Sports" sub="Typhoon Lagoon, Blizzard Beach & ESPN only" badge="+$74–80/ticket" badgeClass="bz" selected={S.ticketType === 'water_sports'} onClick={() => setField('ticketType', 'water_sports')} />
-                  </div>
+                  {hasApTier && (
+                    <>
+                      <div className={styles.screenSectionLbl}>Party members</div>
+                      <div style={{ marginBottom: 14 }}>
+                        {selectedFamilyMembers.map(m => (
+                          <div key={m.id} className={styles.famSelectRow}>
+                            <div className={styles.famAvatar}>{m.name.charAt(0)}</div>
+                            <div className={styles.famInfo}>
+                              <div className={styles.famName}>{m.name.split(' ')[0]}</div>
+                              <div className={styles.famSub}>{m.annual_pass_tier != null ? 'Annual Pass holder — no ticket needed' : 'Needs a park ticket'}</div>
+                            </div>
+                            {m.annual_pass_tier != null && <span className={styles.famApPill}>AP</span>}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  {allApTier ? (
+                    <div className={styles.infoNote} style={{ marginBottom: 14 }}>
+                      <i className="ti ti-info-circle" /> Your whole party has Annual Passes — no ticket purchase needed
+                    </div>
+                  ) : (
+                    <>
+                      {hasApTier && (
+                        <div className={styles.infoNote} style={{ marginBottom: 8 }}>
+                          <i className="ti ti-info-circle" /> Ticket type below applies to your {nonApPartyCount} non-AP party member{nonApPartyCount !== 1 ? 's' : ''}.
+                        </div>
+                      )}
+                      <div className={styles.screenSectionLbl}>Ticket type</div>
+                      <div className={`${styles.og} ${styles.g2}`}>
+                        <Option name="Base" sub="One park per day" badge="Standard" badgeClass="bg" selected={S.ticketType === 'base'} onClick={() => setField('ticketType', 'base')} />
+                        <Option name="Park Hopper" sub="Visit multiple parks per day after 2pm" badge="+$65–90/ticket" badgeClass="bb" selected={S.ticketType === 'hopper'} onClick={() => setField('ticketType', 'hopper')} />
+                        <Option name="Hopper Plus" sub="Park Hopper + water parks & ESPN" badge="+$85–110/ticket" badgeClass="bo" selected={S.ticketType === 'hopper_plus'} onClick={() => setField('ticketType', 'hopper_plus')} />
+                        <Option name="Water Park & Sports" sub="Typhoon Lagoon, Blizzard Beach & ESPN only" badge="+$74–80/ticket" badgeClass="bz" selected={S.ticketType === 'water_sports'} onClick={() => setField('ticketType', 'water_sports')} />
+                      </div>
+                    </>
+                  )}
                   <div className={styles.screenSectionLbl}>Lightning Lane</div>
-                  <div className={`${styles.og} ${styles.g3}`}>
+                  <div className={`${styles.og} ${styles.g2}`}>
                     <Option name="None" sub="Standby lines only" badge="Free" badgeClass="bg" selected={S.lightningLane === 'none'} onClick={() => setField('lightningLane', 'none')} />
                     <Option name="Multi Pass" sub="Book multiple rides throughout the day" badge="~$15–25/pp/day" badgeClass="bb" selected={S.lightningLane === 'multipass'} onClick={() => setField('lightningLane', 'multipass')} />
                     <Option name="MP + Singles" sub="Multi Pass + top ride bookings" badge="~$55–90/pp/day" badgeClass="bc" selected={S.lightningLane === 'singles'} onClick={() => setField('lightningLane', 'singles')} />
+                    <Option name="Premier Pass" sub="Unlimited access, no separate booking" badge="~$449–589/pp/day" badgeClass="bo" selected={S.lightningLane === 'premierpass'} onClick={() => setField('lightningLane', 'premierpass')} />
                   </div>
                 </>
               )}
@@ -791,6 +847,7 @@ export default function Configurator({ session, planType }) {
                   children={children}
                   nights={nights}
                   dayTrip={dayTrip}
+                  allApTier={allApTier}
                   setField={setField}
                   goTo={goTo}
                   dateAlert={dateAlert}
@@ -897,11 +954,12 @@ function ParkDayCard({ day, index, total, onToggle, onSelectPark }) {
   )
 }
 
-function ReviewStep({ S, editingTrip, adults, children, nights, dayTrip, setField, goTo, dateAlert, onSave, saving }) {
+function ReviewStep({ S, editingTrip, adults, children, nights, dayTrip, allApTier, setField, goTo, dateAlert, onSave, saving }) {
   const total = budgetTotal(S)
   const party = adults + children
   const parkCount = S.parkDays.filter(d => d.isPark).length
   const ticketsBundled = S.booking === 'package' || S.booking === 'package_dining'
+  const ticketsSuppressed = ticketsBundled || allApTier
   const diningBundled = S.booking === 'package_dining'
 
   const DAY_CATS = [
@@ -973,10 +1031,11 @@ function ReviewStep({ S, editingTrip, adults, children, nights, dayTrip, setFiel
         <div className={styles.catReviewHdr}>
           <div className={styles.catReviewIcon} style={{ background: 'rgba(245,181,54,0.16)' }}><i className="ti ti-ticket" style={{ color: 'var(--gold-dark)' }} /></div>
           <div className={styles.catReviewInfo}><div className={styles.catReviewTitle}>Tickets</div><button type="button" className={styles.catReviewEdit} onClick={() => goTo(3)}>Edit</button></div>
-          <BudgetField value={ticketsBundled ? 0 : S.budgetTickets} onChange={v => setField('budgetTickets', v)} disabled={ticketsBundled} />
+          <BudgetField value={ticketsSuppressed ? 0 : S.budgetTickets} onChange={v => setField('budgetTickets', v)} disabled={ticketsSuppressed} />
         </div>
         {ticketsBundled && <div className={styles.catReviewNote}><i className="ti ti-info-circle" />Included in your Vacation Package cost — budgeted under Accommodations.</div>}
-        <ReviewRow label="Tickets" value={TICKET_LABELS[S.ticketType]} />
+        {!ticketsBundled && allApTier && <div className={styles.catReviewNote}><i className="ti ti-info-circle" />Your whole party has Annual Passes — no ticket purchase needed.</div>}
+        <ReviewRow label="Tickets" value={allApTier ? 'Annual Pass — no ticket needed' : TICKET_LABELS[S.ticketType]} />
       </div>
 
       <div className={styles.bkCard}>

@@ -6,6 +6,7 @@ export const DEFAULT_S = {
   season: 'value', resort: 'value', ticket: 'base', ll: 'none',
   qs: 2, ts: 1, character: 0, snacks: 2,
   souvenirs: 0, experiences: 0, travel: 'flying',
+  apHolderCount: 0,
 }
 
 export const LIM = {
@@ -34,7 +35,7 @@ export const TPD_CHILD = {
 }
 
 export const PH = { base: [0, 0], hopper: [80, 100], wpas: [74, 80], hopperplus: [100, 130] }
-export const LLR = { none: [0, 0], multipass: [15, 25], singles: [55, 90] }
+export const LLR = { none: [0, 0], multipass: [15, 25], singles: [55, 90], premierpass: [449, 589] }
 export const MEAL = { qs: [12, 20], ts: [45, 75], character: [60, 95], snack: [6, 14] }
 
 export const WDW = [28.3852, -81.5639]
@@ -78,4 +79,4 @@ export const EXPERIENCES = [
 
 export const RESORT_LABELS = { value: 'Value resort', moderate: 'Moderate resort', deluxe: 'Deluxe resort', villa: 'Deluxe Villa', offsite: 'Offsite hotel' }
 export const TICKET_LABELS = { base: 'Base (one park/day)', hopper: 'Park Hopper', wpas: 'Water Park & Sports', hopperplus: 'Hopper Plus' }
-export const LL_LABELS = { none: 'None', multipass: 'Multi Pass', singles: 'MP + Singles' }
+export const LL_LABELS = { none: 'None', multipass: 'Multi Pass', singles: 'MP + Singles', premierpass: 'Premier Pass' }

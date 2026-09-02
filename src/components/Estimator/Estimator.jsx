@@ -68,6 +68,7 @@ export default function Estimator() {
   const [locError, setLocError] = useState(null)
   const [locBtnLabel, setLocBtnLabel] = useState('Use my location')
   const [expSelected, setExpSelected] = useState(() => new Set())
+  const [apMode, setApMode] = useState('none')
   const [activeSheet, setActiveSheet] = useState(null)
   const [savedEstimates, setSavedEstimates] = useState([])
   const [savingEstimate, setSavingEstimate] = useState(false)
@@ -102,6 +103,28 @@ export default function Estimator() {
     }
   }
 
+  function selectApMode(mode) {
+    setApMode(mode)
+    const total = S.adults + S.children
+    if (mode === 'none') setField('apHolderCount', 0)
+    else if (mode === 'all') setField('apHolderCount', total)
+    else setField('apHolderCount', Math.min(Math.max(S.apHolderCount || 1, 1), Math.max(total, 1)))
+  }
+
+  function apStepperChange(delta) {
+    const total = S.adults + S.children
+    setS(prev => ({ ...prev, apHolderCount: Math.max(1, Math.min(Math.max(total, 1), (prev.apHolderCount || 1) + delta)) }))
+  }
+
+  // Keep apHolderCount in step with party size changes made after an AP
+  // mode was chosen (e.g. picking "All" then adding another child).
+  useEffect(() => {
+    const total = S.adults + S.children
+    if (apMode === 'all' && S.apHolderCount !== total) setField('apHolderCount', total)
+    else if (apMode === 'some' && S.apHolderCount > total) setField('apHolderCount', Math.max(1, total))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [S.adults, S.children, apMode])
+
   function goTo(next) {
     const dir = next > step ? 1 : -1
     let s = next
@@ -121,6 +144,7 @@ export default function Estimator() {
     setLocBtnLabel('Use my location')
     setExpSelected(new Set())
     setActiveSheet(null)
+    setApMode('none')
   }
 
   function setOrigin(lat, lon, label) {
@@ -272,6 +296,22 @@ export default function Estimator() {
                   <Stepper label="Nights at resort" hint={S.nights === 0 ? 'Day trip — no overnight stay' : 'Staying overnight'} value={S.nights} onDec={() => stepperChange('nights', -1)} onInc={() => stepperChange('nights', 1)} />
                   <Stepper label="Park days" value={S.parkdays} onDec={() => stepperChange('parkdays', -1)} onInc={() => stepperChange('parkdays', 1)} />
                 </div>
+                <div className={styles.screenSectionLbl}>Annual Pass holders in your party</div>
+                <div className={`${styles.og} ${styles.g3}`} style={{ marginBottom: apMode === 'some' ? 8 : 4 }}>
+                  <Option name="None" selected={apMode === 'none'} onClick={() => selectApMode('none')} />
+                  <Option name="Some" selected={apMode === 'some'} onClick={() => selectApMode('some')} />
+                  <Option name="All" selected={apMode === 'all'} onClick={() => selectApMode('all')} />
+                </div>
+                {apMode === 'some' && (
+                  <div className={styles.steppers}>
+                    <Stepper label="How many?" value={S.apHolderCount} onDec={() => apStepperChange(-1)} onInc={() => apStepperChange(1)} />
+                  </div>
+                )}
+                {apMode === 'none' && (
+                  <a href="#" className={styles.infoLink} style={{ display: 'inline-block', marginTop: 2 }} onClick={e => e.preventDefault()}>
+                    Wondering if an Annual Pass is worth it? →
+                  </a>
+                )}
               </>
             )}
 
@@ -331,6 +371,11 @@ export default function Estimator() {
                   <Option name="Deluxe Villa" sub="DVC resorts" badge="$500–$1,350/night" badgeClass="bc" selected={S.resort === 'villa'} onClick={() => selectOption('resort', 'villa')} />
                   <Option wide name="Offsite hotel" sub="No Disney transport or early entry perks" badge="$100–$250/night" badgeClass="bz" selected={S.resort === 'offsite'} onClick={() => selectOption('resort', 'offsite')} />
                 </div>
+                {c.apDiscountApplied && (
+                  <div className={styles.skippedNote} style={{ marginTop: 10, marginBottom: 0 }}>
+                    <i className="ti ti-discount-2" /> AP holder discount applied — resort rate above reflects a conservative 10% Annual Pass discount.
+                  </div>
+                )}
               </>
             )}
 
@@ -338,18 +383,32 @@ export default function Estimator() {
               <>
                 <div className={styles.secTitle}>Tickets & Lightning Lane</div>
                 <div className={styles.secDesc}>What kind of park access are you planning?</div>
-                <div className={styles.screenSectionLbl}>Ticket type <span className={styles.infoLink} onClick={() => setActiveSheet('ticket')}>What's this?</span></div>
-                <div className={`${styles.og} ${styles.g2}`} style={{ marginBottom: 4 }}>
-                  <Option name="Base" sub="One park per day" badge="No add-on" badgeClass="bg" selected={S.ticket === 'base'} onClick={() => selectOption('ticket', 'base')} />
-                  <Option name="Water Park & Sports" sub="Base + water parks & golf" badge="+$74–80/pp/day" badgeClass="bb" selected={S.ticket === 'wpas'} onClick={() => selectOption('ticket', 'wpas')} />
-                  <Option name="Park Hopper" sub="Multiple parks/day" badge="+$80–100/day" badgeClass="bo" selected={S.ticket === 'hopper'} onClick={() => selectOption('ticket', 'hopper')} />
-                  <Option name="Hopper Plus" sub="Park Hopper + water parks & sports" badge="+$100–130/day" badgeClass="bc" selected={S.ticket === 'hopperplus'} onClick={() => selectOption('ticket', 'hopperplus')} />
-                </div>
+                {c.ticketedParty === 0 ? (
+                  <div className={styles.skippedNote}>
+                    <i className="ti ti-ticket-off" /> Your whole party has Annual Passes — no tickets needed.
+                  </div>
+                ) : (
+                  <>
+                    {S.apHolderCount > 0 && (
+                      <div className={styles.skippedNote}>
+                        Calculating tickets for {c.ticketedParty} party member{c.ticketedParty !== 1 ? 's' : ''} — {S.apHolderCount} have Annual Passes
+                      </div>
+                    )}
+                    <div className={styles.screenSectionLbl}>Ticket type <span className={styles.infoLink} onClick={() => setActiveSheet('ticket')}>What's this?</span></div>
+                    <div className={`${styles.og} ${styles.g2}`} style={{ marginBottom: 4 }}>
+                      <Option name="Base" sub="One park per day" badge="No add-on" badgeClass="bg" selected={S.ticket === 'base'} onClick={() => selectOption('ticket', 'base')} />
+                      <Option name="Water Park & Sports" sub="Base + water parks & golf" badge="+$74–80/pp/day" badgeClass="bb" selected={S.ticket === 'wpas'} onClick={() => selectOption('ticket', 'wpas')} />
+                      <Option name="Park Hopper" sub="Multiple parks/day" badge="+$80–100/day" badgeClass="bo" selected={S.ticket === 'hopper'} onClick={() => selectOption('ticket', 'hopper')} />
+                      <Option name="Hopper Plus" sub="Park Hopper + water parks & sports" badge="+$100–130/day" badgeClass="bc" selected={S.ticket === 'hopperplus'} onClick={() => selectOption('ticket', 'hopperplus')} />
+                    </div>
+                  </>
+                )}
                 <div className={styles.screenSectionLbl}>Lightning Lane <span className={styles.infoLink} onClick={() => setActiveSheet('ll')}>What's this?</span></div>
-                <div className={`${styles.og} ${styles.g3}`}>
+                <div className={`${styles.og} ${styles.g2}`}>
                   <Option name="None" sub="Standby only" badge="Free" badgeClass="bg" selected={S.ll === 'none'} onClick={() => selectOption('ll', 'none')} />
                   <Option name="Multi Pass" sub="Multiple rides/day" badge="~$15–25/pp/day" badgeClass="bb" selected={S.ll === 'multipass'} onClick={() => selectOption('ll', 'multipass')} />
                   <Option name="MP + Singles" sub="Tron, Cosmic Rewind…" badge="~$55–90/pp/day" badgeClass="bc" selected={S.ll === 'singles'} onClick={() => selectOption('ll', 'singles')} />
+                  <Option name="Premier Pass" sub="Unlimited access, no separate booking" badge="~$449–589/pp/day" badgeClass="bo" selected={S.ll === 'premierpass'} onClick={() => selectOption('ll', 'premierpass')} />
                 </div>
               </>
             )}
@@ -531,6 +590,7 @@ function Summary({
       <div className={styles.sumSel}>
         <div className={styles.bkHdr}>Your selections</div>
         <div className={styles.selRow}><div className={styles.selLbl}>Party</div><div className={styles.selVal}>{S.adults} adult{S.adults !== 1 ? 's' : ''}{S.children > 0 ? ' · ' + S.children + ' children' : ''}</div></div>
+        {S.apHolderCount > 0 && <div className={styles.selRow}><div className={styles.selLbl}>Annual Passes</div><div className={styles.selVal}>{S.apHolderCount} of {S.adults + S.children} in party</div></div>}
         <div className={styles.selRow}><div className={styles.selLbl}>Stay</div><div className={styles.selVal}>{S.nights === 0 ? `Day trip · ${S.parkdays} park day${S.parkdays !== 1 ? 's' : ''}` : `${S.nights} nights · ${S.parkdays} park days · ${S.season} season`}</div></div>
         <div className={styles.selRow}><div className={styles.selLbl}>Resort</div><div className={styles.selVal}>{S.nights === 0 ? 'Day trip — no overnight stay' : RESORT_LABELS[S.resort]}</div></div>
         <div className={styles.selRow}><div className={styles.selLbl}>Tickets</div><div className={styles.selVal}>{TICKET_LABELS[S.ticket]}</div></div>
