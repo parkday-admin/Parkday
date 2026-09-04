@@ -11,7 +11,7 @@ function today() {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
 }
 
-export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPrograms = [], state, onClose, onSaved, onDeleted, onError }) {
+export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPrograms = [], remaining, state, onClose, onSaved, onDeleted, onError }) {
   const editing = state?.editingPayment ?? null
 
   const [amount, setAmount] = useState('')
@@ -21,6 +21,13 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
   const [amountError, setAmountError] = useState(false)
   const [methodError, setMethodError] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+
+  useEffect(() => {
+    if (!confirmingDelete) return undefined
+    const timer = setTimeout(() => setConfirmingDelete(false), 3000)
+    return () => clearTimeout(timer)
+  }, [confirmingDelete])
 
   useEffect(() => {
     if (!state) return
@@ -30,6 +37,7 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
     setNote(editing?.note || '')
     setAmountError(false)
     setMethodError(false)
+    setConfirmingDelete(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
@@ -39,11 +47,18 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
   const allKnownValues = new Set([...pmtGroups.other, ...pmtGroups.gift, ...pmtGroups.reward].map(o => o.value))
   if (methodVal && !allKnownValues.has(methodVal) && methodVal.startsWith('gift:')) {
     const c = giftCards.find(g => `gift:${g.id}` === methodVal)
-    if (c) pmtGroups.gift = [...pmtGroups.gift, { value: methodVal, label: `${c.source}${c.last4 ? ` •••• ${c.last4}` : ''} — Depleted` }]
+    if (c) pmtGroups.gift = [...pmtGroups.gift, { value: methodVal, label: `${c.source}${c.last4 ? ` •••• ${c.last4}` : ''} — Depleted`, disabled: true }]
   } else if (methodVal && !allKnownValues.has(methodVal) && methodVal.startsWith('reward:')) {
     const r = rewardPrograms.find(rw => `reward:${rw.id}` === methodVal)
-    if (r) pmtGroups.reward = [...pmtGroups.reward, { value: methodVal, label: `${r.program} — $0 left` }]
+    if (r) pmtGroups.reward = [...pmtGroups.reward, { value: methodVal, label: `${r.program} — $0 left`, disabled: true }]
   }
+
+  // The remaining balance already deducts this payment's own current amount
+  // when editing — add it back so the warning compares against the true
+  // "if nothing else changes" ceiling, not one that double-counts this row.
+  const amountNum = Number(amount)
+  const remainingCeiling = remaining != null ? remaining + (editing?.amount || 0) : null
+  const exceedsRemaining = remainingCeiling != null && !isNaN(amountNum) && amountNum > 0 && amountNum > remainingCeiling
 
   async function handleSave() {
     const amountNum = Number(amount)
@@ -81,6 +96,8 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
 
   async function handleDelete() {
     if (!editing) return
+    if (!confirmingDelete) { setConfirmingDelete(true); return }
+    setConfirmingDelete(false)
     setSaving(true)
     const { error } = await deletePayment(editing.id)
     setSaving(false)
@@ -93,8 +110,14 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
       <div className={styles.hdr}>
         <div className={styles.title}>{editing ? 'Edit payment' : 'Log a payment'}</div>
         {editing && (
-          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove payment">
-            <i className="ti ti-trash" />
+          <button
+            type="button"
+            className={`${styles.trash} ${confirmingDelete ? styles.trashConfirm : ''}`}
+            onClick={handleDelete}
+            onBlur={() => setConfirmingDelete(false)}
+            title={confirmingDelete ? 'Tap again to remove' : 'Remove payment'}
+          >
+            <i className={confirmingDelete ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
           </button>
         )}
       </div>
@@ -107,6 +130,11 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
               <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={amount} onChange={e => { setAmount(e.target.value); setAmountError(false) }} />
             </div>
             {amountError && <div className={styles.errMsg}>Enter an amount</div>}
+            {!amountError && exceedsRemaining && (
+              <div className={styles.amountWarning}>
+                <i className="ti ti-alert-triangle" /> That's {fmt(amountNum - remainingCeiling)} more than the {fmt(remainingCeiling)} remaining on this package — double-check the amount.
+              </div>
+            )}
           </div>
 
           <div className={styles.field}>
@@ -122,16 +150,16 @@ export default function PaymentSheet({ userId, tripId, giftCards = [], rewardPro
               onChange={e => { setMethodVal(e.target.value); setMethodError(false) }}
             >
               <optgroup label="Other">
-                {pmtGroups.other.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {pmtGroups.other.map(o => <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>)}
               </optgroup>
               {pmtGroups.gift.length > 0 && (
                 <optgroup label="Gift cards">
-                  {pmtGroups.gift.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {pmtGroups.gift.map(o => <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>)}
                 </optgroup>
               )}
               {pmtGroups.reward.length > 0 && (
                 <optgroup label="Rewards">
-                  {pmtGroups.reward.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {pmtGroups.reward.map(o => <option key={o.value} value={o.value} disabled={o.disabled}>{o.label}</option>)}
                 </optgroup>
               )}
             </select>

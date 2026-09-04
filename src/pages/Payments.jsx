@@ -25,6 +25,13 @@ export default function Payments() {
   const [expenses, setExpenses] = useState(null)
   const [payments, setPayments] = useState(null)
   const [sheetState, setSheetState] = useState(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+
+  useEffect(() => {
+    if (!confirmDeleteId) return undefined
+    const timer = setTimeout(() => setConfirmDeleteId(null), 3000)
+    return () => clearTimeout(timer)
+  }, [confirmDeleteId])
 
   function loadPayments() {
     if (!activeTrip) return
@@ -100,6 +107,8 @@ export default function Payments() {
   }
 
   async function handleDeleteRow(p) {
+    if (confirmDeleteId !== p.id) { setConfirmDeleteId(p.id); return }
+    setConfirmDeleteId(null)
     const { error } = await deletePayment(p.id)
     if (error) { showToast?.(error.message); return }
     showToast?.('Payment removed')
@@ -121,7 +130,7 @@ export default function Payments() {
             <div className={styles.heroRightVal}>{fmt(remaining)}</div>
           </div>
         </div>
-        <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ width: `${pct}%` }} /></div>
+        <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ transform: `scaleX(${pct / 100})` }} /></div>
         <div className={styles.heroSub}>{fmt(paid)} of {fmt(totalCost)} paid · {pct}%</div>
         <div className={styles.heroFooter}>
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Paid to date</div><div className={styles.heroFooterVal} style={{ color: 'var(--teal)' }}>{fmt(paid)}</div></div>
@@ -181,8 +190,14 @@ export default function Payments() {
                 <button type="button" className={styles.editBtn} title="Edit payment" onClick={() => setSheetState({ editingPayment: p })}>
                   <i className="ti ti-pencil" />
                 </button>
-                <button type="button" className={styles.removeBtn} title="Remove payment" onClick={() => handleDeleteRow(p)}>
-                  <i className="ti ti-trash" />
+                <button
+                  type="button"
+                  className={`${styles.removeBtn} ${confirmDeleteId === p.id ? styles.removeBtnConfirm : ''}`}
+                  title={confirmDeleteId === p.id ? 'Tap again to remove' : 'Remove payment'}
+                  onClick={() => handleDeleteRow(p)}
+                  onBlur={() => setConfirmDeleteId(null)}
+                >
+                  <i className={confirmDeleteId === p.id ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
                 </button>
               </div>
             </div>
@@ -198,6 +213,7 @@ export default function Payments() {
         tripId={activeTrip.id}
         giftCards={giftCards}
         rewardPrograms={rewardPrograms}
+        remaining={remaining}
         state={sheetState}
         onClose={() => setSheetState(null)}
         onSaved={handleSaved}

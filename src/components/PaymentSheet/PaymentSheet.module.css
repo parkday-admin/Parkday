@@ -13,6 +13,8 @@
 }
 .trash:hover { background: rgba(224, 83, 63, 0.15); }
 .trash i { font-size: 15px; color: var(--coral); }
+.trashConfirm { background: var(--coral); border-color: var(--coral); }
+.trashConfirm i { color: #fff; }
 
 .body { overflow-y: auto; padding-bottom: 20px; }
 
@@ -39,11 +41,14 @@
 
 .saveBtn {
   margin: 4px 18px 0; width: calc(100% - 36px); padding: 13px;
-  background: var(--sky); border: none; border-radius: var(--radius);
-  font-size: 13.5px; font-weight: 600; color: #fff; cursor: pointer;
+  background: var(--gold); border: none; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 600; color: var(--night); cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.saveBtn:hover { background: var(--sky-dark); }
+.saveBtn:hover { opacity: 0.9; }
 .saveBtn:disabled { opacity: 0.6; cursor: default; }
 .saveBtn i { font-size: 14px; }
+
+.amountWarning { display: flex; align-items: flex-start; gap: 6px; margin-top: 6px; font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.amountWarning i { color: var(--gold-dark); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
 

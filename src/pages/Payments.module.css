@@ -13,21 +13,21 @@
 /* ── Hero ── */
 .hero { background: var(--night); border-radius: var(--radius); overflow: hidden; margin-bottom: 11px; }
 .heroTop { padding: 13px 15px 0; display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
-.heroLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.heroLbl { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
 .heroNum { font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--gold); line-height: 1; }
 .heroRight { text-align: right; }
-.heroRightLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+.heroRightLbl { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
 .heroRightVal { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--teal); }
 .heroBar { height: 4px; background: var(--border-on-dark); border-radius: var(--radius-pill); overflow: hidden; margin: 0 15px; }
-.heroBarFill { height: 100%; background: var(--teal); border-radius: var(--radius-pill); transition: width 0.3s; }
+.heroBarFill { width: 100%; height: 100%; background: var(--teal); border-radius: var(--radius-pill); transform-origin: left; transition: transform 0.3s; }
 .heroSub { font-size: 10px; color: rgba(255, 255, 255, 0.35); margin: 6px 15px 13px; }
 .heroFooter { padding: 9px 8px; border-top: 1px solid rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: space-between; }
 .heroFooterStat { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
-.heroFooterLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.heroFooterLbl { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
 .heroFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
 .heroFooterDivider { width: 1px; height: 28px; background: var(--border-on-dark); flex-shrink: 0; }
 
-.urgencyPill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; margin-top: 3px; }
+.urgencyPill { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; margin-top: 3px; }
 .upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }
 .upMed { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
 .upLow { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
@@ -50,7 +50,7 @@
 .pmtIcon i { font-size: 15px; color: var(--sky-dark); }
 .pmtInfo { flex: 1; min-width: 0; }
 .pmtName { font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
-.methodPill { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: var(--ink-wash); color: var(--text-tertiary); letter-spacing: 0.02em; }
+.methodPill { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: var(--ink-wash); color: var(--text-tertiary); letter-spacing: 0.02em; }
 .pmtSub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; }
 
 .pmtActions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
@@ -68,6 +68,8 @@
 }
 .removeBtn:hover { background: rgba(224, 83, 63, 0.15); }
 .removeBtn i { font-size: 15px; color: var(--coral); }
+.removeBtnConfirm { background: var(--coral); border-color: var(--coral); }
+.removeBtnConfirm i { color: #fff; }
 
 .addBtn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px;
