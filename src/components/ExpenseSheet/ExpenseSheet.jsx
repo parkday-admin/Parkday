@@ -163,8 +163,8 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
       <div className={styles.hdr}>
         <div className={styles.title}>{editing ? 'Edit expense' : 'Add expense'}</div>
         {editing && (
-          <button type="button" className={styles.trash} onClick={handleDelete} title="Delete expense">
-            <i className="ti ti-trash" />
+          <button type="button" className={styles.trash} onClick={handleDelete} aria-label="Delete expense">
+            <i aria-hidden="true" className="ti ti-trash" />
           </button>
         )}
       </div>
@@ -180,8 +180,8 @@ export default function ExpenseSheet({ trip, userId, state, giftCards = [], rewa
                   onChange={e => { setPlanned(e.target.value); setPlannedError(false) }} />
               </div>
             </div>
-            <button type="button" className={styles.copyBtn} title="Copy planned to actual" onClick={copyPlannedToActual}>
-              <i className="ti ti-arrow-right" />
+            <button type="button" className={styles.copyBtn} aria-label="Copy planned to actual" onClick={copyPlannedToActual}>
+              <i aria-hidden="true" className="ti ti-arrow-right" />
             </button>
             <div>
               <div className={styles.fieldLbl}>Actual <span className={styles.optional}>(if spent)</span></div>

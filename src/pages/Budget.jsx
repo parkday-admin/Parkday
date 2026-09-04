@@ -215,7 +215,7 @@ export default function Budget() {
             <strong>Heads up — budget targets carried over from {staleSource.name} ({staleSource.arrival_date?.slice(0, 4)})</strong>
             <div>Disney pricing changes year to year. Worth a quick review before you start planning.</div>
           </div>
-          <button type="button" className={styles.staleBannerClose} onClick={dismissBanner} title="Dismiss"><i className="ti ti-x" /></button>
+          <button type="button" className={styles.staleBannerClose} onClick={dismissBanner} aria-label="Dismiss"><i aria-hidden="true" className="ti ti-x" /></button>
         </div>
       )}
 
@@ -243,7 +243,17 @@ export default function Budget() {
               <div className={styles.heroRemaining}>{fmt(remaining)}</div>
             </div>
           </div>
-          <div className={styles.heroBarTrack}><div className={styles.heroBarFill} style={{ width: `${pct}%` }} /></div>
+          <div className={styles.heroBarTrack}>
+            <div
+              className={styles.heroBarFill}
+              role="progressbar"
+              aria-valuenow={pct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Trip budget spent"
+              style={{ transform: `scaleX(${pct / 100})` }}
+            />
+          </div>
           <div className={styles.heroSub}>{pct}% of budget spent</div>
         </div>
         <div className={styles.heroFooter}>
@@ -251,7 +261,7 @@ export default function Budget() {
           <div className={styles.heroDivider} />
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Planned</div><div className={styles.heroFooterVal} style={{ color: 'var(--sky)' }}>{fmt(totalPlanned)}</div></div>
           <div className={styles.heroDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: 'var(--coral)' }}>{fmt(totalActual)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: totalActual > totalBudgeted ? 'var(--coral)' : 'var(--night)' }}>{fmt(totalActual)}</div></div>
           <div className={styles.heroDivider} />
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal} style={{ color: 'var(--teal)' }}>{fmt(remaining)}</div></div>
         </div>
@@ -264,14 +274,26 @@ export default function Budget() {
           const rowPct = r.budgeted > 0 ? Math.min(100, Math.round((r.actual / r.budgeted) * 100)) : 0
           const editing = editingCat === r.cat
           return (
-            <div key={r.cat} className={styles.catRow} onClick={() => !editing && navigate(`/budget/${r.cat}`)}>
-              <div className={styles.catIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
-              <div className={styles.catInfo}>
-                <div className={styles.catName}>{meta.label}</div>
-                <div className={styles.catSub}>{fmt(r.actual)} spent · {fmt(r.planned)} planned · {r.count} {r.count === 1 ? 'entry' : 'entries'}</div>
-                <div className={styles.catProg}><div className={styles.catProgFill} style={{ width: `${rowPct}%`, background: over ? 'var(--coral)' : meta.prog }} /></div>
-              </div>
-              <div className={styles.catVals} onClick={e => e.stopPropagation()}>
+            <div key={r.cat} className={styles.catRow}>
+              <button type="button" className={styles.catRowMain} onClick={() => navigate(`/budget/${r.cat}`)}>
+                <div className={styles.catIcon} style={{ background: meta.bg }}><i aria-hidden="true" className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
+                <div className={styles.catInfo}>
+                  <div className={styles.catName}>{meta.label}</div>
+                  <div className={styles.catSub}>{fmt(r.actual)} spent · {fmt(r.planned)} planned · {r.count} {r.count === 1 ? 'entry' : 'entries'}</div>
+                  <div className={styles.catProg}>
+                    <div
+                      className={styles.catProgFill}
+                      role="progressbar"
+                      aria-valuenow={rowPct}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${meta.label} budget spent`}
+                      style={{ width: `${rowPct}%`, background: over ? 'var(--coral)' : meta.prog }}
+                    />
+                  </div>
+                </div>
+              </button>
+              <div className={styles.catVals}>
                 {editing ? (
                   <input
                     className={styles.budgetInput}
@@ -284,9 +306,15 @@ export default function Budget() {
                     onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
                   />
                 ) : (
-                  <div className={styles.catBudgeted} style={{ color: over ? 'var(--coral)' : 'var(--ink)' }} onClick={() => startEditBudget(r)} title="Tap to edit">
-                    {fmt(r.budgeted)} <i className="ti ti-pencil" />
-                  </div>
+                  <button
+                    type="button"
+                    className={styles.catBudgeted}
+                    style={{ color: over ? 'var(--coral)' : 'var(--ink)' }}
+                    onClick={() => startEditBudget(r)}
+                    aria-label={`Edit ${meta.label} budget, currently ${fmt(r.budgeted)}`}
+                  >
+                    {fmt(r.budgeted)} <i aria-hidden="true" className="ti ti-pencil" />
+                  </button>
                 )}
                 <div className={styles.catPct}>{rowPct}% spent</div>
               </div>

@@ -176,6 +176,18 @@
         "value": "3px",
         "createdAt": "2026-09-04T19:18:13.968Z",
         "reason": "Highlighter-marker radius behind headline text (live-v1-highlight span) — mimics an ink-pen stroke under text, not a UI-element corner; the 8px+ scale would look bubbly here"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "9.5px",
+        "createdAt": "2026-09-04T20:19:14.756Z",
+        "reason": "Matches DESIGN.md's documented Micro tier (9px, uppercase stat-label caption) within rounding; Assessment B in the Budget critique identified this as covered, not new drift"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "34px",
+        "createdAt": "2026-09-04T20:21:39.370Z",
+        "reason": "Budget hero's Trip Budget figure (Fraunces) sits within DESIGN.md's documented Display range (28-40px) — not drift"
       }
     ]
   }

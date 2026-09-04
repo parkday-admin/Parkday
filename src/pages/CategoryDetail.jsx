@@ -97,36 +97,45 @@ export default function CategoryDetail() {
 
       <div className={styles.hdr}>
         <button type="button" className={styles.backBtn} onClick={() => navigate('/budget')}>
-          <i className="ti ti-arrow-left" /> Budget
+          <i aria-hidden="true" className="ti ti-arrow-left" /> Budget
         </button>
         <div className={styles.hdrTitle}>
           <span>{meta.label}</span>
-          <div className={styles.hdrIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
+          <div className={styles.hdrIcon} style={{ background: meta.bg }}><i aria-hidden="true" className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
           {cat === 'package' && (
-            <button type="button" className={styles.paymentPlanPill} onClick={() => navigate('/payments')} title="View payment plan">
-              <i className="ti ti-calendar-due" /> Payment plan
+            <button type="button" className={styles.paymentPlanPill} onClick={() => navigate('/payments')}>
+              <i aria-hidden="true" className="ti ti-calendar-due" /> Payment plan
             </button>
           )}
         </div>
       </div>
 
       <div className={styles.summary}>
-        <div className={styles.summaryItem} onClick={startEditBudget}>
-          <div className={styles.summaryLbl}>Budgeted <i className="ti ti-pencil" style={{ fontSize: 9, opacity: 0.5 }} /></div>
+        <div className={styles.summaryItem}>
           {editingBudget ? (
-            <input
-              className={styles.budgetInput}
-              type="number"
-              min="0"
-              autoFocus
-              value={budgetDraft}
-              onChange={e => setBudgetDraft(e.target.value)}
-              onBlur={commitBudget}
-              onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
-              onClick={e => e.stopPropagation()}
-            />
+            <>
+              <div className={styles.summaryLbl}>Budgeted <i aria-hidden="true" className="ti ti-pencil" style={{ fontSize: 9, opacity: 0.5 }} /></div>
+              <input
+                className={styles.budgetInput}
+                type="number"
+                min="0"
+                autoFocus
+                value={budgetDraft}
+                onChange={e => setBudgetDraft(e.target.value)}
+                onBlur={commitBudget}
+                onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+              />
+            </>
           ) : (
-            <div className={styles.summaryVal} style={{ color: 'var(--gold)' }}>{fmt(budgetRow?.planned_amt || 0)}</div>
+            <button
+              type="button"
+              className={styles.summaryEditBtn}
+              onClick={startEditBudget}
+              aria-label={`Edit budgeted amount, currently ${fmt(budgetRow?.planned_amt || 0)}`}
+            >
+              <div className={styles.summaryLbl}>Budgeted <i aria-hidden="true" className="ti ti-pencil" style={{ fontSize: 9, opacity: 0.5 }} /></div>
+              <div className={styles.summaryVal} style={{ color: 'var(--gold)' }}>{fmt(budgetRow?.planned_amt || 0)}</div>
+            </button>
           )}
         </div>
         <div className={styles.summaryItem}>
@@ -135,7 +144,7 @@ export default function CategoryDetail() {
         </div>
         <div className={styles.summaryItem}>
           <div className={styles.summaryLbl}>Spent</div>
-          <div className={styles.summaryVal} style={{ color: 'var(--coral)' }}>{hasSpend ? fmt(actual) : '—'}</div>
+          <div className={styles.summaryVal} style={{ color: actual > (budgetRow?.planned_amt || 0) ? 'var(--coral)' : 'var(--ink)' }}>{hasSpend ? fmt(actual) : '—'}</div>
         </div>
       </div>
 

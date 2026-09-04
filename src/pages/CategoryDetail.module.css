@@ -41,9 +41,13 @@
   display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 11px;
 }
 .summaryItem { text-align: center; }
-.summaryLbl { font-size: 9.5px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; }
-.summaryItem:first-child { cursor: pointer; }
-.summaryVal { font-family: var(--heading); font-size: 18px; font-weight: 400; }
+.summaryLbl { font-size: 9.5px; line-height: 1.3; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 3px; }
+.summaryEditBtn {
+  width: 100%; text-align: center; background: none; border: none; cursor: pointer;
+  padding: 0; margin: 0; border-radius: var(--radius-sm); font-family: var(--sans);
+}
+.summaryEditBtn:focus-visible { outline: 2px solid var(--sky); outline-offset: 2px; }
+.summaryVal { font-family: var(--heading); font-size: 18px; line-height: 1.3; font-weight: 400; }
 .budgetInput {
   font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--gold);
   background: transparent; border: none; border-bottom: 1.5px solid var(--gold); outline: none;
