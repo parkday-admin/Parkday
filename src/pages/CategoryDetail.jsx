@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense, createExpense, setCategoryBudget } from '../lib/expenses'
 import { categoryMeta, categoryTotals } from '../lib/categories'
@@ -18,6 +18,7 @@ export default function CategoryDetail() {
   const [error, setError] = useState(null)
   const [editingBudget, setEditingBudget] = useState(false)
   const [budgetDraft, setBudgetDraft] = useState('')
+  const skipCommitRef = useRef(false)
   const [toast, setToast] = useState(null)
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function CategoryDetail() {
 
   async function commitBudget() {
     setEditingBudget(false)
+    if (skipCommitRef.current) { skipCommitRef.current = false; return }
     const amt = Number(budgetDraft) || 0
     const { error } = await setCategoryBudget(userId, activeTrip.id, cat, amt, budgetRow?.id)
     if (error) { setToast({ message: error.message }); return }
@@ -123,7 +125,10 @@ export default function CategoryDetail() {
                 value={budgetDraft}
                 onChange={e => setBudgetDraft(e.target.value)}
                 onBlur={commitBudget}
-                onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') e.currentTarget.blur()
+                  else if (e.key === 'Escape') { skipCommitRef.current = true; e.currentTarget.blur() }
+                }}
               />
             </>
           ) : (
@@ -140,11 +145,11 @@ export default function CategoryDetail() {
         </div>
         <div className={styles.summaryItem}>
           <div className={styles.summaryLbl}>Planned</div>
-          <div className={styles.summaryVal} style={{ color: 'var(--sky)' }}>{fmt(planned)}</div>
+          <div className={styles.summaryVal} style={{ color: 'var(--sky-on-dark)' }}>{fmt(planned)}</div>
         </div>
         <div className={styles.summaryItem}>
           <div className={styles.summaryLbl}>Spent</div>
-          <div className={styles.summaryVal} style={{ color: actual > (budgetRow?.planned_amt || 0) ? 'var(--coral)' : 'var(--ink)' }}>{hasSpend ? fmt(actual) : '—'}</div>
+          <div className={styles.summaryVal} style={{ color: actual > (budgetRow?.planned_amt || 0) ? 'var(--coral)' : 'rgba(255, 255, 255, 0.92)' }}>{hasSpend ? fmt(actual) : '—'}</div>
         </div>
       </div>
 

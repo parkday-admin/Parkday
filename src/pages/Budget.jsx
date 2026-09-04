@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, setCategoryBudget, deleteExpense, createExpense } from '../lib/expenses'
@@ -43,6 +43,7 @@ export default function Budget() {
   const [error, setError] = useState(null)
   const [editingCat, setEditingCat] = useState(null)
   const [budgetDraft, setBudgetDraft] = useState('')
+  const skipCommitRef = useRef(false)
   const [toast, setToast] = useState(null)
   const [tab, setTab] = useState('summary')
   const [filterOpen, setFilterOpen] = useState(false)
@@ -140,6 +141,7 @@ export default function Budget() {
 
   async function commitBudget(row) {
     setEditingCat(null)
+    if (skipCommitRef.current) { skipCommitRef.current = false; return }
     const amt = Number(budgetDraft) || 0
     if (amt === row.budgeted) return
     const { error } = await setCategoryBudget(userId, activeTrip.id, row.cat, amt, row.budgetRowId)
@@ -180,6 +182,14 @@ export default function Budget() {
   })
 
   const activeFilterCount = filterCats.length + filterDays.length + filterMethods.length
+
+  // Group the flat, filtered list the same way CategoryDetail's drill-down
+  // groups a single category's entries, so the highest-volume list in the
+  // app gets the same day-by-day chunking instead of a flat scroll.
+  const tripLevelFiltered = filteredEntries.filter(e => e.day == null)
+  const byDayFiltered = tripDays(activeTrip)
+    .map(d => ({ day: d.day, dow: d.dow, es: filteredEntries.filter(e => e.day === d.day) }))
+    .filter(g => g.es.length)
 
   function toggleFilter(setter, value) {
     setter(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value])
@@ -259,9 +269,9 @@ export default function Budget() {
         <div className={styles.heroFooter}>
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Budgeted</div><div className={styles.heroFooterVal} style={{ color: 'var(--gold)' }}>{fmt(totalBudgeted)}</div></div>
           <div className={styles.heroDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Planned</div><div className={styles.heroFooterVal} style={{ color: 'var(--sky)' }}>{fmt(totalPlanned)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Planned</div><div className={styles.heroFooterVal} style={{ color: 'var(--sky-on-dark)' }}>{fmt(totalPlanned)}</div></div>
           <div className={styles.heroDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: totalActual > totalBudgeted ? 'var(--coral)' : 'var(--night)' }}>{fmt(totalActual)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: totalActual > totalBudgeted ? 'var(--coral)' : 'rgba(255, 255, 255, 0.92)' }}>{fmt(totalActual)}</div></div>
           <div className={styles.heroDivider} />
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal} style={{ color: 'var(--teal)' }}>{fmt(remaining)}</div></div>
         </div>
@@ -303,7 +313,10 @@ export default function Budget() {
                     value={budgetDraft}
                     onChange={e => setBudgetDraft(e.target.value)}
                     onBlur={() => commitBudget(r)}
-                    onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') e.currentTarget.blur()
+                      else if (e.key === 'Escape') { skipCommitRef.current = true; e.currentTarget.blur() }
+                    }}
                   />
                 ) : (
                   <button
@@ -343,20 +356,36 @@ export default function Budget() {
             </div>
           ) : (
             <div className={styles.allList}>
-              {filteredEntries.map(e => {
-                const meta = categoryMeta(e.cat)
-                const dayLabel = e.day == null ? 'Trip level' : `Day ${e.day}`
-                return (
-                  <EntryCard
-                    key={e.id}
-                    entry={e}
-                    meta={meta}
-                    dayLabel={dayLabel}
-                    onEdit={en => openExpenseSheet?.({ editingExpense: en })}
-                    onDelete={handleDeleteEntry}
-                  />
-                )
-              })}
+              {tripLevelFiltered.length > 0 && (
+                <>
+                  <div className={styles.sectionLbl}><i className="ti ti-calendar-event" /> Trip total</div>
+                  {tripLevelFiltered.map(e => (
+                    <EntryCard
+                      key={e.id}
+                      entry={e}
+                      meta={categoryMeta(e.cat)}
+                      dayLabel="Trip level"
+                      onEdit={en => openExpenseSheet?.({ editingExpense: en })}
+                      onDelete={handleDeleteEntry}
+                    />
+                  ))}
+                </>
+              )}
+              {byDayFiltered.map(g => (
+                <div key={g.day}>
+                  <div className={styles.sectionLbl}><i className="ti ti-sun" /> Day {g.day} · {g.dow}</div>
+                  {g.es.map(e => (
+                    <EntryCard
+                      key={e.id}
+                      entry={e}
+                      meta={categoryMeta(e.cat)}
+                      dayLabel={`Day ${e.day}`}
+                      onEdit={en => openExpenseSheet?.({ editingExpense: en })}
+                      onDelete={handleDeleteEntry}
+                    />
+                  ))}
+                </div>
+              ))}
             </div>
           )}
 

@@ -22,6 +22,7 @@
   --violet-bg: rgba(150, 110, 200, 0.18);
   --sunset-bg: rgba(224, 122, 63, 0.18);
   --steel-bg: rgba(93, 141, 196, 0.2); /* softer steel-blue catalog-tag fill, paired with sky-dark text — distinct from --sky-bg's brighter interactive blue */
+  --sky-on-dark: #5A8CF5; /* lightened sky for text sitting directly on navy/dark surfaces — --sky itself fails AA contrast (~3.3:1) there */
   --cream: #F0EDE8;
   --cream-light: #FFF6E7;
   --bg: #F3EEE3;
