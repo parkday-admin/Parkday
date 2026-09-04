@@ -13,6 +13,9 @@ dist-ssr
 *.local
 supabase/.temp
 
+# Vendored Claude Code tooling (installed via `npx impeccable install`) — local only
+.claude/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

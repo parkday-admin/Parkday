@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-04T00:00:00.000Z",
+  "title": "Design System: Parkday",
+  "extensions": {
+    "colorMeta": {
+      "night": { "role": "secondary", "displayName": "Ticket Ink Navy", "canonical": "#0D2340", "tonalRamp": ["#050d1a", "#0a1830", "#0D2340", "#132B4D", "#1c3d6b", "#2a568f", "#4a76b3", "#8fa9cf"] },
+      "sky": { "role": "primary", "displayName": "Interactive Sky", "canonical": "#2A6FE0", "tonalRamp": ["#0f2a5c", "#163f86", "#1E5AC4", "#2A6FE0", "#4d87e6", "#7ba5ec", "#aecaf4", "#dde9fb"] },
+      "gold": { "role": "primary", "displayName": "Ticket Stamp Gold", "canonical": "#F5B536", "tonalRamp": ["#5c3f06", "#8a5c09", "#C68A12", "#F5B536", "#f7c561", "#fad689", "#fce6b3", "#fef5dc"] },
+      "gold-text": { "role": "primary", "displayName": "Gold-Surface Text", "canonical": "#8a5a00", "tonalRamp": ["#3a2500", "#5c3d00", "#8a5a00", "#a86f00", "#c68a12", "#e0a53a", "#f2c674", "#faeac0"] },
+      "coral": { "role": "tertiary", "displayName": "Urgency Coral", "canonical": "#E0533F", "tonalRamp": ["#5c1a10", "#8a2818", "#b83a24", "#E0533F", "#e8776a", "#ef9c93", "#f6c1bb", "#fbe3e0"] },
+      "teal": { "role": "tertiary", "displayName": "Positive Teal", "canonical": "#2CA58D", "tonalRamp": ["#0f3a31", "#175748", "#1B7D68", "#2CA58D", "#54bda7", "#84d1c0", "#b5e4d9", "#e0f5ef"] },
+      "cream": { "role": "neutral", "displayName": "Ticket Paper Cream", "canonical": "#F0EDE8", "tonalRamp": ["#292723", "#4c4a44", "#8a877e", "#c4c0b6", "#F0EDE8", "#F3EEE3", "#FFF6E7", "#fffdf8"] },
+      "ink": { "role": "neutral", "displayName": "Body Ink", "canonical": "#20242C", "tonalRamp": ["#0a0b0e", "#14161a", "#20242C", "#3a3f4a", "#565c68", "#7e848f", "#aeb2ba", "#dcdee1"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (Fraunces)", "purpose": "Hero countdown/budget numbers, page and card headlines." },
+      "headline": { "displayName": "Headline (Fraunces)", "purpose": "h1-h3, empty-state and auth headlines." },
+      "title": { "displayName": "Title (Inter 600)", "purpose": "Card titles (15px) and compact names/headers in denser chrome (13px)." },
+      "value": { "displayName": "Value (Fraunces)", "purpose": "Compact numeric/currency displays in rows, chips, and stat blocks (16-20px)." },
+      "body": { "displayName": "Body (Inter)", "purpose": "Paragraphs, form values, general content." },
+      "label": { "displayName": "Label (Inter 600, uppercase)", "purpose": "Field labels, eyebrows, badges, nav sub-labels." },
+      "micro": { "displayName": "Micro (Inter 600, uppercase, 9px)", "purpose": "Smallest eyebrow tier for compact stat labels and secondary metadata." }
+    },
+    "shadows": [
+      { "name": "shadow-sm", "value": "0 1px 3px rgba(13, 35, 64, 0.05)", "purpose": "Default resting card/surface edge." },
+      { "name": "shadow", "value": "0 4px 18px rgba(13, 35, 64, 0.1)", "purpose": "Hover states, small floating elements." },
+      { "name": "shadow-card", "value": "0 1px 2px rgba(13, 35, 64, 0.06), 0 8px 24px -12px rgba(13, 35, 64, 0.12)", "purpose": "Standard elevated card." },
+      { "name": "shadow-panel", "value": "0 20px 40px -12px rgba(13, 35, 64, 0.25)", "purpose": "Overlays above content: user menu, toast, bottom sheet." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for sheets, menus, and state transitions." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Highest-commitment action on a screen (form submit, confirm/book).",
+      "html": "<button class=\"ds-btn-primary\">Save Changes</button>",
+      "css": ".ds-btn-primary { width: 100%; padding: 13px; background: #F5B536; color: #0D2340; border: none; border-radius: 11px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; } .ds-btn-primary:hover { opacity: 0.9; } .ds-btn-primary:focus-visible { outline: 2px solid #2A6FE0; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Equal-weight alternate action alongside a primary button.",
+      "html": "<button class=\"ds-btn-secondary\">Continue with Google</button>",
+      "css": ".ds-btn-secondary { width: 100%; padding: 13px; background: #FFFFFF; color: #20242C; border: 1.5px solid rgba(13, 35, 64, 0.28); border-radius: 11px; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: border-color 0.15s, background 0.15s; } .ds-btn-secondary:hover { border-color: #2A6FE0; background: rgba(42, 111, 224, 0.04); } .ds-btn-secondary:focus-visible { outline: 2px solid #2A6FE0; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Standard form field.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"you@example.com\" />",
+      "css": ".ds-input { width: 100%; padding: 11px 13px; border: 1.5px solid rgba(13, 35, 64, 0.28); border-radius: 8px; background: #FFFFFF; color: #20242C; font-family: 'Inter', system-ui, sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s; } .ds-input:focus { border-color: #2A6FE0; } .ds-input::placeholder { color: rgba(13, 35, 64, 0.42); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Standard content card on the cream page ground.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-hdr\"><span class=\"ds-card-title\">Trip Budget</span></div><div class=\"ds-card-body\">$4,280 of $6,000 spent</div></div>",
+      "css": ".ds-card { background: #FFFFFF; border: 1px solid rgba(13, 35, 64, 0.28); border-radius: 14px; overflow: hidden; font-family: 'Inter', system-ui, sans-serif; } .ds-card-hdr { padding: 14px 16px; border-bottom: 1px solid rgba(13, 35, 64, 0.1); } .ds-card-title { font-size: 15px; font-weight: 600; color: #20242C; } .ds-card-body { padding: 14px 16px; font-size: 14px; color: #20242C; }"
+    },
+    {
+      "name": "Hero Panel",
+      "kind": "custom",
+      "refersTo": "card-hero",
+      "description": "Solid navy 'ticket stamp' summary surface — countdown/budget hero on the dashboard.",
+      "html": "<div class=\"ds-hero\"><div class=\"ds-hero-lbl\">Days Until Trip</div><div class=\"ds-hero-num\">42</div></div>",
+      "css": ".ds-hero { background: #0D2340; border-radius: 14px; padding: 20px 22px; font-family: 'Inter', system-ui, sans-serif; } .ds-hero-lbl { font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; } .ds-hero-num { font-family: 'Fraunces', Georgia, serif; font-size: 40px; line-height: 1; color: #F5B536; }"
+    },
+    {
+      "name": "Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Small status pill; semantic color only (teal/gold/coral).",
+      "html": "<span class=\"ds-badge ds-badge-teal\">On Track</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; font-family: 'Inter', system-ui, sans-serif; } .ds-badge-teal { background: rgba(44, 165, 141, 0.15); color: #1B7D68; } .ds-badge-gold { background: rgba(245, 181, 54, 0.2); color: #8a5a00; } .ds-badge-coral { background: rgba(224, 83, 63, 0.1); color: #E0533F; }"
+    },
+    {
+      "name": "Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Desktop drawer / row-style navigation item with active state.",
+      "html": "<button class=\"ds-nav-item ds-nav-item-active\"><span class=\"ds-nav-label\">Budget</span></button>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; cursor: pointer; color: rgba(13, 35, 64, 0.6); text-decoration: none; border: none; background: none; width: 100%; text-align: left; font-family: 'Inter', system-ui, sans-serif; } .ds-nav-item:hover { background: rgba(42, 111, 224, 0.05); } .ds-nav-item-active { background: rgba(42, 111, 224, 0.08); } .ds-nav-item-active .ds-nav-label { color: #2A6FE0; font-weight: 600; } .ds-nav-label { font-size: 15px; font-weight: 500; flex: 1; }"
+    },
+    {
+      "name": "Floating Action Button",
+      "kind": "custom",
+      "refersTo": "fab",
+      "description": "Signature circular sky-blue add button, fixed bottom-right.",
+      "html": "<button class=\"ds-fab\" aria-label=\"Add\">+</button>",
+      "css": ".ds-fab { width: 52px; height: 52px; border-radius: 50%; background: #2A6FE0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(42, 111, 224, 0.4); color: #fff; font-size: 23px; transition: background 0.15s; } .ds-fab:hover { background: #1E5AC4; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Park Ticket",
+    "overview": "Parkday reads like a keepsake admission ticket, not a finance app. Warm cream paper stock, deep navy ink, and a gold-foil accent do the work that a typical fintech product would hand to sterile grays and a single saturated blue. A serif display face (Fraunces) supplies the confident, slightly formal \"printed ticket\" headline voice; Inter carries every working number, label, and control so the app still reads fast and legibly where it needs to be a tool, not a souvenir.\n\nThe system stays warm and reassuring on purpose: this app tracks families' vacation money, so its surfaces avoid anything cold, alarmist, or spreadsheet-like. Cards are soft-cornered and lightly lifted rather than bordered and flat; the one recurring \"stamped\" motif — a solid navy block used for hero/summary data (countdown, budget totals) — is the closest thing to a signature device, echoing a ticket's ink-stamped panel.",
+    "keyCharacteristics": [
+      "Warm cream paper background, never stark white as the page ground",
+      "Navy ink for headlines and the one deep \"stamped\" surface (hero blocks)",
+      "Gold as the primary call-to-action color; sky blue as the everyday interactive/link color",
+      "Coral and teal reserved for alert/success semantics only, never decoration",
+      "Fraunces serif for numbers and headlines that deserve weight; Inter for everything functional",
+      "Soft, generous corner radii and quiet shadows — depth is gentle, never dramatic"
+    ],
+    "rules": [
+      { "name": "The One Ink Rule", "body": "Every border, secondary text tone, and shadow color derives from navy at reduced opacity — never introduce a neutral gray. Warmth comes from staying inside one hue family for \"structure\" colors.", "section": "colors" },
+      { "name": "The Semantic-Only Rule", "body": "Coral and teal appear only to mean something (error/urgent vs. success/positive). If a color choice is purely decorative, it must be sky, gold, or a neutral — never coral or teal.", "section": "colors" },
+      { "name": "The Serif-Is-a-Number Rule", "body": "Fraunces is reserved for headlines and quantities that deserve visual weight (dates, dollar amounts, page titles) — it never appears in body copy, buttons, or form fields.", "section": "typography" },
+      { "name": "The Quiet Shadow Rule", "body": "Shadows are always soft, diffuse, and navy-tinted (never black) — depth should feel like paper lifted slightly off a table, not like a UI panel floating in space.", "section": "elevation" },
+      { "name": "The Icon Glyph Exception", "body": "Icon font sizes follow their component's density and touch-target needs (roughly 11-20px), not the text type ramp — a tab-bar icon, a chevron, and a drag handle are sized to their own container, not to a paragraph's type scale.", "section": "typography" }
+    ],
+    "dos": [
+      "Do keep the page ground warm cream, never pure white or gray — white is reserved for cards/surfaces sitting on top of the page.",
+      "Do use gold only for the single primary/commitment action on a screen; a screen with two gold buttons has lost the ticket-stamp effect.",
+      "Do use Fraunces only for headlines and standalone numeric quantities, never for UI chrome, labels, or body copy.",
+      "Do derive borders and secondary text from navy at reduced opacity, keeping the whole neutral system warm.",
+      "Do keep shadows soft and navy-tinted; treat the flat/bordered look as the default and shadow as a rare accent."
+    ],
+    "donts": [
+      "Don't use coral or teal decoratively — they carry error/urgent and success/positive meaning only.",
+      "Don't introduce a plain gray for borders, dividers, or muted text; use the navy-tint ladder instead.",
+      "Don't use Disney trademarks, character likenesses, or proprietary Disney marks/fonts anywhere in the visual system (product constraint, not a stylistic preference).",
+      "Don't treat the standalone HTML files in public/ (configurator, estimator, planner, pricing, account, home prototypes) as authoritative — they are earlier/exploratory iterations; the tokens and components above are extracted from the live src/ app."
+    ]
+  }
+}
