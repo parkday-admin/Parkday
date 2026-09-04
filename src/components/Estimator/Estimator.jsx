@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import styles from './Estimator.module.css'
 import {
@@ -61,6 +61,8 @@ export default function Estimator() {
   const userId = session?.user?.id
   const [S, setS] = useState(DEFAULT_S)
   const [step, setStep] = useState(0)
+  const embedRef = useRef(null)
+  const isFirstRender = useRef(true)
   const [skipped, setSkipped] = useState({ travel: false })
   const [originMiles, setOriginMiles] = useState(null)
   const [originLabel, setOriginLabel] = useState('')
@@ -73,6 +75,7 @@ export default function Estimator() {
   const [savedEstimates, setSavedEstimates] = useState([])
   const [savingEstimate, setSavingEstimate] = useState(false)
   const [saveEstimateError, setSaveEstimateError] = useState(null)
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   useEffect(() => {
     if (!userId) return
@@ -131,6 +134,23 @@ export default function Estimator() {
     if (s === 2 && S.nights === 0 && dir > 0) s = 3
     if (s === 2 && S.nights === 0 && dir < 0) s = 1
     setStep(s)
+  }
+
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
+    embedRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }, [step])
+
+  useEffect(() => {
+    if (!confirmingReset) return undefined
+    const timer = setTimeout(() => setConfirmingReset(false), 3000)
+    return () => clearTimeout(timer)
+  }, [confirmingReset])
+
+  function handleResetClick() {
+    if (!confirmingReset) { setConfirmingReset(true); return }
+    setConfirmingReset(false)
+    restart()
   }
 
   function restart() {
@@ -231,6 +251,7 @@ export default function Estimator() {
   const c = calc(S, step, skipped, originMiles)
   const tv = travelEst(S, skipped, originMiles)
   const showTravelEst = tv.lo > 0 || tv.hi > 0
+  const llLine = c.lines.find(l => l.name === 'Lightning Lane')
 
   const qHint = S.qs > 0 ? `~$12–20/person · est. ${rng(12 * S.qs * t * S.parkdays, 20 * S.qs * t * S.parkdays)}` : '~$12–20/person'
   const tsHint = S.ts > 0 ? `~$45–75/person · est. ${rng(45 * S.ts * t * S.parkdays, 75 * S.ts * t * S.parkdays)}` : '~$45–75/person'
@@ -238,11 +259,17 @@ export default function Estimator() {
   const snHint = S.snacks > 0 ? `~$6–14 each · est. ${rng(6 * S.snacks * t * S.parkdays, 14 * S.snacks * t * S.parkdays)}` : '~$6–14 each'
 
   return (
-    <div className={styles.estEmbed}>
+    <div className={styles.estEmbed} ref={embedRef}>
       <div className={styles.estShell}>
         <div className={styles.estToolbar}>
-          <button type="button" className={styles.estResetBtn} onClick={restart}>
-            <i className="ti ti-rotate-2" />Reset
+          <button
+            type="button"
+            className={`${styles.estResetBtn} ${confirmingReset ? styles.estResetBtnConfirm : ''}`}
+            onClick={handleResetClick}
+            onBlur={() => setConfirmingReset(false)}
+          >
+            <i className={confirmingReset ? 'ti ti-alert-triangle' : 'ti ti-rotate-2'} />
+            {confirmingReset ? 'Tap again to reset' : 'Reset'}
           </button>
         </div>
 
@@ -332,6 +359,9 @@ export default function Estimator() {
                       </button>
                       <input className={styles.locInp} type="text" placeholder="City or zip code" value={locInput} onChange={e => setLocInput(e.target.value)} />
                     </div>
+                    {originMiles === null && !locError && (
+                      <div className={styles.locHint}>Try a major city name or a 5-digit ZIP code.</div>
+                    )}
                     {(originMiles !== null || locError) && (
                       <div className={`${styles.locRes} ${styles.show}`}>
                         {locError ?? `${originLabel} — ${S.travel === 'driving' ? driveStr(originMiles) : `${Math.round(originMiles)} mi from Orlando`}`}
@@ -410,6 +440,11 @@ export default function Estimator() {
                   <Option name="MP + Singles" sub="Tron, Cosmic Rewind…" badge="~$55–90/pp/day" badgeClass="bc" selected={S.ll === 'singles'} onClick={() => selectOption('ll', 'singles')} />
                   <Option name="Premier Pass" sub="Unlimited access, no separate booking" badge="~$449–589/pp/day" badgeClass="bo" selected={S.ll === 'premierpass'} onClick={() => selectOption('ll', 'premierpass')} />
                 </div>
+                {S.ll === 'premierpass' && llLine && (
+                  <div className={styles.skippedNote} style={{ marginTop: 10, marginBottom: 0 }}>
+                    <i className="ti ti-alert-triangle" /> Premier Pass adds <strong>{rng(llLine.lo, llLine.hi)}</strong> to your estimate for this trip.
+                  </div>
+                )}
               </>
             )}
 
