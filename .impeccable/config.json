@@ -188,6 +188,51 @@
         "value": "34px",
         "createdAt": "2026-09-04T20:21:39.370Z",
         "reason": "Budget hero's Trip Budget figure (Fraunces) sits within DESIGN.md's documented Display range (28-40px) — not drift"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "13.5px",
+        "createdAt": "2026-09-04T20:59:10.386Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#f8f7f5",
+        "createdAt": "2026-09-04T21:01:51.254Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#c03a2b",
+        "createdAt": "2026-09-04T21:01:51.526Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#8a3226",
+        "createdAt": "2026-09-04T21:01:51.776Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(245, 181, 54, 0.18)",
+        "createdAt": "2026-09-04T21:01:51.999Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(30, 42, 68, 0.3)",
+        "createdAt": "2026-09-04T21:01:52.229Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(30, 42, 68, 0.45)",
+        "createdAt": "2026-09-04T21:01:52.425Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "rgba(232,97,74,0.12)",
+        "createdAt": "2026-09-04T21:02:11.397Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#e8614a",
+        "createdAt": "2026-09-04T21:02:11.587Z"
       }
     ]
   }

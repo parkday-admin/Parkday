@@ -116,7 +116,7 @@ export function buildSystemReminders(trip, userId) {
       title: 'Individual Lightning Lane',
       description: 'Individual attraction selections open at park open each day, in addition to your Multi Pass bookings.',
       reminder_date: trip.arrival_date,
-      icon: 'ti-flame', color: '#c03a2b', bg: 'rgba(224,83,63,0.15)',
+      icon: 'ti-flame', color: 'var(--coral-text)', bg: 'rgba(224,83,63,0.15)',
     })
   }
 

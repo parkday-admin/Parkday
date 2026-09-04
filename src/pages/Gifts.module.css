@@ -35,7 +35,7 @@
 /* ── Cards ── */
 .card { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 11px; }
 .cardHdr { padding: 12px 15px; display: flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--border-light); }
-.cardIcon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cardIcon { width: 32px; height: 32px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .cardIcon i { font-size: 15px; }
 .cardTitle { font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--night); }
 .cardSub { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
@@ -46,13 +46,13 @@
 .gcRow, .rwRow { padding: 10px 0; border-bottom: 1px solid var(--border-light); }
 .cardBody > .gcRow:last-of-type, .cardBody > .rwRow:last-of-type { border-bottom: none; }
 .gcRowTop { display: flex; align-items: center; gap: 11px; cursor: pointer; }
-.gcIcon, .rwIcon { width: 34px; height: 34px; border-radius: 9px; background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.gcIcon, .rwIcon { width: 34px; height: 34px; border-radius: var(--radius-md); background: rgba(42, 111, 224, 0.12); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .gcIcon i, .rwIcon i { font-size: 15px; color: var(--sky-dark); }
-.gcIcon.depleted, .rwIcon.depleted { background: rgba(13, 20, 32, 0.06); }
+.gcIcon.depleted, .rwIcon.depleted { background: var(--ink-wash); }
 .gcIcon.depleted i, .rwIcon.depleted i { color: var(--text-tertiary); }
 .gcInfo { flex: 1; min-width: 0; }
 .gcName { font-size: 15px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
-.last4Pill { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: rgba(13, 20, 32, 0.06); color: var(--text-tertiary); letter-spacing: 0.02em; }
+.last4Pill { font-size: 10.5px; font-weight: 600; padding: 1px 7px; border-radius: 20px; background: var(--ink-wash); color: var(--text-tertiary); letter-spacing: 0.02em; }
 .gcSub { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; }
 .gcAmts { text-align: right; flex-shrink: 0; }
 .gcBalance { font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--teal-dark); }
@@ -69,6 +69,6 @@
 .addBtn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 10px;
   padding: 10px 12px; background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25);
-  border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
+  border-radius: var(--radius-md); font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
 }
 .addBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }

@@ -97,7 +97,8 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 - **Night / Navy Ink** (`#0D2340`, card variant `#132B4D`): headline color, and the solid surface color for hero/summary blocks (dashboard countdown + budget panel). It is the system's one deliberately dark surface.
 
 ### Tertiary
-- **Teal** (`#2CA58D` / deep `#1B7D68`) and **Coral** (`#E0533F`): status pair. Teal = positive/on-track/success (empty-state icons, confirmation notices, "good" badges). Coral = urgency/attention/error (overdue reminders, destructive/error text, warning badges). Neither appears as a structural or decorative color — only as a semantic signal.
+- **Teal** (`#2CA58D` / deep `#1B7D68`) and **Coral** (`#E0533F`, small-text tone `--coral-text` `#c03a2b` — parallel to `gold-text`, used where coral sits behind small badge/pill text on a coral-tinted fill for AA contrast): status pair. Teal = positive/on-track/success (empty-state icons, confirmation notices, "good" badges). Coral = urgency/attention/error (overdue reminders, destructive/error text, warning badges). Neither appears as a structural or decorative color — only as a semantic signal.
+- **Catalog tag tones** (`--violet-dark` `#6b4c9a` / `--violet-bg`, `--sunset-dark` `#a15100` / `--sunset-bg`, `--steel-bg` paired with `--sky-dark`): a small, non-semantic tag palette reserved for catalog/entry-type pills (character, booth/location, festival tags on Wishlist/CatalogGrid/EntryCard) where several distinct categories need visual differentiation on the same row. Unlike the Semantic-Only Rule pair, these don't signal status — they're a categorical accent, scoped to catalog tag pills only.
 
 ### Neutral
 - **Cream** (`#F0EDE8`, page background) and **Cream Light** (`#FFF6E7`): the paper-stock ground. `bg` (`#F3EEE3`) is a near-identical warm neutral used interchangeably as a secondary surface tint.
@@ -105,7 +106,11 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 - **Ink** (`#20242C`): primary body text color (distinct from navy, which is reserved for headline/brand use).
 - **Border** (`rgba(13,35,64,.28)`) / **Border Light** (`rgba(13,35,64,.1)`): borders are always a translucent tint of navy, never a flat gray, so they stay warm. **Border on Dark** (`rgba(255,255,255,.1)`) is Border Light's counterpart for navy/dark surfaces — faint dividers, progress tracks, and badge fills on the hero block and similar dark cards use this instead of a raw white-alpha value.
 - Text runs on a three-step navy-tint ladder: primary ink (`#20242C`), secondary (`rgba(13,35,64,.6)`), tertiary (`rgba(13,35,64,.42)`) — no separate gray scale.
+- **Ink Wash** (`--ink-wash`, `rgba(13,20,32,.06)`): a faint neutral fill for muted/inactive states — a depleted gift-card icon, a small ID/method pill — distinct from `border-light` (which is for borders and structural dividers, not surface fills).
 - **Header Glass** (`rgba(240,237,232,.85)`): the sticky/frosted header background — same warmth as Cream, translucent so the backdrop-blur shows through. Used on every sticky nav/header surface (app shell header, marketing nav, auth header, paywall header).
+
+### Exceptions
+**Print output.** `BudgetPrintView` targets a physical printout, not a screen, so it uses its own small palette (`#F8F7F5` page tint, `#c03a2b`/`#8a3226` deep coral for printed emphasis) calibrated for ink-on-paper contrast rather than the on-screen token set — an intentional, scoped exception, not drift.
 
 ### Named Rules
 **The One Ink Rule.** Every border, secondary text tone, and shadow color derives from navy at reduced opacity — never introduce a neutral gray. Warmth comes from staying inside one hue family for "structure" colors.
@@ -125,6 +130,7 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 - **Title** (600, 13–15px): card titles, row/list-item names, header wordmarks in compact chrome (e.g. the account-avatar initial) — Inter, semibold, ink- or navy-colored. Denser contexts (a card header inside another card, a nav-drawer trip name) sit at the low end; standalone card titles sit at 15px.
 - **Value** (400, 16–20px, Fraunces): compact numeric/currency displays inside rows, chips, and stat blocks (a budget row's amount, a day chip's date number, a stat block's dollar figure) — smaller than Headline, but still a "this number matters" moment, so it stays in the serif.
 - **Body** (400, 14–15px, line-height 150%): paragraphs, form values, general content.
+- **Button** (600, 13.5px): the compact tier for button/action labels and dense form inputs — sits just under Body since buttons carry less reading weight than paragraph text (a sheet's primary "Save"/"Add" button, a text input's typed value).
 - **Label** (600, 10–12.5px, often uppercase with ~0.06–0.1em tracking): field labels, section eyebrows, badges, nav sub-labels.
 - **Micro** (600, 9px, uppercase, ~0.06–0.1em tracking): the smallest eyebrow tier — used only for compact stat labels and secondary metadata rows where even Label reads too large (a stat block's "PLANNED"/"SPENT" caption, a day-chip's weekday). Never used for anything a user needs to read comfortably at a glance from a distance.
 
@@ -154,7 +160,7 @@ Mostly flat, tonal system — depth is conveyed by white-on-cream surface contra
 
 ## Shapes
 
-Consistently soft-cornered: an 11px default radius, 8px for tight/compact controls (inputs, small chips), 16–20px for cards and sheets, and full pill radius for badges, tags, and the FAB. Corners get more generous as a surface gets larger (input < button < card < sheet), which is the system's implicit corner-scale rule. Borders, where present, are always the translucent navy `border`/`border-light` tokens rather than a hard black or gray line; many surfaces (hero blocks, cards) skip borders entirely and rely on the cream/white contrast instead.
+Consistently soft-cornered: an 11px default radius (`--radius`), 8px for the tightest controls (`--radius-sm`: small chips, compact inputs), 10px for the next tier up (`--radius-md`: sheet icon buttons, catalog card icons, form fields, small action buttons — the most common single radius in the app), 16–20px for cards and sheets, and full pill radius for badges, tags, and the FAB. Corners get more generous as a surface gets larger (input < button < card < sheet), which is the system's implicit corner-scale rule. Borders, where present, are always the translucent navy `border`/`border-light` tokens rather than a hard black or gray line; many surfaces (hero blocks, cards) skip borders entirely and rely on the cream/white contrast instead.
 
 ## Components
 

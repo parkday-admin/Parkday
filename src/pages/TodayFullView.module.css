@@ -54,8 +54,8 @@
 
 .upNextPill {
   position: absolute; top: -8px; right: 10px;
-  font-size: 9px; font-weight: 700; color: #8a5a00;
-  background: rgba(246, 184, 75, 0.18);
+  font-size: 9px; font-weight: 700; color: var(--gold-text);
+  background: rgba(245, 181, 54, 0.18);
   border-radius: 20px; padding: 1px 6px;
 }
 

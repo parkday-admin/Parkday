@@ -7,7 +7,7 @@
 }
 .title { font-family: var(--heading); font-size: 18px; font-weight: 400; color: var(--night); }
 .trash {
-  width: 32px; height: 32px; border-radius: 9px;
+  width: 32px; height: 32px; border-radius: var(--radius-md);
   border: 1.5px solid rgba(224, 83, 63, 0.3); background: rgba(224, 83, 63, 0.06);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
@@ -22,7 +22,7 @@
 
 .textInp {
   width: 100%; border: 1.5px solid var(--border-light); background: var(--white);
-  border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
+  border-radius: var(--radius-md); padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
 }
 .textInp:focus { border-color: var(--sky); }
 .textInp.err { border-color: var(--coral); }
@@ -30,7 +30,7 @@
 
 .amtWrap {
   display: flex; align-items: center; gap: 5px; background: var(--white);
-  border: 1.5px solid var(--border-light); border-radius: 10px; padding: 9px 12px;
+  border: 1.5px solid var(--border-light); border-radius: var(--radius-md); padding: 9px 12px;
 }
 .amtWrap:focus-within { border-color: var(--sky); }
 .amtPre { font-family: var(--heading); font-size: 16px; color: var(--text-tertiary); }

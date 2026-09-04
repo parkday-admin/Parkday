@@ -65,7 +65,7 @@
   /* Charts */
   .chartsGrid { display: flex; gap: 14px; margin-top: 18px; }
   .chartCard {
-    flex: 1; background: #F8F7F5; border: 1px solid rgba(13, 35, 64, 0.08); border-radius: 10px;
+    flex: 1; background: #F8F7F5; border: 1px solid rgba(13, 35, 64, 0.08); border-radius: var(--radius-md);
     padding: 12px 14px; margin-top: 14px;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;

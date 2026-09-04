@@ -170,17 +170,17 @@ export default function Wishlist() {
                             </span>
                           )}
                           {item.item_type && (
-                            <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
+                            <span className={styles.pill} style={{ background: 'var(--violet-bg)', color: 'var(--violet-dark)' }}>
                               {ITEM_TYPE_LABEL[item.item_type] || item.item_type}
                             </span>
                           )}
                           {item.booth_id && boothNameById.get(item.booth_id) && (
-                            <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
+                            <span className={styles.pill} style={{ background: 'var(--steel-bg)', color: 'var(--sky-dark)' }}>
                               <i className="ti ti-tent" /> {boothNameById.get(item.booth_id)}
                             </span>
                           )}
                           {item.seasonal?.festival && (
-                            <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
+                            <span className={styles.pill} style={{ background: 'var(--sunset-bg)', color: 'var(--sunset-dark)' }}>
                               <i className="ti ti-confetti" /> {item.seasonal.festival}
                             </span>
                           )}

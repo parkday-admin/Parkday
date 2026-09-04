@@ -102,17 +102,17 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                       </span>
                     )}
                     {c.item_type && (
-                      <span className={styles.pill} style={{ background: 'rgba(150,110,200,0.18)', color: 'var(--purple-dark, #6b4c9a)' }}>
+                      <span className={styles.pill} style={{ background: 'var(--violet-bg)', color: 'var(--violet-dark)' }}>
                         {ITEM_TYPE_LABEL[c.item_type] || c.item_type}
                       </span>
                     )}
                     {c.booth_id && boothNameById.get(c.booth_id) && (
-                      <span className={styles.pill} style={{ background: 'rgba(93,141,196,0.2)', color: 'var(--sky-dark)' }}>
+                      <span className={styles.pill} style={{ background: 'var(--steel-bg)', color: 'var(--sky-dark)' }}>
                         <i className="ti ti-tent" /> {boothNameById.get(c.booth_id)}
                       </span>
                     )}
                     {c.seasonal?.festival && (
-                      <span className={styles.pill} style={{ background: 'rgba(224,122,63,0.18)', color: '#a15100' }}>
+                      <span className={styles.pill} style={{ background: 'var(--sunset-bg)', color: 'var(--sunset-dark)' }}>
                         <i className="ti ti-confetti" /> {c.seasonal.festival}
                       </span>
                     )}

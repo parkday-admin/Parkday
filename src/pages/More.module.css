@@ -9,7 +9,7 @@
    treatment. */
 .tripTrigger {
   width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border-light); background: var(--white);
+  padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--border-light); background: var(--white);
   text-align: left; font-family: var(--sans); cursor: pointer;
 }
 .tripTrigger:hover { border-color: var(--sky); background: rgba(42, 111, 224, 0.05); }
@@ -19,7 +19,7 @@
 .tripTrigger:hover .tripChevron, .tripTrigger.open .tripChevron { color: var(--sky); }
 .tripTrigger.open .tripChevron { transform: rotate(180deg); }
 
-.switcherList { margin-top: 8px; background: var(--cream); border: 1px solid var(--border-light); border-radius: 10px; overflow: hidden; }
+.switcherList { margin-top: 8px; background: var(--cream); border: 1px solid var(--border-light); border-radius: var(--radius-md); overflow: hidden; }
 .switcherItem { padding: 8px 11px; cursor: pointer; border-bottom: 1px solid var(--border-light); }
 .switcherItem:last-child { border-bottom: none; }
 .switcherItem:hover { background: rgba(42, 111, 224, 0.05); }
@@ -29,7 +29,7 @@
 
 .newTripBtn, .upgradeBtn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 12px;
-  padding: 10px 12px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
+  padding: 10px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; cursor: pointer;
 }
 .newTripBtn { background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25); color: var(--sky); }
 .newTripBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }

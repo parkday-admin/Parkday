@@ -13,8 +13,15 @@
   --gold-text: #8a5a00; /* AA-contrast text/label color on gold-tinted surfaces; gold-dark is for icons/accents, not small text */
   --gold-ink: #3d2900; /* Higher-contrast text/icon color for content sitting directly on solid, full-opacity gold (badges, "01" step numbers, gold buttons) */
   --coral: #E0533F;
+  --coral-text: #c03a2b; /* AA-contrast text color on coral-tinted badges/pills, parallel to gold-text */
+  --ink-wash: rgba(13, 20, 32, 0.06); /* faint neutral fill for muted/inactive states — depleted gift-card icons, small ID/method pills */
   --teal: #2CA58D;
   --teal-dark: #1B7D68;
+  --violet-dark: #6b4c9a; /* third catalog-tag tone, alongside sky/orange, for item-type pills (character/attraction/dining catalog badges) */
+  --sunset-dark: #a15100; /* orange catalog-tag tone counterpart to violet-dark/sky-dark */
+  --violet-bg: rgba(150, 110, 200, 0.18);
+  --sunset-bg: rgba(224, 122, 63, 0.18);
+  --steel-bg: rgba(93, 141, 196, 0.2); /* softer steel-blue catalog-tag fill, paired with sky-dark text — distinct from --sky-bg's brighter interactive blue */
   --cream: #F0EDE8;
   --cream-light: #FFF6E7;
   --bg: #F3EEE3;
@@ -33,6 +40,7 @@
   --coral-bg: rgba(224, 83, 63, 0.1);
   --radius: 11px;
   --radius-sm: 8px;
+  --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-pill: 999px;

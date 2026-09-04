@@ -451,7 +451,7 @@ export default function Estimator() {
                 </div>
                 <div className={styles.openCard}>
                   <div className={styles.openTop}>
-                    <div className={styles.openIcon} style={{ background: 'rgba(246,184,75,0.15)' }}><i className="ti ti-stars" style={{ color: '#c47c00' }} /></div>
+                    <div className={styles.openIcon} style={{ background: 'var(--gold-bg)' }}><i className="ti ti-stars" style={{ color: 'var(--gold-dark)' }} /></div>
                     <div>
                       <div className={styles.openTitle}>Experiences</div>
                       <div className={styles.openSub}>Memory Maker, tours, Bibbidi Bobbidi, after-hours…</div>

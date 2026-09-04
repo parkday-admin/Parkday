@@ -104,7 +104,7 @@
 .bg { background: rgba(44, 165, 141, 0.16); color: var(--teal-dark); }
 .bb { background: rgba(42, 111, 224, 0.14); color: var(--sky-dark); }
 .bo { background: rgba(245, 181, 54, 0.18); color: #8a5a00; }
-.bc { background: rgba(224, 83, 63, 0.16); color: #c03a2b; }
+.bc { background: rgba(224, 83, 63, 0.16); color: var(--coral-text); }
 .bz { background: rgba(13, 35, 64, 0.07); color: rgba(13, 35, 64, 0.5); }
 
 /* Flight details */
@@ -158,7 +158,7 @@
 .dayCard { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border); border-radius: 12px; padding: 11px 13px; margin-bottom: 8px; transition: border-color 0.12s; }
 .dayCard.parkOn { border-color: rgba(42, 111, 224, 0.35); }
 .dayCardTop { display: flex; align-items: center; gap: 10px; }
-.dayChip2 { width: 38px; height: 38px; border-radius: 10px; background: var(--night); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
+.dayChip2 { width: 38px; height: 38px; border-radius: var(--radius-md); background: var(--night); display: flex; flex-direction: column; align-items: center; justify-content: center; flex-shrink: 0; }
 .dayChip2.off { background: var(--bg); }
 .dayChip2Num { font-family: var(--heading); font-size: 15px; color: #fff; line-height: 1; }
 .dayChip2.off .dayChip2Num { color: var(--text-tertiary); }
@@ -187,7 +187,7 @@
 /* Review cards */
 .bkCard { background: var(--white); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
 .catReviewHdr { display: flex; align-items: center; gap: 10px; padding: 11px 13px; background: var(--white); border-bottom: 1px solid rgba(13, 35, 64, 0.06); }
-.catReviewIcon { width: 30px; height: 30px; border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.catReviewIcon { width: 30px; height: 30px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .catReviewIcon i { font-size: 15px; }
 .catReviewInfo { flex: 1; min-width: 0; }
 .catReviewTitle { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
@@ -196,7 +196,7 @@
 .catReviewNote { display: flex; align-items: flex-start; gap: 6px; background: rgba(245, 181, 54, 0.12); border-top: 1px solid rgba(245, 181, 54, 0.25); border-bottom: 1px solid rgba(245, 181, 54, 0.25); padding: 8px 13px; font-size: 10.5px; color: var(--text-secondary); line-height: 1.5; }
 .catReviewNote i { color: var(--gold-dark); font-size: 12px; margin-top: 1px; flex-shrink: 0; }
 
-.catBudgetField { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--border-light); border-radius: 10px; padding: 6px 10px; flex-shrink: 0; width: 90px; }
+.catBudgetField { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 6px 10px; flex-shrink: 0; width: 90px; }
 .catBudgetField:focus-within { border-color: var(--sky); }
 .catBudgetField .cfgAmtPre { font-size: 13px; font-weight: 500; color: var(--text-tertiary); }
 .catBudgetField input { border: none; background: transparent; font-size: 14px; font-weight: 600; color: var(--text-primary); width: 100%; outline: none; text-align: right; }
@@ -223,7 +223,7 @@
 .budgetCatField input { border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--text-primary); width: 100%; outline: none; text-align: right; }
 .budgetCatField.disabled { opacity: 0.5; }
 
-.cfgDateAlert { margin: 8px 0 4px; padding: 11px 12px; background: rgba(224, 83, 63, 0.08); border: 1px solid rgba(224, 83, 63, 0.3); border-radius: 9px; font-size: 11.5px; color: #8a3226; line-height: 1.5; }
+.cfgDateAlert { margin: 8px 0 4px; padding: 11px 12px; background: rgba(224, 83, 63, 0.08); border: 1px solid rgba(224, 83, 63, 0.3); border-radius: var(--radius-md); font-size: 11.5px; color: #8a3226; line-height: 1.5; }
 .cfgDateAlertTitle { font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 3px; color: var(--coral); }
 .cfgDateAlertUpgradeBtn { margin-top: 9px; display: inline-flex; align-items: center; gap: 5px; background: rgba(245, 181, 54, 0.18); border: 1px solid rgba(245, 181, 54, 0.45); color: #8a5a00; font-weight: 700; font-size: 11px; padding: 7px 12px; border-radius: 8px; cursor: pointer; }
 
@@ -256,7 +256,7 @@
 .famAddBtn {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   padding: 10px 12px; background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25);
-  border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
+  border-radius: var(--radius-md); font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
   font-family: var(--sans); width: 100%;
 }
 .famAddBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }

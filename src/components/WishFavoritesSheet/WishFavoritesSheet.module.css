@@ -28,7 +28,7 @@
 
 .addCustomBtn {
   display: flex; align-items: center; gap: 6px; border: 1.5px dashed var(--border-light);
-  background: none; border-radius: 10px; padding: 9px 12px; font-size: 12px; font-weight: 600;
+  background: none; border-radius: var(--radius-md); padding: 9px 12px; font-size: 12px; font-weight: 600;
   color: var(--text-secondary); cursor: pointer; margin-bottom: 14px; width: 100%; justify-content: center;
 }
 .addCustomBtn:hover { border-color: var(--sky); color: var(--sky); }

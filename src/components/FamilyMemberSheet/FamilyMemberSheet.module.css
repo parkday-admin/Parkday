@@ -7,7 +7,7 @@
 }
 .title { font-family: var(--heading); font-size: 18px; font-weight: 400; color: var(--night); }
 .trash {
-  width: 32px; height: 32px; border-radius: 9px;
+  width: 32px; height: 32px; border-radius: var(--radius-md);
   border: 1.5px solid rgba(224, 83, 63, 0.3); background: rgba(224, 83, 63, 0.06);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
@@ -22,7 +22,7 @@
 
 .textInp {
   width: 100%; border: 1.5px solid var(--border-light); background: var(--white);
-  border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
+  border-radius: var(--radius-md); padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
 }
 .textInp:focus { border-color: var(--sky); }
 .textInp.err { border-color: var(--coral); }
@@ -55,7 +55,7 @@
   top: 3px;
   left: 3px;
   transition: transform 0.2s;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 3px rgba(13, 35, 64, 0.2);
 }
 .toggle.on::after { transform: translateX(16px); }
 
@@ -63,7 +63,7 @@
 .tierLbl { font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
 .tierGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
 .tierPill {
-  border: 1.5px solid var(--border-light); background: var(--white); border-radius: 10px;
+  border: 1.5px solid var(--border-light); background: var(--white); border-radius: var(--radius-md);
   padding: 8px 10px; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: 2px;
 }
 .tierPill:hover { border-color: var(--sky); }

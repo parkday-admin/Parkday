@@ -26,14 +26,14 @@
 
 .textInp {
   width: 100%; border: 1.5px solid var(--border-light); background: var(--white);
-  border-radius: 10px; padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
+  border-radius: var(--radius-md); padding: 10px 12px; font-size: 13.5px; color: var(--ink); outline: none;
 }
 .textInp:focus { border-color: var(--sky); }
 
 .addRow { display: flex; gap: 8px; }
 .addRow .textInp { flex: 1; }
 .addBtn {
-  width: 40px; height: 40px; flex-shrink: 0; border-radius: 10px; border: none;
+  width: 40px; height: 40px; flex-shrink: 0; border-radius: var(--radius-md); border: none;
   background: var(--sky); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .addBtn:hover { background: var(--sky-dark); }
