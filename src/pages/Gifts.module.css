@@ -23,14 +23,14 @@
 .heroRight { text-align: right; padding: 0 15px 0 0; }
 .heroRightLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
 .heroRightVal { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--teal); }
-.heroBar { height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; margin: 0 15px; }
-.heroBarFill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.3s; }
+.heroBar { height: 4px; background: var(--border-on-dark); border-radius: var(--radius-pill); overflow: hidden; margin: 0 15px; }
+.heroBarFill { height: 100%; background: var(--teal); border-radius: var(--radius-pill); transition: width 0.3s; }
 .heroSub { font-size: 10px; color: rgba(255, 255, 255, 0.35); margin: 6px 15px 13px; }
 .heroFooter { padding: 9px 15px; border-top: 1px solid rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: space-between; }
 .heroFooterStat { text-align: center; flex: 1; }
 .heroFooterLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
 .heroFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
-.heroFooterDivider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); }
+.heroFooterDivider { width: 1px; height: 28px; background: var(--border-on-dark); }
 
 /* ── Cards ── */
 .card { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 11px; }

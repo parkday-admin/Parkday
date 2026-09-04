@@ -18,14 +18,14 @@
 .heroRight { text-align: right; }
 .heroRightLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
 .heroRightVal { font-family: var(--heading); font-size: 20px; font-weight: 400; color: var(--teal); }
-.heroBar { height: 4px; background: rgba(255, 255, 255, 0.1); border-radius: 2px; overflow: hidden; margin: 0 15px; }
-.heroBarFill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.3s; }
+.heroBar { height: 4px; background: var(--border-on-dark); border-radius: var(--radius-pill); overflow: hidden; margin: 0 15px; }
+.heroBarFill { height: 100%; background: var(--teal); border-radius: var(--radius-pill); transition: width 0.3s; }
 .heroSub { font-size: 10px; color: rgba(255, 255, 255, 0.35); margin: 6px 15px 13px; }
 .heroFooter { padding: 9px 8px; border-top: 1px solid rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: space-between; }
 .heroFooterStat { text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; }
 .heroFooterLbl { font-size: 9px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
 .heroFooterVal { font-family: var(--heading); font-size: 15px; font-weight: 400; }
-.heroFooterDivider { width: 1px; height: 28px; background: rgba(255, 255, 255, 0.1); flex-shrink: 0; }
+.heroFooterDivider { width: 1px; height: 28px; background: var(--border-on-dark); flex-shrink: 0; }
 
 .urgencyPill { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em; flex-shrink: 0; margin-top: 3px; }
 .upHigh { background: rgba(224, 83, 63, 0.15); color: var(--coral); }

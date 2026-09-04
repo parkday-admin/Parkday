@@ -22,6 +22,8 @@
   --ink: #20242C;
   --border: rgba(13, 35, 64, 0.28);
   --border-light: rgba(13, 35, 64, 0.1);
+  --border-on-dark: rgba(255, 255, 255, 0.1); /* border-light's counterpart for navy/dark surfaces — faint dividers, tracks, badge fills on the hero block and similar dark cards */
+  --header-glass: rgba(240, 237, 232, 0.85); /* the sticky frosted-header background — same warmth as --cream, translucent for the backdrop-blur effect */
   --text-primary: #20242C;
   --text-secondary: rgba(13, 35, 64, 0.6);
   --text-tertiary: rgba(13, 35, 64, 0.42);

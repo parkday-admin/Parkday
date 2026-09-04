@@ -146,7 +146,6 @@ export default function Home() {
           <div className={styles.step}>
             <div className={styles.stepIcon} style={{ background: 'var(--cream-light)' }}>
               <i aria-hidden="true" className="ti ti-calculator" style={{ color: 'var(--gold-dark)' }} />
-              <div className={styles.stepNum} style={{ background: 'var(--gold)', color: 'var(--gold-ink)' }}>01</div>
             </div>
             <div className={styles.stepTitle}>Estimate before booking</div>
             <div className={styles.stepBody}>Start with your dates, party size, resort style, tickets, dining approach, and extras. Parkday gives you a realistic planning range before you commit to the trip.</div>
@@ -154,7 +153,6 @@ export default function Home() {
           <div className={styles.step}>
             <div className={styles.stepIcon}>
               <i aria-hidden="true" className="ti ti-clipboard-list" style={{ color: 'var(--sky)' }} />
-              <div className={styles.stepNum} style={{ background: 'var(--sky)' }}>02</div>
             </div>
             <div className={styles.stepTitle}>Plan before traveling</div>
             <div className={styles.stepBody}>Turn your estimate into a real trip plan. Save your budget, organize park days, prepare checklists, and decide how gift cards or rewards will be used.</div>
@@ -162,7 +160,6 @@ export default function Home() {
           <div className={styles.step}>
             <div className={styles.stepIcon}>
               <i aria-hidden="true" className="ti ti-chart-bar" style={{ color: 'var(--teal)' }} />
-              <div className={styles.stepNum} style={{ background: 'var(--teal)' }}>03</div>
             </div>
             <div className={styles.stepTitle}>Track while spending</div>
             <div className={styles.stepBody}>Log actual expenses as you book, travel, and spend in the parks. Compare planned vs. actual costs and see what remains in your budget.</div>
@@ -174,19 +171,21 @@ export default function Home() {
       </div>
 
       {/* VALUE PROPS */}
-      <div ref={valuePropsRef} className={`${styles.wrap} ${styles.valueProps} ${reveal(valuePropsInView)}`}>
-        <div className={styles.valueGrid}>
-          <div className={styles.valueCard} style={{ background: 'var(--sky-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--sky)' }}><i aria-hidden="true" className="ti ti-users" /></div>
-            <div><div className={styles.valueTitle} style={{ color: 'var(--sky-dark)' }}>Made by Disney travelers</div><div className={styles.valueSub}>We get it, we plan too.</div></div>
+      <div ref={valuePropsRef} className={`${styles.wrap} ${reveal(valuePropsInView)}`}>
+        <div className={styles.trustBar}>
+          <div className={styles.trustBarItem}>
+            <i aria-hidden="true" className="ti ti-users" style={{ color: 'var(--sky)' }} />
+            <p><strong>Made by Disney travelers.</strong> We get it, we plan too.</p>
           </div>
-          <div className={styles.valueCard} style={{ background: 'var(--gold-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--gold)', color: 'var(--gold-ink)' }}><i aria-hidden="true" className="ti ti-clock" /></div>
-            <div><div className={styles.valueTitle} style={{ color: 'var(--gold-text)' }}>Plan at your pace</div><div className={styles.valueSub}>Start free, cancel anytime.</div></div>
+          <div className={styles.trustBarDivider} />
+          <div className={styles.trustBarItem}>
+            <i aria-hidden="true" className="ti ti-clock" style={{ color: 'var(--gold-dark)' }} />
+            <p><strong>Plan at your pace.</strong> Start free, cancel anytime.</p>
           </div>
-          <div className={styles.valueCard} style={{ background: 'var(--teal-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--teal)' }}><i aria-hidden="true" className="ti ti-shield-lock" /></div>
-            <div><div className={styles.valueTitle} style={{ color: 'var(--teal-dark)' }}>Your data is private</div><div className={styles.valueSub}>We'll never sell your data.</div></div>
+          <div className={styles.trustBarDivider} />
+          <div className={styles.trustBarItem}>
+            <i aria-hidden="true" className="ti ti-shield-lock" style={{ color: 'var(--teal-dark)' }} />
+            <p><strong>Your data is private.</strong> We'll never sell it.</p>
           </div>
         </div>
       </div>
@@ -352,7 +351,6 @@ export default function Home() {
       {/* FAQ */}
       <div ref={faqRef} className={`${styles.faq} ${reveal(faqInView)}`} id="faq">
         <div className={styles.faqHead}>
-          <div className={styles.faqEyebrow}>FAQ</div>
           <h2 className={styles.display}>Questions, answered.</h2>
         </div>
         {FAQS.map((item, i) => (

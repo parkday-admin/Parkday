@@ -22,7 +22,7 @@
 .btnBlock { width: 100%; }
 
 /* Nav */
-.nav { position: sticky; top: 0; z-index: 30; background: rgba(240, 237, 232, 0.85); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+.nav { position: sticky; top: 0; z-index: 30; background: var(--header-glass); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
 .navInner { display: flex; align-items: center; justify-content: space-between; max-width: 1180px; margin: 0 auto; padding: 14px 32px; gap: 16px; }
 .navBrand { display: flex; align-items: center; gap: 10px; }
 .navBrand img { height: 40px; width: auto; }
@@ -85,18 +85,27 @@
 .steps::before { content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 1px; background: var(--border); z-index: 0; }
 .step { position: relative; z-index: 1; text-align: center; }
 .stepIcon { position: relative; width: 72px; height: 72px; margin: 0 auto 22px; background: var(--cream-light); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 30px; }
-.stepNum { position: absolute; top: -10px; right: -10px; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 .stepTitle { font-family: var(--heading); font-size: 20px; color: var(--text-primary); margin-bottom: 8px; }
 .stepBody { font-size: 14px; color: var(--text-secondary); line-height: 1.55; }
 .hiwCta { text-align: center; padding-bottom: 64px; }
 
-/* Value props */
-.valueProps { padding: 0 0 64px; }
-.valueGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.valueCard { display: flex; align-items: center; gap: 16px; padding: 24px; border-radius: var(--radius-lg); }
-.valueIcon { width: 56px; height: 56px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: #fff; }
-.valueTitle { font-size: 15px; font-weight: 600; }
-.valueSub { font-size: 13px; color: var(--text-secondary); }
+/* Trust bar — three reassurances read as one continuous strip (a rule
+   above and below, dividers between) rather than another row of icon
+   cards; the page already has three of those below this point. */
+.trustBar {
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: 14px 32px; padding: 22px 0; margin-bottom: 64px;
+  border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);
+}
+.trustBarItem { display: flex; align-items: center; gap: 10px; }
+.trustBarItem i { font-size: 19px; flex-shrink: 0; }
+.trustBarItem p { font-size: 14px; color: var(--text-secondary); }
+.trustBarItem strong { color: var(--text-primary); font-weight: 600; }
+.trustBarDivider { width: 1px; height: 22px; background: var(--border-light); }
+@media (max-width: 640px) {
+  .trustBarDivider { display: none; }
+  .trustBar { flex-direction: column; gap: 14px; }
+}
 
 /* Features */
 .features { padding: 0 0 64px; }
@@ -159,7 +168,6 @@
 /* FAQ */
 .faq { max-width: 760px; margin: 0 auto; padding: 24px 32px 96px; }
 .faqHead { text-align: center; margin-bottom: 36px; }
-.faqEyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sky-dark); margin-bottom: 10px; }
 .faqHead h2 { font-size: 32px; }
 .faqItem { border-bottom: 1px solid var(--border); }
 .faqQ { display: flex; align-items: center; justify-content: space-between; padding: 20px 4px; cursor: pointer; background: none; border: none; width: 100%; text-align: left; font-family: var(--sans); }
@@ -191,7 +199,7 @@
 .footerLinks { display: flex; flex-direction: column; gap: 10px; }
 .footerLinks a { font-size: 13px; color: rgba(255, 255, 255, 0.7); }
 .footerLinks a:hover { color: #fff; }
-.footerBottom { border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 20px; font-size: 12px; color: rgba(255, 255, 255, 0.35); }
+.footerBottom { border-top: 1px solid var(--border-on-dark); padding-top: 20px; font-size: 12px; color: rgba(255, 255, 255, 0.35); }
 
 /* Responsive */
 @media (max-width: 900px) {
@@ -208,7 +216,6 @@
   .why h2 { font-size: 30px; }
   .steps { grid-template-columns: 1fr; gap: 36px; }
   .steps::before { display: none; }
-  .valueGrid { grid-template-columns: 1fr; }
   .bigFeatures { grid-template-columns: 1fr; }
   .smallFeatures { grid-template-columns: repeat(2, 1fr); }
   .pricingGrid { grid-template-columns: 1fr; max-width: 420px; }

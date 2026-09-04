@@ -103,8 +103,9 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 - **Cream** (`#F0EDE8`, page background) and **Cream Light** (`#FFF6E7`): the paper-stock ground. `bg` (`#F3EEE3`) is a near-identical warm neutral used interchangeably as a secondary surface tint.
 - **White** (`#FFFFFF`): card and sheet surfaces sit on white against the cream page, giving the "ticket laid on the table" separation.
 - **Ink** (`#20242C`): primary body text color (distinct from navy, which is reserved for headline/brand use).
-- **Border** (`rgba(13,35,64,.28)`) / **Border Light** (`rgba(13,35,64,.1)`): borders are always a translucent tint of navy, never a flat gray, so they stay warm.
+- **Border** (`rgba(13,35,64,.28)`) / **Border Light** (`rgba(13,35,64,.1)`): borders are always a translucent tint of navy, never a flat gray, so they stay warm. **Border on Dark** (`rgba(255,255,255,.1)`) is Border Light's counterpart for navy/dark surfaces — faint dividers, progress tracks, and badge fills on the hero block and similar dark cards use this instead of a raw white-alpha value.
 - Text runs on a three-step navy-tint ladder: primary ink (`#20242C`), secondary (`rgba(13,35,64,.6)`), tertiary (`rgba(13,35,64,.42)`) — no separate gray scale.
+- **Header Glass** (`rgba(240,237,232,.85)`): the sticky/frosted header background — same warmth as Cream, translucent so the backdrop-blur shows through. Used on every sticky nav/header surface (app shell header, marketing nav, auth header, paywall header).
 
 ### Named Rules
 **The One Ink Rule.** Every border, secondary text tone, and shadow color derives from navy at reduced opacity — never introduce a neutral gray. Warmth comes from staying inside one hue family for "structure" colors.

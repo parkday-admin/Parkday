@@ -9,7 +9,7 @@ export default function ProgressBar({ value = 0, tone = 'gold', dark = false, he
   return (
     <div
       className={styles.track}
-      style={{ height, borderRadius: height / 2, background: dark ? 'rgba(255,255,255,0.1)' : 'var(--border-light)' }}
+      style={{ height, borderRadius: height / 2, background: dark ? 'var(--border-on-dark)' : 'var(--border-light)' }}
     >
       <div
         className={styles.fill}
