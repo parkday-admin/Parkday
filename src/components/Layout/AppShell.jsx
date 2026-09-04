@@ -311,16 +311,23 @@ export default function AppShell({ session, planType, accountType, collaboratorO
             <div className={styles.pkSub}>{title}</div>
           </div>
           <div className={styles.hdrUser} ref={userMenuRef}>
-            <button type="button" className={styles.hdrAvatarBtn} onClick={() => setUserMenuOpen(o => !o)}>
+            <button
+              type="button"
+              className={styles.hdrAvatarBtn}
+              onClick={() => setUserMenuOpen(o => !o)}
+              aria-label="Account menu"
+              aria-haspopup="menu"
+              aria-expanded={userMenuOpen}
+            >
               {initial}
             </button>
             <div className={`${styles.hdrUserMenu} ${userMenuOpen ? styles.show : ''}`}>
               <div className={styles.hdrUserEmail}>{session.user.email}</div>
               <Link to="/account" className={styles.navItem} onClick={closeAll}>
-                <i className="ti ti-user" /><span>Account</span>
+                <i aria-hidden="true" className="ti ti-user" /><span>Account</span>
               </Link>
               <button type="button" className={styles.navItem} onClick={() => { closeAll(); signOutAndRedirect() }}>
-                <i className="ti ti-logout" /><span>Sign out</span>
+                <i aria-hidden="true" className="ti ti-logout" /><span>Sign out</span>
               </button>
             </div>
           </div>
@@ -342,7 +349,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
                   <span className={styles.navDrawerTripName}>{activeTrip.name}</span>
                   <span className={styles.navDrawerTripDates}>{tripDateRange(activeTrip)}</span>
                 </span>
-                <i className={`ti ti-chevron-down ${styles.navDrawerTripChevron}`} />
+                <i aria-hidden="true" className={`ti ti-chevron-down ${styles.navDrawerTripChevron}`} />
               </button>
             ) : (
               <div className={styles.navDrawerTripCard}>
@@ -369,15 +376,15 @@ export default function AppShell({ session, planType, accountType, collaboratorO
             {accountType !== 'collaborator' && (
               !canAccess ? (
                 <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
-                  <i className="ti ti-crown" /> Reactivate to plan a trip
+                  <i aria-hidden="true" className="ti ti-crown" /> Reactivate to plan a trip
                 </button>
               ) : planType === 'trip_pass' ? (
                 <button type="button" className={styles.navUpgradeBtn} onClick={() => { closeAll(); navigate('/paywall') }}>
-                  <i className="ti ti-crown" /> Upgrade to add a trip
+                  <i aria-hidden="true" className="ti ti-crown" /> Upgrade to add a trip
                 </button>
               ) : (
                 <button type="button" className={styles.navTripNew} onClick={() => { closeAll(); navigate('/configurator') }}>
-                  <i className="ti ti-plus" /> New trip
+                  <i aria-hidden="true" className="ti ti-plus" /> New trip
                 </button>
               )
             )}
@@ -391,7 +398,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
                 className={`${styles.navItem} ${isNavItemActive(item.to) ? styles.active : ''} ${item.soon ? styles.future : ''}`}
                 onClick={closeAll}
               >
-                <i className={`ti ${item.icon}`} />
+                <i aria-hidden="true" className={`ti ${item.icon}`} />
                 <span>{item.label}</span>
                 {item.soon && <span className={styles.navSoon}>Soon</span>}
                 {item.to === '/reminders' && urgentReminderCount > 0 && <span className={styles.navBadge}>{urgentReminderCount}</span>}
@@ -414,12 +421,12 @@ export default function AppShell({ session, planType, accountType, collaboratorO
           <div className={styles.tabBar}>
             {TAB_ITEMS.map(item => (
               <Link key={item.to} to={item.to} className={`${styles.tabItem} ${isNavItemActive(item.to) ? styles.tabActive : ''}`}>
-                <i className={`ti ${item.icon}`} />
+                <i aria-hidden="true" className={`ti ${item.icon}`} />
                 <span>{item.label}</span>
               </Link>
             ))}
             <Link to="/more" className={`${styles.tabItem} ${MORE_ROUTES.includes(location.pathname) ? styles.tabActive : ''}`}>
-              <i className="ti ti-dots" />
+              <i aria-hidden="true" className="ti ti-dots" />
               <span>More</span>
             </Link>
           </div>

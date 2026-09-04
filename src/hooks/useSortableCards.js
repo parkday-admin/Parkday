@@ -33,6 +33,28 @@ export default function useSortableCards(setColumns) {
     }
   }
 
+  // Keyboard equivalent of the pointer-drag reorder above: move within the
+  // current column (up/down) or across to the other column (left/right),
+  // at a position clamped to the target column's length.
+  function moveCard(id, cols, dir) {
+    const sourceCol = cols.colA.includes(id) ? 'colA' : 'colB'
+    const otherCol = sourceCol === 'colA' ? 'colB' : 'colA'
+    const idx = cols[sourceCol].indexOf(id)
+    const nextCols = { colA: cols.colA.slice(), colB: cols.colB.slice() }
+
+    if (dir === 'up' || dir === 'down') {
+      const targetIdx = dir === 'up' ? idx - 1 : idx + 1
+      if (targetIdx < 0 || targetIdx >= nextCols[sourceCol].length) return
+      const arr = nextCols[sourceCol]
+      ;[arr[idx], arr[targetIdx]] = [arr[targetIdx], arr[idx]]
+    } else {
+      nextCols[sourceCol].splice(idx, 1)
+      const targetIdx = Math.min(idx, nextCols[otherCol].length)
+      nextCols[otherCol].splice(targetIdx, 0, id)
+    }
+    setColumns(nextCols)
+  }
+
   function handleDragStart(id, cols, e) {
     e.preventDefault()
     const el = refs.current[id]
@@ -144,5 +166,5 @@ export default function useSortableCards(setColumns) {
     }
   }, [dragId, setColumns])
 
-  return { dragId, setCardRef, handleDragStart }
+  return { dragId, setCardRef, handleDragStart, moveCard }
 }

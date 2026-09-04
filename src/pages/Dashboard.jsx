@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { categoriesForTrip, categoryMeta, categoryTotals, findBudgetRow, isPackageBooking } from '../lib/categories'
@@ -11,6 +11,7 @@ import DashboardCard from '../components/DashboardCard/DashboardCard'
 import ProgressBar from '../components/ProgressBar/ProgressBar'
 import TodayCard from '../components/TodayCard/TodayCard'
 import useSortableCards from '../hooks/useSortableCards'
+import { onActivateKey } from '../lib/a11y'
 import useTripPassUsed from '../hooks/useTripPassUsed'
 import styles from './Dashboard.module.css'
 
@@ -129,8 +130,14 @@ export default function Dashboard() {
     }
   }
 
-  const { dragId, setCardRef, handleDragStart } = useSortableCards(reorderColumns)
+  const { dragId, setCardRef, handleDragStart, moveCard } = useSortableCards(reorderColumns)
   const isDesktop = useIsDesktop()
+  const lastMovedRef = useRef(null)
+  useEffect(() => {
+    if (!lastMovedRef.current) return
+    document.querySelector(`[data-drag-handle="${lastMovedRef.current}"]`)?.focus()
+    lastMovedRef.current = null
+  }, [columns])
 
   useEffect(() => {
     if (!activeTrip) { setExpenses(null); return }
@@ -164,7 +171,7 @@ export default function Dashboard() {
   if (!activeTrip) {
     return (
       <div className={styles.empty}>
-        <i className={`ti ti-map-pin ${styles.emptyIcon}`} />
+        <i aria-hidden="true" className={`ti ti-map-pin ${styles.emptyIcon}`} />
         <h1 className={styles.emptyHeadline}>Ready to plan your park day?</h1>
         <p className={styles.emptySubhead}>
           {accountType === 'collaborator' ? "The account owner hasn't planned a trip yet." : 'Set up your first trip to get started.'}
@@ -172,7 +179,7 @@ export default function Dashboard() {
         {accountType !== 'collaborator' && (
           tripPassUsed ? (
             <button className={styles.planBtn} onClick={() => navigate('/paywall')}>
-              <i className="ti ti-crown" /> Upgrade to plan another trip
+              <i aria-hidden="true" className="ti ti-crown" /> Upgrade to plan another trip
             </button>
           ) : (
             <button className={styles.planBtn} onClick={() => navigate('/configurator')}>
@@ -232,10 +239,19 @@ export default function Dashboard() {
 
   function sortProps(id) {
     return {
-      key: id,
+      cardId: id,
       cardRef: setCardRef(id),
       style: dragId === id ? { opacity: 0.35 } : undefined,
-      dragHandleProps: { onPointerDown: e => handleDragStart(id, { colA, colB }, e) },
+      dragHandleProps: {
+        onPointerDown: e => handleDragStart(id, { colA, colB }, e),
+        onKeyDown: e => {
+          const dir = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right' }[e.key]
+          if (!dir) return
+          e.preventDefault()
+          lastMovedRef.current = id
+          moveCard(id, { colA, colB }, dir)
+        },
+      },
     }
   }
 
@@ -249,6 +265,7 @@ export default function Dashboard() {
 
   nodes.itinerary = (
     <DashboardCard
+      key="itinerary"
       {...sortProps('itinerary')}
       icon="ti-calendar" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
       title="Itinerary" sub={`${dayRows.length} park day${dayRows.length !== 1 ? 's' : ''} planned`}
@@ -263,7 +280,7 @@ export default function Dashboard() {
             const { planned: dayPlanned, actual: dayActual, count } = dayTotals(d.day)
             const dayPct = dayPlanned > 0 ? Math.round((dayActual / dayPlanned) * 100) : 0
             return (
-              <div key={d.id} className={styles.dayCard} onClick={() => navigate(`/itinerary?day=${d.day}`)}>
+              <div key={d.id} className={styles.dayCard} role="button" tabIndex={0} onClick={() => navigate(`/itinerary?day=${d.day}`)} onKeyDown={onActivateKey(() => navigate(`/itinerary?day=${d.day}`))}>
                 <div className={styles.dayCardTop}>
                   <div className={styles.dayCardLeft}>
                     <div className={styles.dayChip}>
@@ -288,6 +305,7 @@ export default function Dashboard() {
 
   nodes.reminders = (
     <DashboardCard
+      key="reminders"
       {...sortProps('reminders')}
       icon="ti-bell" iconBg="rgba(224,83,63,0.1)" iconColor="var(--coral)"
       title="Reminders" sub={`${remindersWithDaysOut.length} upcoming`}
@@ -298,8 +316,8 @@ export default function Dashboard() {
       ) : upcomingReminders.map(r => {
         const lvl = reminderUrgencyLevel(r.daysOut)
         return (
-          <div key={r.id} className={styles.row} onClick={() => navigate('/reminders')}>
-            <div className={styles.rowIcon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
+          <div key={r.id} className={styles.row} role="button" tabIndex={0} onClick={() => navigate('/reminders')} onKeyDown={onActivateKey(() => navigate('/reminders'))}>
+            <div className={styles.rowIcon} style={{ background: r.bg }}><i aria-hidden="true" className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
             <div className={styles.rowBody}>
               <div className={styles.rowLabel}>{r.title}</div>
               <div className={styles.rowMeta}>{r.daysOut > 0 ? `in ${r.daysOut} day${r.daysOut === 1 ? '' : 's'}` : r.daysOut === 0 ? 'Today' : 'Past due'}</div>
@@ -319,6 +337,7 @@ export default function Dashboard() {
     const paidInFull = payRemaining <= 0
     nodes.payments = (
       <DashboardCard
+        key="payments"
         {...sortProps('payments')}
         icon="ti-receipt-2" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
         title="Resort package" sub={`${payments.length} payment${payments.length === 1 ? '' : 's'} logged`}
@@ -326,7 +345,7 @@ export default function Dashboard() {
       >
         {paidInFull ? (
           <div className={styles.row}>
-            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
+            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i aria-hidden="true" className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
             <div className={styles.rowBody}>
               <div className={styles.rowLabel}>Package paid in full</div>
               <div className={styles.rowMeta}>Nothing further will be charged</div>
@@ -338,7 +357,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className={styles.row}>
-            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
+            <div className={styles.rowIcon} style={{ background: 'rgba(44,165,141,0.15)' }}><i aria-hidden="true" className="ti ti-check" style={{ color: 'var(--teal-dark)' }} /></div>
             <div className={styles.rowBody}>
               <div className={styles.rowLabel}>Paid to date</div>
               <div className={styles.rowMeta}>of {fmt(totalCost)} total</div>
@@ -357,6 +376,7 @@ export default function Dashboard() {
     const totalAvailable = giftFundsTotals(fundedCards, fundedRewards).totalAvailable
     nodes.gifts = (
       <DashboardCard
+        key="gifts"
         {...sortProps('gifts')}
         icon="ti-gift" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
         title="Gift cards & rewards" sub={hasFunds ? `${fmt(totalAvailable)} available` : undefined}
@@ -365,8 +385,8 @@ export default function Dashboard() {
         {hasFunds ? (
           <>
             {fundedCards.map(c => (
-              <div key={c.id} className={styles.row} onClick={() => navigate('/gifts')}>
-                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
+              <div key={c.id} className={styles.row} role="button" tabIndex={0} onClick={() => navigate('/gifts')} onKeyDown={onActivateKey(() => navigate('/gifts'))}>
+                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i aria-hidden="true" className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
                 <div className={styles.rowBody}>
                   <div className={styles.rowLabel}>{c.source}</div>
                   <div className={styles.rowMeta}>Gift card</div>
@@ -375,8 +395,8 @@ export default function Dashboard() {
               </div>
             ))}
             {fundedRewards.map(r => (
-              <div key={r.id} className={styles.row} onClick={() => navigate('/gifts')}>
-                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
+              <div key={r.id} className={styles.row} role="button" tabIndex={0} onClick={() => navigate('/gifts')} onKeyDown={onActivateKey(() => navigate('/gifts'))}>
+                <div className={styles.rowIcon} style={{ background: 'rgba(245,181,54,0.15)' }}><i aria-hidden="true" className="ti ti-credit-card" style={{ color: 'var(--gold-dark)' }} /></div>
                 <div className={styles.rowBody}>
                   <div className={styles.rowLabel}>{r.program}</div>
                   <div className={styles.rowMeta}>Reward</div>
@@ -389,7 +409,7 @@ export default function Dashboard() {
           <div className={styles.fundsEmpty}>
             <div className={styles.cardEmpty} style={{ padding: '4px 0 12px' }}>No funds added yet.</div>
             <button type="button" className={styles.fundsEmptyBtn} onClick={() => navigate('/gifts', { state: { openAddGiftCard: true } })}>
-              <i className="ti ti-plus" /> Add a gift card
+              <i aria-hidden="true" className="ti ti-plus" /> Add a gift card
             </button>
           </div>
         )}
@@ -400,6 +420,7 @@ export default function Dashboard() {
   if (cardVisibility.budget) {
     nodes.budget = (
       <DashboardCard
+        key="budget"
         {...sortProps('budget')}
         icon="ti-chart-pie" iconBg="rgba(42,111,224,0.1)" iconColor="var(--sky)"
         title="Budget by category" sub="Actual vs. budgeted, by category"
@@ -410,8 +431,8 @@ export default function Dashboard() {
           const rowPct = c.budgeted > 0 ? Math.min(100, Math.round((c.actual / c.budgeted) * 100)) : 0
           const over = c.actual > c.budgeted
           return (
-            <div key={c.cat} className={styles.row} onClick={() => navigate(`/budget/${c.cat}`)}>
-              <div className={styles.rowIcon} style={{ background: meta.bg }}><i className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
+            <div key={c.cat} className={styles.row} role="button" tabIndex={0} onClick={() => navigate(`/budget/${c.cat}`)} onKeyDown={onActivateKey(() => navigate(`/budget/${c.cat}`))}>
+              <div className={styles.rowIcon} style={{ background: meta.bg }}><i aria-hidden="true" className={`ti ${meta.icon}`} style={{ color: meta.color }} /></div>
               <div className={styles.rowBody}>
                 <div className={styles.rowTop}>
                   <div className={styles.rowLabel}>{meta.label}</div>
@@ -431,10 +452,10 @@ export default function Dashboard() {
       {error && <p className={styles.error}>{error}</p>}
 
       {urgentReminders.length > 0 && (
-        <div className={styles.urgencyStrip} onClick={() => navigate('/reminders')}>
+        <div className={styles.urgencyStrip} role="button" tabIndex={0} onClick={() => navigate('/reminders')} onKeyDown={onActivateKey(() => navigate('/reminders'))}>
           <div className={styles.urgencyDot} />
           <div className={styles.urgencyText}>{urgentReminders.length} urgent reminder{urgentReminders.length === 1 ? '' : 's'}</div>
-          <i className="ti ti-chevron-right" style={{ fontSize: 12, color: 'rgba(30,42,68,0.35)' }} />
+          <i aria-hidden="true" className="ti ti-chevron-right" style={{ fontSize: 12, color: 'var(--text-tertiary)' }} />
         </div>
       )}
 
@@ -454,7 +475,7 @@ export default function Dashboard() {
           </div>
           <div className={styles.heroStat}>
             <div className={styles.heroLbl}>Spent</div>
-            <div className={styles.heroNum} style={{ color: 'var(--coral)' }}>{fmt(spent)}</div>
+            <div className={styles.heroNum} style={{ color: spent > budgeted ? 'var(--coral)' : '#fff' }}>{fmt(spent)}</div>
           </div>
           <div className={styles.heroStat}>
             <div className={styles.heroLbl}>Remaining</div>

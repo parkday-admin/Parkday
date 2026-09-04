@@ -10,6 +10,8 @@
   --sky-dark: #1E5AC4;
   --gold: #F5B536;
   --gold-dark: #C68A12;
+  --gold-text: #8a5a00; /* AA-contrast text/label color on gold-tinted surfaces; gold-dark is for icons/accents, not small text */
+  --gold-ink: #3d2900; /* Higher-contrast text/icon color for content sitting directly on solid, full-opacity gold (badges, "01" step numbers, gold buttons) */
   --coral: #E0533F;
   --teal: #2CA58D;
   --teal-dark: #1B7D68;

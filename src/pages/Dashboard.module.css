@@ -40,16 +40,16 @@
 
 .planBtn {
   padding: 12px 24px;
-  background: var(--sky);
-  color: var(--white);
+  background: var(--gold);
+  color: var(--night);
   border: none;
   border-radius: var(--radius);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
 }
-.planBtn:hover { background: var(--sky-dark); }
+.planBtn:hover { opacity: 0.9; }
 
 /* Loading skeleton */
 .skeleton { display: flex; flex-direction: column; gap: 11px; }
@@ -105,6 +105,7 @@
 .row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
 .row:last-child { border-bottom: none; }
 .row:hover { background: rgba(13, 35, 64, 0.03); }
+.row:focus-visible, .dayCard:focus-visible, .urgencyStrip:focus-visible { outline: 2px solid var(--sky); outline-offset: -2px; }
 .rowIcon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .rowIcon i { font-size: 15px; }
 .rowBody { flex: 1; min-width: 0; }
@@ -116,7 +117,7 @@
 /* Badges (design-system tones) */
 .badge { display: inline-flex; align-items: center; gap: 2px; padding: 2px 7px; border-radius: 20px; font-size: 11.5px; font-weight: 600; white-space: nowrap; flex-shrink: 0; }
 .badgeGreen { background: rgba(44, 165, 141, 0.15); color: var(--teal-dark); }
-.badgeGold { background: rgba(245, 181, 54, 0.2); color: #8a5a00; }
+.badgeGold { background: rgba(245, 181, 54, 0.2); color: var(--gold-text); }
 .badgeCoral { background: rgba(224, 83, 63, 0.1); color: var(--coral); }
 .badgeBlue { background: rgba(42, 111, 224, 0.1); color: var(--sky-dark); }
 .badgeNeutral { background: var(--border-light); color: var(--text-secondary); }
@@ -124,7 +125,7 @@
 /* Itinerary day cards — auto-fill grid instead of a fixed column count */
 .dayGrid { padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
 .dayCard {
-  border: 1px solid var(--border-light); border-radius: 12px; padding: 14px; cursor: pointer;
+  border: 1px solid var(--border-light); border-radius: 14px; padding: 14px; cursor: pointer;
   display: flex; flex-direction: column; gap: 12px; transition: border-color 0.12s;
 }
 .dayCard:hover { border-color: var(--sky); }
@@ -138,6 +139,6 @@
 .fundsEmptyBtn {
   width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;
   padding: 10px 12px; background: rgba(42, 111, 224, 0.07); border: 1px solid rgba(42, 111, 224, 0.25);
-  border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
+  border-radius: var(--radius); font-size: 12.5px; font-weight: 600; color: var(--sky); cursor: pointer;
 }
 .fundsEmptyBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }
