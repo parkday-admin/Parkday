@@ -64,6 +64,46 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* A ticket-stub tear line under the headline — the one signature device on
+   this screen, echoing DESIGN.md's "Park Ticket" concept without competing
+   with the dashboard's navy hero. Two punched notches at the card's true
+   edge plus a dashed perforation separate the "stub" (identity/headline)
+   from the working form below. */
+.cardHeader {
+  position: relative;
+  margin: -32px -26px 22px;
+  padding: 32px 26px 18px;
+  border-bottom: 1px dashed var(--border);
+}
+.cardHeader::before,
+.cardHeader::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
+  background: var(--cream);
+  border: 1px solid var(--border-light);
+  border-radius: 50%;
+}
+.cardHeader::before { left: -10px; }
+.cardHeader::after { right: -10px; }
+.cardHeader .subhead { margin-bottom: 0; }
+
+.trustLine {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+}
+.trustLine i {
+  color: var(--teal);
+  font-size: 13px;
+}
+
 .headline {
   font-family: var(--heading);
   font-size: 23px;
@@ -171,9 +211,38 @@
   margin-bottom: 6px;
 }
 
+.passwordField {
+  position: relative;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+.passwordToggle:hover {
+  color: var(--sky);
+}
+.passwordToggle i {
+  font-size: 16px;
+}
+.passwordField input {
+  padding-right: 44px;
+}
+
 .field input {
   width: 100%;
-  padding: 11px 13px;
+  padding: 13px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--white);
@@ -197,10 +266,11 @@
   text-align: right;
   background: none;
   border: none;
-  padding: 0;
-  margin: -6px 0 14px;
+  padding: 16px 0;
+  margin: -10px 0 -2px;
   font-size: 11.5px;
-  color: var(--text-tertiary);
+  font-weight: 500;
+  color: var(--sky);
   cursor: pointer;
   text-decoration: none;
 }

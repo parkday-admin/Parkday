@@ -63,6 +63,28 @@ function consumeExpectingSignIn() {
   }
 }
 
+// Supabase's error.message is written for a developer console, not a
+// parent anxious about their trip budget account — map the ones we
+// actually see to Parkday's own voice, with a warm fallback for anything
+// unmapped rather than ever showing raw backend text.
+const AUTH_ERROR_MATCHERS = [
+  [/invalid login credentials/i, "That email and password don't match — try again, or reset your password below."],
+  [/email not confirmed/i, "Almost there — check your email and confirm your address before signing in."],
+  [/user already registered/i, 'An account with that email already exists — sign in instead, or reset your password if you forgot it.'],
+  [/rate limit/i, "That's a lot of tries — give it a minute and try again."],
+  [/password should be at least/i, 'Passwords need at least 6 characters.'],
+  [/network|fetch/i, "Couldn't reach Parkday — check your connection and try again."],
+]
+
+export function friendlyAuthError(error) {
+  if (!error) return null
+  const message = error.message || ''
+  for (const [pattern, friendly] of AUTH_ERROR_MATCHERS) {
+    if (pattern.test(message)) return friendly
+  }
+  return "Something went wrong on our end — give it another try in a moment."
+}
+
 export async function signUp(email, password) {
   markExpectingSignIn()
   const { data, error } = await supabase.auth.signUp({ email, password })

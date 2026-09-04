@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { updatePassword, isPasswordRecovery, onPasswordRecovery, signOut } from '../lib/auth'
+import { updatePassword, isPasswordRecovery, onPasswordRecovery, signOut, friendlyAuthError } from '../lib/auth'
 import styles from './Auth.module.css'
 
 // Supabase completes the recovery token exchange itself and fires
@@ -16,6 +16,7 @@ export default function ResetPassword() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
     // The event can fire before this page even mounts, so check for that
@@ -53,7 +54,7 @@ export default function ResetPassword() {
     setLoading(false)
 
     if (error) {
-      setError(error.message || 'Something went wrong. Please try again.')
+      setError(friendlyAuthError(error))
       return
     }
 
@@ -86,15 +87,19 @@ export default function ResetPassword() {
         <div className={styles.card}>
           {status === 'checking' && (
             <>
-              <h1 className={styles.headline}>Verifying your link…</h1>
-              <p className={styles.subhead}>One moment please.</p>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.headline}>Verifying your link…</h1>
+                <p className={styles.subhead}>One moment please.</p>
+              </div>
             </>
           )}
 
           {status === 'invalid' && (
             <>
-              <h1 className={styles.headline}>Link expired</h1>
-              <p className={styles.subhead}>This link is invalid or has expired. Request a new one.</p>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.headline}>Link expired</h1>
+                <p className={styles.subhead}>This link is invalid or has expired. Request a new one.</p>
+              </div>
               <p className={styles.toggle}>
                 <Link to="/login">Back to sign in</Link>
               </p>
@@ -103,39 +108,53 @@ export default function ResetPassword() {
 
           {status === 'ready' && (
             <>
-              <h1 className={styles.headline}>Choose a new password</h1>
-              <p className={styles.subhead}>Enter a new password for your account.</p>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.headline}>Choose a new password</h1>
+                <p className={styles.subhead}>Enter a new password for your account.</p>
+              </div>
 
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.field}>
                   <label htmlFor="newPassword">New password</label>
-                  <input
-                    id="newPassword"
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    placeholder="At least 8 characters"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
+                  <div className={styles.passwordField}>
+                    <input
+                      id="newPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="At least 8 characters"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                    />
+                    <button
+                      type="button"
+                      className={styles.passwordToggle}
+                      onClick={() => setShowPassword(s => !s)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      <i aria-hidden="true" className={`ti ${showPassword ? 'ti-eye-off' : 'ti-eye'}`} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.field}>
                   <label htmlFor="confirmPassword">Confirm new password</label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter password"
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                  />
+                  <div className={styles.passwordField}>
+                    <input
+                      id="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter password"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                    />
+                  </div>
                 </div>
 
-                {error && <p className={styles.error}>{error}</p>}
+                {error && <p className={styles.error} role="alert">{error}</p>}
 
                 <button type="submit" className={styles.submit} disabled={loading}>
                   {loading ? 'Please wait…' : 'Update password'}
@@ -146,8 +165,10 @@ export default function ResetPassword() {
 
           {status === 'done' && (
             <>
-              <h1 className={styles.headline}>Password updated</h1>
-              <p className={styles.subhead}>Your password has been updated.</p>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.headline}>Password updated</h1>
+                <p className={styles.subhead}>Your password has been updated.</p>
+              </div>
               <p className={styles.toggle}>
                 <button type="button" onClick={goToLogin}>Sign in</button>
               </p>

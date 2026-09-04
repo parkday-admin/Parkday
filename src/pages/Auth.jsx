@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { signIn, signUp, signInWithGoogle, sendPasswordReset } from '../lib/auth'
+import { signIn, signUp, signInWithGoogle, sendPasswordReset, friendlyAuthError } from '../lib/auth'
 import styles from './Auth.module.css'
 
 function GoogleIcon() {
@@ -27,6 +27,8 @@ export default function Auth() {
   const [mode, setMode] = useState(estimate ? 'signup' : 'login') // 'login' | 'signup' | 'forgot'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -39,22 +41,32 @@ export default function Auth() {
     e.preventDefault()
     setError(null)
     setNotice(null)
-    setLoading(true)
 
-    if (mode === 'signup') {
-      const { error } = await signUp(email, password)
-      if (error) {
-        setError(error.message)
-      } else {
-        setNotice('Check your email to confirm your account.')
-      }
-    } else {
-      const { error } = await signIn(email, password)
-      if (error) setError(error.message)
-      // on success, App's onAuthStateChange fires and redirects
+    if (mode === 'signup' && password !== confirmPassword) {
+      setError('Passwords do not match.')
+      return
     }
 
-    setLoading(false)
+    setLoading(true)
+
+    try {
+      if (mode === 'signup') {
+        const { error } = await signUp(email, password)
+        if (error) {
+          setError(friendlyAuthError(error))
+        } else {
+          setNotice('Check your email to confirm your account.')
+        }
+      } else {
+        const { error } = await signIn(email, password)
+        if (error) setError(friendlyAuthError(error))
+        // on success, App's onAuthStateChange fires and redirects
+      }
+    } catch {
+      setError(friendlyAuthError({ message: 'network' }))
+    } finally {
+      setLoading(false)
+    }
   }
 
   function goToForgotPassword() {
@@ -89,7 +101,7 @@ export default function Auth() {
     setGoogleLoading(true)
     const { error } = await signInWithGoogle()
     if (error) {
-      setError(error.message)
+      setError(friendlyAuthError(error))
       setGoogleLoading(false)
     }
     // on success the page redirects — no need to reset loading
@@ -110,12 +122,14 @@ export default function Auth() {
         <div className={styles.card}>
           {mode === 'forgot' ? (
             <>
-              <h1 className={styles.headline}>Reset your password</h1>
-              <p className={styles.subhead}>Enter your email address and we'll send you a link to reset your password.</p>
+              <div className={styles.cardHeader}>
+                <h1 className={styles.headline}>Reset your password</h1>
+                <p className={styles.subhead}>Enter your email address and we'll send you a link to reset your password.</p>
+              </div>
 
               {resetSent ? (
                 <>
-                  <p className={styles.notice}>Check your email. We've sent a password reset link to {email}.</p>
+                  <p className={styles.notice} role="status">Check your email. We've sent a password reset link to {email}.</p>
                   <p className={styles.toggle}>
                     <button type="button" onClick={backToSignIn}>Back to sign in</button>
                   </p>
@@ -135,7 +149,7 @@ export default function Auth() {
                     />
                   </div>
 
-                  {resetError && <p className={styles.error}>{resetError}</p>}
+                  {resetError && <p className={styles.error} role="alert">{resetError}</p>}
 
                   <button type="submit" className={styles.submit} disabled={resetLoading}>
                     {resetLoading ? 'Sending…' : 'Send reset link'}
@@ -149,12 +163,14 @@ export default function Auth() {
             </>
           ) : (
             <>
-          <h1 className={styles.headline}>
-            {mode === 'signup' ? 'Create your account' : 'Sign in to plan your park day'}
-          </h1>
-          <p className={styles.subhead}>
-            {mode === 'signup' ? 'Start planning your park day.' : 'Welcome back.'}
-          </p>
+          <div className={styles.cardHeader}>
+            <h1 className={styles.headline}>
+              {mode === 'signup' ? 'Create your account' : 'Sign in to plan your park day'}
+            </h1>
+            <p className={styles.subhead}>
+              {mode === 'signup' ? 'Start planning your park day.' : 'Welcome back.'}
+            </p>
+          </div>
 
           {estimate && (
             <div className={styles.estimateChip}>
@@ -196,17 +212,45 @@ export default function Auth() {
 
             <div className={styles.field}>
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder={mode === 'signup' ? 'At least 6 characters' : '••••••••'}
-                required
-                minLength={6}
-                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
-              />
+              <div className={styles.passwordField}>
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'}
+                  required
+                  minLength={8}
+                  autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                />
+                <button
+                  type="button"
+                  className={styles.passwordToggle}
+                  onClick={() => setShowPassword(s => !s)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  <i aria-hidden="true" className={`ti ${showPassword ? 'ti-eye-off' : 'ti-eye'}`} />
+                </button>
+              </div>
             </div>
+
+            {mode === 'signup' && (
+              <div className={styles.field}>
+                <label htmlFor="confirmPassword">Confirm password</label>
+                <div className={styles.passwordField}>
+                  <input
+                    id="confirmPassword"
+                    type={showPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="Re-enter password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                  />
+                </div>
+              </div>
+            )}
 
             {mode === 'login' && (
               <button type="button" className={styles.forgotLink} onClick={goToForgotPassword}>
@@ -214,19 +258,23 @@ export default function Auth() {
               </button>
             )}
 
-            {error && <p className={styles.error}>{error}</p>}
-            {notice && <p className={styles.notice}>{notice}</p>}
+            {error && <p className={styles.error} role="alert">{error}</p>}
+            {notice && <p className={styles.notice} role="status">{notice}</p>}
 
             <button type="submit" className={styles.submit} disabled={loading}>
               {loading ? 'Please wait…' : mode === 'signup' ? 'Create account' : 'Sign in'}
             </button>
+
+            {mode === 'signup' && (
+              <p className={styles.trustLine}><i aria-hidden="true" className="ti ti-shield-lock" />We'll never sell your data.</p>
+            )}
           </form>
 
           <p className={styles.toggle}>
             {mode === 'login' ? (
-              <>New to Parkday? <button onClick={() => { setMode('signup'); setError(null); setNotice(null) }}>Create an account</button></>
+              <>New to Parkday? <button onClick={() => { setMode('signup'); setError(null); setNotice(null); setConfirmPassword('') }}>Create an account</button></>
             ) : (
-              <>Already have an account? <button onClick={() => { setMode('login'); setError(null); setNotice(null) }}>Sign in</button></>
+              <>Already have an account? <button onClick={() => { setMode('login'); setError(null); setNotice(null); setConfirmPassword('') }}>Sign in</button></>
             )}
           </p>
             </>
