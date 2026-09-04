@@ -58,7 +58,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       {/* NAV */}
-      <div className={styles.nav}>
+      <nav className={styles.nav} aria-label="Primary">
         <div className={styles.navInner}>
           <NavBrand />
           <div className={styles.navLinks}>{navLinks}</div>
@@ -66,8 +66,8 @@ export default function Home() {
             <Link to="/login" className={styles.navLogin}>Log in</Link>
             <a href="#estimator" className={`${styles.btn} ${styles.btnPrimary} ${styles.navCta}`}>Try the estimator</a>
           </div>
-          <button type="button" className={styles.navToggle} aria-label="Toggle menu" onClick={() => setMobileOpen(o => !o)}>
-            <i className={`ti ${mobileOpen ? 'ti-x' : 'ti-menu-2'}`} />
+          <button type="button" className={styles.navToggle} aria-label="Toggle menu" aria-expanded={mobileOpen} onClick={() => setMobileOpen(o => !o)}>
+            <i aria-hidden="true" className={`ti ${mobileOpen ? 'ti-x' : 'ti-menu-2'}`} />
           </button>
         </div>
         {mobileOpen && (
@@ -76,8 +76,9 @@ export default function Home() {
             <Link to="/login" onClick={() => setMobileOpen(false)}>Log in</Link>
           </div>
         )}
-      </div>
+      </nav>
 
+      <main>
       {/* HERO */}
       <div className={`${styles.wrap} ${styles.hero}`}>
         <div>
@@ -88,8 +89,8 @@ export default function Home() {
             <a href="#how-it-works" className={`${styles.btn} ${styles.btnSecondary}`}>How it works</a>
           </div>
           <div className={styles.heroTrust}>
-            <div className={styles.trustItem}><i className="ti ti-user-off" />No account needed to estimate</div>
-            <div className={styles.trustItem}><i className="ti ti-gift" />Free to start</div>
+            <div className={styles.trustItem}><i aria-hidden="true" className="ti ti-user-off" />No account needed to estimate</div>
+            <div className={styles.trustItem}><i aria-hidden="true" className="ti ti-gift" />Free to start</div>
           </div>
         </div>
         <div className={styles.heroPhoto}>
@@ -111,17 +112,17 @@ export default function Home() {
                 ['ti-bolt', 'Lightning Lane'], ['ti-bus', 'Transportation'], ['ti-shopping-bag', 'Souvenirs'],
                 ['ti-credit-card', 'Gift cards'], ['ti-gift', 'Rewards'], ['ti-calendar-due', 'Due dates'],
               ].map(([icon, label]) => (
-                <span key={label} className={styles.pill}><i className={`ti ${icon}`} />{label}</span>
+                <span key={label} className={styles.pill}><i aria-hidden="true" className={`ti ${icon}`} />{label}</span>
               ))}
             </div>
-            <div className={styles.whyArrow}><i className="ti ti-arrow-narrow-down" /></div>
+            <div className={styles.whyArrow}><i aria-hidden="true" className="ti ti-arrow-narrow-down" /></div>
             <div className={styles.tripCard}>
               <div className={styles.tripCardTop}>
                 <div className={styles.tripCardBrand}>
                   <img src="/assets/logos/parkday-icon.svg" alt="" />
                   <span>Parkday</span>
                 </div>
-                <div className={styles.tripCardBadge}><i className="ti ti-users" /><span>Family Trip<br />May 24 – May 31</span></div>
+                <div className={styles.tripCardBadge}><i aria-hidden="true" className="ti ti-users" /><span>Family Trip<br />May 24 – May 31</span></div>
               </div>
               <div className={styles.tripStats}>
                 <div><div className={styles.tripStatLbl}>Planned</div><div className={styles.tripStatVal}>$5,420</div></div>
@@ -144,15 +145,15 @@ export default function Home() {
         <div className={styles.steps}>
           <div className={styles.step}>
             <div className={styles.stepIcon} style={{ background: 'var(--cream-light)' }}>
-              <i className="ti ti-calculator" style={{ color: 'var(--gold-dark)' }} />
-              <div className={styles.stepNum} style={{ background: 'var(--gold)', color: '#3d2900' }}>01</div>
+              <i aria-hidden="true" className="ti ti-calculator" style={{ color: 'var(--gold-dark)' }} />
+              <div className={styles.stepNum} style={{ background: 'var(--gold)', color: 'var(--gold-ink)' }}>01</div>
             </div>
             <div className={styles.stepTitle}>Estimate before booking</div>
             <div className={styles.stepBody}>Start with your dates, party size, resort style, tickets, dining approach, and extras. Parkday gives you a realistic planning range before you commit to the trip.</div>
           </div>
           <div className={styles.step}>
             <div className={styles.stepIcon}>
-              <i className="ti ti-clipboard-list" style={{ color: 'var(--sky)' }} />
+              <i aria-hidden="true" className="ti ti-clipboard-list" style={{ color: 'var(--sky)' }} />
               <div className={styles.stepNum} style={{ background: 'var(--sky)' }}>02</div>
             </div>
             <div className={styles.stepTitle}>Plan before traveling</div>
@@ -160,7 +161,7 @@ export default function Home() {
           </div>
           <div className={styles.step}>
             <div className={styles.stepIcon}>
-              <i className="ti ti-chart-bar" style={{ color: 'var(--teal)' }} />
+              <i aria-hidden="true" className="ti ti-chart-bar" style={{ color: 'var(--teal)' }} />
               <div className={styles.stepNum} style={{ background: 'var(--teal)' }}>03</div>
             </div>
             <div className={styles.stepTitle}>Track while spending</div>
@@ -176,15 +177,15 @@ export default function Home() {
       <div ref={valuePropsRef} className={`${styles.wrap} ${styles.valueProps} ${reveal(valuePropsInView)}`}>
         <div className={styles.valueGrid}>
           <div className={styles.valueCard} style={{ background: 'var(--sky-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--sky)' }}><i className="ti ti-users" /></div>
+            <div className={styles.valueIcon} style={{ background: 'var(--sky)' }}><i aria-hidden="true" className="ti ti-users" /></div>
             <div><div className={styles.valueTitle} style={{ color: 'var(--sky-dark)' }}>Made by Disney travelers</div><div className={styles.valueSub}>We get it, we plan too.</div></div>
           </div>
           <div className={styles.valueCard} style={{ background: 'var(--gold-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--gold)', color: '#3d2900' }}><i className="ti ti-clock" /></div>
-            <div><div className={styles.valueTitle} style={{ color: '#8a5a00' }}>Plan at your pace</div><div className={styles.valueSub}>Start free, cancel anytime.</div></div>
+            <div className={styles.valueIcon} style={{ background: 'var(--gold)', color: 'var(--gold-ink)' }}><i aria-hidden="true" className="ti ti-clock" /></div>
+            <div><div className={styles.valueTitle} style={{ color: 'var(--gold-text)' }}>Plan at your pace</div><div className={styles.valueSub}>Start free, cancel anytime.</div></div>
           </div>
           <div className={styles.valueCard} style={{ background: 'var(--teal-bg)' }}>
-            <div className={styles.valueIcon} style={{ background: 'var(--teal)' }}><i className="ti ti-shield-lock" /></div>
+            <div className={styles.valueIcon} style={{ background: 'var(--teal)' }}><i aria-hidden="true" className="ti ti-shield-lock" /></div>
             <div><div className={styles.valueTitle} style={{ color: 'var(--teal-dark)' }}>Your data is private</div><div className={styles.valueSub}>We'll never sell your data.</div></div>
           </div>
         </div>
@@ -199,7 +200,7 @@ export default function Home() {
 
         <div className={styles.bigFeatures}>
           <div className={styles.featureCard}>
-            <div className={styles.featureIcon} style={{ background: 'var(--sky-bg)' }}><i className="ti ti-calculator" style={{ color: 'var(--sky-dark)' }} /></div>
+            <div className={styles.featureIcon} style={{ background: 'var(--sky-bg)' }}><i aria-hidden="true" className="ti ti-calculator" style={{ color: 'var(--sky-dark)' }} /></div>
             <div className={styles.featureTitle}>Estimate your total trip cost</div>
             <div className={styles.featureBody}>Get a realistic low-to-high estimate based on your family size, trip length, resort style, tickets, dining, and extras.</div>
             <div className={styles.featureViz}>
@@ -219,18 +220,18 @@ export default function Home() {
           </div>
 
           <div className={styles.featureCard}>
-            <div className={styles.featureIcon} style={{ background: 'var(--gold-bg)' }}><i className="ti ti-arrows-shuffle" style={{ color: '#8a5a00' }} /></div>
+            <div className={styles.featureIcon} style={{ background: 'var(--gold-bg)' }}><i aria-hidden="true" className="ti ti-arrows-shuffle" style={{ color: 'var(--gold-text)' }} /></div>
             <div className={styles.featureTitle}>Compare trip scenarios</div>
             <div className={styles.featureBody}>Test different versions of your vacation before you book, from value-focused trips to bigger splurge options.</div>
             <div className={`${styles.featureViz} ${styles.fvCompare}`}>
-              <div className={styles.fvCompareItem} style={{ background: '#8a5a00', opacity: 0.3 }}><div className={styles.amt}>$3.4k</div><div className={styles.lbl}>Value</div></div>
-              <div className={styles.fvCompareItem} style={{ background: '#8a5a00' }}><div className={styles.amt}>$5.2k</div><div className={styles.lbl} style={{ fontWeight: 600 }}>Moderate</div></div>
-              <div className={styles.fvCompareItem} style={{ background: '#8a5a00', opacity: 0.55 }}><div className={styles.amt}>$7.6k</div><div className={styles.lbl}>Splurge</div></div>
+              <div className={styles.fvCompareItem} style={{ background: 'var(--gold-text)', opacity: 0.3 }}><div className={styles.amt}>$3.4k</div><div className={styles.lbl}>Value</div></div>
+              <div className={styles.fvCompareItem} style={{ background: 'var(--gold-text)' }}><div className={styles.amt}>$5.2k</div><div className={styles.lbl} style={{ fontWeight: 600 }}>Moderate</div></div>
+              <div className={styles.fvCompareItem} style={{ background: 'var(--gold-text)', opacity: 0.55 }}><div className={styles.amt}>$7.6k</div><div className={styles.lbl}>Splurge</div></div>
             </div>
           </div>
 
           <div className={styles.featureCard}>
-            <div className={styles.featureIcon} style={{ background: 'var(--teal-bg)' }}><i className="ti ti-chart-bar" style={{ color: 'var(--teal-dark)' }} /></div>
+            <div className={styles.featureIcon} style={{ background: 'var(--teal-bg)' }}><i aria-hidden="true" className="ti ti-chart-bar" style={{ color: 'var(--teal-dark)' }} /></div>
             <div className={styles.featureTitle}>Expense tracking</div>
             <div className={styles.featureBody}>Log trip expenses as you book and spend, then compare planned costs, actual spending, and remaining budget by category.</div>
             <div className={styles.featureViz}>
@@ -250,11 +251,11 @@ export default function Home() {
             ['ti-device-floppy', 'var(--coral-bg)', 'var(--coral)', 'Saved plans'],
             ['ti-calendar', 'var(--sky-bg)', 'var(--sky-dark)', 'Park-day planning'],
             ['ti-checklist', 'var(--teal-bg)', 'var(--teal-dark)', 'Checklists'],
-            ['ti-credit-card', 'var(--gold-bg)', '#8a5a00', 'Gift card tracking'],
+            ['ti-credit-card', 'var(--gold-bg)', 'var(--gold-text)', 'Gift card tracking'],
             ['ti-users', 'var(--coral-bg)', 'var(--coral)', 'Family Travel Profile'],
           ].map(([icon, bg, color, label]) => (
             <div className={styles.smallFeature} key={label}>
-              <div className={styles.smallFeatureIcon} style={{ background: bg }}><i className={`ti ${icon}`} style={{ color }} /></div>
+              <div className={styles.smallFeatureIcon} style={{ background: bg }}><i aria-hidden="true" className={`ti ${icon}`} style={{ color }} /></div>
               <div className={styles.smallFeatureTitle}>{label}</div>
             </div>
           ))}
@@ -286,7 +287,7 @@ export default function Home() {
                 <div className={styles.planSub}>Get a realistic starting budget for free.</div>
                 <div className={styles.planFeatures}>
                   {['Free trip cost estimator', 'Basic trip summary', 'Starter budget breakdown', 'No account required'].map(f => (
-                    <div className={styles.planFeature} key={f}><i className="ti ti-check" style={{ color: 'var(--teal)' }} /><span>{f}</span></div>
+                    <div className={styles.planFeature} key={f}><i aria-hidden="true" className="ti ti-check" style={{ color: 'var(--teal)' }} /><span>{f}</span></div>
                   ))}
                 </div>
                 <a href="#estimator" className={`${styles.btn} ${styles.btnOutlineTeal} ${styles.btnBlock}`}>Try the free estimator</a>
@@ -295,7 +296,7 @@ export default function Home() {
 
             <div className={`${styles.plan} ${styles.planPass}`}>
               <div className={styles.planBody}>
-                <div className={styles.planBadge} style={{ background: 'var(--gold)', color: '#3d2900' }}>Most popular</div>
+                <div className={styles.planBadge} style={{ background: 'var(--gold)', color: 'var(--gold-ink)' }}>Most popular</div>
                 <div className={styles.planName} style={{ color: 'var(--gold-dark)' }}>Parkday Trip Pass</div>
                 <div className={styles.planPrice}>$29 <span className={styles.period}>/trip</span></div>
                 <div className={styles.planSub}>Unlock planning tools for one Disney vacation.</div>
@@ -315,7 +316,7 @@ export default function Home() {
                     'PDF budget and trip summary exports',
                     'Full access through 30 days after trip ends',
                   ].map(f => (
-                    <div className={styles.planFeature} key={f}><i className="ti ti-check" style={{ color: 'var(--gold-dark)' }} /><span>{f}</span></div>
+                    <div className={styles.planFeature} key={f}><i aria-hidden="true" className="ti ti-check" style={{ color: 'var(--gold-dark)' }} /><span>{f}</span></div>
                   ))}
                 </div>
                 <Link to="/login" className={`${styles.btn} ${styles.btnGold} ${styles.btnBlock}`}>Get Trip Pass</Link>
@@ -338,7 +339,7 @@ export default function Home() {
                     'Trip spending comparison across trips (coming soon)',
                     'Annual Pass optimization (coming soon)',
                   ].map(f => (
-                    <div className={styles.planFeature} key={f}><i className="ti ti-check" style={{ color: 'var(--sky)' }} /><span>{f}</span></div>
+                    <div className={styles.planFeature} key={f}><i aria-hidden="true" className="ti ti-check" style={{ color: 'var(--sky)' }} /><span>{f}</span></div>
                   ))}
                 </div>
                 <Link to="/login" className={`${styles.btn} ${styles.btnPrimary} ${styles.btnBlock}`}>Get Plus Pass</Link>
@@ -356,17 +357,19 @@ export default function Home() {
         </div>
         {FAQS.map((item, i) => (
           <div className={`${styles.faqItem} ${openFaq === i ? styles.open : ''}`} key={item.q}>
-            <button type="button" className={styles.faqQ} onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>
+            <button type="button" className={styles.faqQ} aria-expanded={openFaq === i} onClick={() => setOpenFaq(openFaq === i ? -1 : i)}>
               <span>{item.q}</span>
-              <i className={`ti ${openFaq === i ? 'ti-minus' : 'ti-plus'}`} />
+              <i aria-hidden="true" className={`ti ${openFaq === i ? 'ti-minus' : 'ti-plus'}`} />
             </button>
             <div className={styles.faqA}><div className={styles.faqAInner}>{item.a}</div></div>
           </div>
         ))}
       </div>
 
+      </main>
+
       {/* FOOTER */}
-      <div className={styles.footer}>
+      <footer className={styles.footer}>
         <div className={styles.wrap}>
           <div className={styles.footerGrid}>
             <div className={styles.footerBrand}>
@@ -400,9 +403,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className={styles.footerBottom}>© 2026 Parkday. Not affiliated with the Walt Disney Company.</div>
+          <div className={styles.footerBottom}>© {new Date().getFullYear()} Parkday. Not affiliated with the Walt Disney Company.</div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }

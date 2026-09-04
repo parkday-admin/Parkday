@@ -24,7 +24,12 @@ export function useRevealOnScroll() {
         setInView(true)
         observer.disconnect()
       },
-      { threshold: 0.15, rootMargin: '0px 0px -60px 0px' },
+      // A low threshold + a positive bottom rootMargin means a section starts
+      // revealing as soon as its top edge approaches the viewport, not only
+      // once 15% of its (possibly very tall) area is already on screen —
+      // the old settings left a visible blank gap while scrolling past a
+      // tall section before its fade-in ever triggered.
+      { threshold: 0, rootMargin: '0px 0px 120px 0px' },
     )
     observer.observe(el)
     return () => observer.disconnect()
