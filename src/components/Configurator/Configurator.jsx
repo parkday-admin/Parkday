@@ -22,6 +22,25 @@ function makeDefaultS(prefill) {
   return prefill ? { ...base, ...prefill } : base
 }
 
+// A brand-new trip lives only in memory until the final save — persist a
+// draft so an accidental refresh, back-swipe, or interruption (the most
+// likely failure mode for a mobile, on-the-go user) doesn't lose a
+// multi-step entry. Never used for an existing-trip edit, which always
+// reloads from the server.
+const DRAFT_KEY = 'pkd_configurator_draft'
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
+function saveDraft(S, step, selectedResort, resortQuery) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ S, step, resortQuery, resortName: selectedResort?.name || null })) } catch { /* storage unavailable */ }
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY) } catch { /* storage unavailable */ }
+}
+
 function computeParty(S, familyMembers) {
   let adults = 0, children = 0
   ;(familyMembers || []).forEach(m => {
@@ -82,16 +101,27 @@ export default function Configurator({ session, planType }) {
   const duplicateSourceName = !tripId ? location.state?.duplicateSourceName : null
   const duplicateNewName = !tripId ? location.state?.duplicateNewName : null
 
-  const [S, setS] = useState(() => makeDefaultS(prefill))
-  const [step, setStep] = useState(0)
+  // A hand-off (prefill/duplicate) or an existing-trip edit always wins over
+  // a leftover draft from some earlier, unrelated abandoned session.
+  const canUseDraft = !tripId && !prefill && !duplicateSourceTripId
+  const draftRef = useRef(canUseDraft ? loadDraft() : null)
+
+  const [S, setS] = useState(() => draftRef.current?.S ?? makeDefaultS(prefill))
+  const [step, setStep] = useState(() => draftRef.current?.step ?? 0)
   const [editingTrip, setEditingTrip] = useState(false)
-  const [selectedResort, setSelectedResort] = useState(prefill?.accName ? RESORTS.find(r => r.name === prefill.accName) ?? null : null)
-  const [resortQuery, setResortQuery] = useState('')
+  const [selectedResort, setSelectedResort] = useState(() => {
+    const draftResortName = draftRef.current?.resortName
+    if (draftResortName) return RESORTS.find(r => r.name === draftResortName) ?? null
+    return prefill?.accName ? RESORTS.find(r => r.name === prefill.accName) ?? null : null
+  })
+  const [resortQuery, setResortQuery] = useState(draftRef.current?.resortQuery || '')
   const [loading, setLoading] = useState(!!tripId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
   const [dateAlert, setDateAlert] = useState(null)
+  const [dateConfirm, setDateConfirm] = useState(null)
   const [originalArrival, setOriginalArrival] = useState(null)
+  const [confirmingReset, setConfirmingReset] = useState(false)
   // An estimate hand-off's prefilled party counts (extraAdults/
   // extraChildren) already reflect the estimate's totals with no family
   // member association — skip the auto-select-everyone effect below so it
@@ -102,6 +132,11 @@ export default function Configurator({ session, planType }) {
   // of skipping seeding altogether.
   const [famSeeded, setFamSeeded] = useState(!!prefill && !duplicateSourceTripId)
   const editTripPartyRef = useRef(duplicateSourceTripId ? { adults: prefill?.extraAdults || 0, children: prefill?.extraChildren || 0 } : null)
+
+  useEffect(() => {
+    if (!canUseDraft) return
+    saveDraft(S, step, selectedResort, resortQuery)
+  }, [S, step, selectedResort, resortQuery, canUseDraft])
 
   const setField = (key, value) => setS(prev => ({ ...prev, [key]: value }))
   const { adults, children } = computeParty(S, familyMembers)
@@ -270,6 +305,22 @@ export default function Configurator({ session, planType }) {
     }))
   }, [S.parkDays])
 
+  useEffect(() => {
+    if (!confirmingReset) return undefined
+    const timer = setTimeout(() => setConfirmingReset(false), 3000)
+    return () => clearTimeout(timer)
+  }, [confirmingReset])
+
+  function handleResetClick() {
+    if (!confirmingReset) { setConfirmingReset(true); return }
+    setConfirmingReset(false)
+    clearDraft()
+    setS(makeDefaultS())
+    setStep(0)
+    setSelectedResort(null)
+    setResortQuery('')
+  }
+
   function goTo(target) {
     setStep(target)
   }
@@ -319,6 +370,28 @@ export default function Configurator({ session, planType }) {
   const pkgDiningDisabled = bookingPkg === 'separate_only' || bookingPkg === 'package_only' || nights < 2 || hasApTier
   const showSwanNote = bookingPkg === 'package_only' || (bookingPkg && bookingPkg !== 'separate_only' && nights === 1)
 
+  // What Next actually needs to move forward, checked per step rather than
+  // only surfaced afterward on Review — matches the same required fields
+  // ReviewRow already flags as "missing" there, just checked earlier.
+  function stepMissingReason(s) {
+    if (s === 0) {
+      if (!S.arrival) return 'Set your arrival date to continue.'
+      if (!dayTrip && !S.departure) return 'Set your departure date to continue.'
+      return null
+    }
+    if (s === 1 && S.travel === 'driving' && !(S.tier === 'off_property' || S.isOffProperty) && !S.parkTransport) {
+      return 'Choose how you\'ll get to the parks each day to continue.'
+    }
+    if (s === 2 && !dayTrip && !S.accName && !S.isOffProperty) {
+      return 'Select a resort (or Off Property) to continue.'
+    }
+    if (s === 4 && S.parkDays.length > 0 && !S.parkDays.some(d => d.isPark)) {
+      return 'Set at least one park day to continue.'
+    }
+    return null
+  }
+  const missingReason = stepMissingReason(step)
+
   function setBooking(val) {
     if (val === 'package' && pkgDisabled) return
     if (val === 'package_dining' && pkgDiningDisabled) return
@@ -345,10 +418,15 @@ export default function Configurator({ session, planType }) {
           setDateAlert({ upgrade: true, text: 'These dates are a big change from your current trip — Trip Pass covers one trip at a time, so this can\'t be saved as an edit.' })
           return
         }
-        const proceed = window.confirm('These dates look like a different trip than your current one. We recommend archiving your current trip and starting a new one instead, so your trip history stays accurate.\n\nContinue anyway and just change the dates?')
-        if (!proceed) return
+        setDateConfirm('These dates look like a different trip than your current one. We recommend archiving your current trip and starting a new one instead, so your trip history stays accurate.')
+        return
       }
     }
+    doSave()
+  }
+
+  function confirmDateChangeAndSave() {
+    setDateConfirm(null)
     doSave()
   }
 
@@ -460,6 +538,7 @@ export default function Configurator({ session, planType }) {
       if (expErr) { setError(expErr.message); setSaving(false); return }
     }
 
+    if (!editingTrip) clearDraft()
     setSaving(false)
     if (editingTrip) showToast?.('Trip updated')
     // AppShell only fetches the trip list once on mount — it doesn't
@@ -491,8 +570,14 @@ export default function Configurator({ session, planType }) {
             </div>
             <div>
               {!editingTrip && (
-                <button type="button" className={styles.resetBtn} onClick={() => { setS(makeDefaultS()); setStep(0); setSelectedResort(null); setResortQuery('') }}>
-                  <i className="ti ti-rotate-2" />Reset
+                <button
+                  type="button"
+                  className={`${styles.resetBtn} ${confirmingReset ? styles.resetBtnConfirm : ''}`}
+                  onClick={handleResetClick}
+                  onBlur={() => setConfirmingReset(false)}
+                >
+                  <i className={confirmingReset ? 'ti ti-alert-triangle' : 'ti ti-rotate-2'} />
+                  {confirmingReset ? 'Tap again to reset' : 'Reset'}
                 </button>
               )}
               {editingTrip && (
@@ -803,7 +888,7 @@ export default function Configurator({ session, planType }) {
                   <div className={`${styles.og} ${styles.g2}`}>
                     <Option name="None" sub="Standby lines only" badge="Free" badgeClass="bg" selected={S.lightningLane === 'none'} onClick={() => setField('lightningLane', 'none')} />
                     <Option name="Multi Pass" sub="Book multiple rides throughout the day" badge="~$15–25/pp/day" badgeClass="bb" selected={S.lightningLane === 'multipass'} onClick={() => setField('lightningLane', 'multipass')} />
-                    <Option name="MP + Singles" sub="Multi Pass + top ride bookings" badge="~$55–90/pp/day" badgeClass="bc" selected={S.lightningLane === 'singles'} onClick={() => setField('lightningLane', 'singles')} />
+                    <Option name="MP + Singles" sub="Multi Pass + top ride bookings" badge="~$55–90/pp/day" badgeClass="bz" selected={S.lightningLane === 'singles'} onClick={() => setField('lightningLane', 'singles')} />
                     <Option name="Premier Pass" sub="Unlimited access, no separate booking" badge="~$449–589/pp/day" badgeClass="bo" selected={S.lightningLane === 'premierpass'} onClick={() => setField('lightningLane', 'premierpass')} />
                   </div>
                 </>
@@ -860,10 +945,11 @@ export default function Configurator({ session, planType }) {
           </div>
 
           <div className={styles.nav}>
+            {missingReason && <div className={styles.navWarning}><i className="ti ti-alert-triangle" /> {missingReason}</div>}
             <div className={styles.navRow}>
               {step > 0 && <button type="button" className={styles.navBack} onClick={goBack}>← Back</button>}
               {step < TOTAL_STEPS - 1 && (
-                <button type="button" className={styles.navNext} onClick={goNext}>
+                <button type="button" className={styles.navNext} onClick={goNext} disabled={!!missingReason}>
                   {step === TOTAL_STEPS - 2 ? <>Review <i className="ti ti-arrow-right" /></> : <>Next <i className="ti ti-arrow-right" /></>}
                 </button>
               )}
@@ -871,6 +957,19 @@ export default function Configurator({ session, planType }) {
           </div>
 
         </div>
+
+        {dateConfirm && (
+          <div className={styles.confirmBackdrop} onClick={() => setDateConfirm(null)}>
+            <div className={styles.confirmCard} onClick={e => e.stopPropagation()}>
+              <div className={styles.confirmTitle}><i className="ti ti-alert-triangle" /> This looks like a different trip</div>
+              <div className={styles.confirmText}>{dateConfirm}</div>
+              <div className={styles.confirmActions}>
+                <button type="button" className={styles.confirmCancel} onClick={() => setDateConfirm(null)}>Cancel</button>
+                <button type="button" className={styles.confirmProceed} onClick={confirmDateChangeAndSave}>Continue anyway</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
   )
 }

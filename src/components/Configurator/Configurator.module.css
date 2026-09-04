@@ -27,6 +27,7 @@
 }
 .resetBtn:hover { border-color: var(--sky); color: var(--sky); }
 .resetBtn i { font-size: 12px; }
+.resetBtnConfirm { background: var(--coral-bg); border-color: rgba(224, 83, 63, 0.4); color: var(--coral-text); }
 
 .quickSaveBtn {
   background: var(--sky); border: none; border-radius: 20px;
@@ -263,7 +264,22 @@
 
 /* Nav */
 .nav { padding: 11px 0; display: flex; flex-direction: column; gap: 7px; flex-shrink: 0; }
+.navWarning { display: flex; align-items: flex-start; gap: 6px; background: var(--gold-bg); border: 1px solid rgba(245, 181, 54, 0.35); border-radius: var(--radius-sm); padding: 9px 11px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; }
+.navWarning i { color: var(--gold-dark); font-size: 13px; margin-top: 1px; flex-shrink: 0; }
 .navRow { display: flex; gap: 10px; }
 .navBack { flex: 1; padding: 11px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.45); border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--text-secondary); cursor: pointer; }
 .navNext { flex: 2; padding: 11px; border: none; background: var(--sky); border-radius: var(--radius); font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.navNext:disabled { opacity: 0.5; cursor: not-allowed; }
 .navNext i { font-size: 15px; }
+
+/* Styled confirm modal (replaces window.confirm) */
+.confirmBackdrop { position: fixed; inset: 0; background: rgba(20, 24, 30, 0.45); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.confirmCard { background: var(--white); border-radius: var(--radius-lg); padding: 20px; max-width: 380px; width: 100%; box-shadow: var(--shadow-panel); }
+.confirmTitle { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 14px; color: var(--night); margin-bottom: 8px; }
+.confirmTitle i { color: var(--coral); }
+.confirmText { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 16px; }
+.confirmActions { display: flex; gap: 8px; }
+.confirmCancel { flex: 1; padding: 11px; border: 1px solid var(--border); background: var(--white); border-radius: var(--radius); font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+.confirmCancel:hover { border-color: var(--sky); color: var(--sky); }
+.confirmProceed { flex: 1; padding: 11px; border: none; background: var(--coral); border-radius: var(--radius); font-size: 13px; font-weight: 600; color: #fff; cursor: pointer; }
+.confirmProceed:hover { opacity: 0.9; }
