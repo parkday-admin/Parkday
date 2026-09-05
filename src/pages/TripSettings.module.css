@@ -70,7 +70,7 @@
   color: var(--ink);
   text-align: right;
   border: 1px solid var(--sky);
-  border-radius: var(--radius-sm, 6px);
+  border-radius: var(--radius-sm);
   padding: 3px 6px;
   max-width: 60%;
   font-family: inherit;

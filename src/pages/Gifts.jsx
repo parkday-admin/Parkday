@@ -147,7 +147,7 @@ export default function Gifts() {
             <div className={styles.heroRightVal}>{fmt(totals.totalValue)}</div>
           </div>
         </div>
-        <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ width: `${pct}%` }} /></div>
+        <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ transform: `scaleX(${pct / 100})` }} /></div>
         <div className={styles.heroSub}>{fmt(totals.totalValue)} of {fmt(goal)} goal · {pct}% there</div>
         <div className={styles.heroFooter}>
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Total value</div><div className={styles.heroFooterVal} style={{ color: 'var(--gold)' }}>{fmt(totals.totalValue)}</div></div>

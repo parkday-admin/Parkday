@@ -13,9 +13,6 @@
 }
 .entry:hover { box-shadow: var(--shadow-card); }
 .entry.swiped { transform: translateX(-80px); }
-.entry.paid { border-left: 3px solid var(--teal); }
-.entry.confirmed { border-left: 3px solid var(--sky); }
-.entry.waitlist { border-left: 3px solid var(--gold); }
 
 .entryIcon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .entryIcon i { font-size: 13px; }

@@ -13,7 +13,7 @@ export default function ProgressBar({ value = 0, tone = 'gold', dark = false, he
     >
       <div
         className={styles.fill}
-        style={{ width: `${pct}%`, borderRadius: height / 2, background: TONE_VAR[tone] || TONE_VAR.gold }}
+        style={{ transform: `scaleX(${pct / 100})`, borderRadius: height / 2, background: TONE_VAR[tone] || TONE_VAR.gold }}
       />
     </div>
   )

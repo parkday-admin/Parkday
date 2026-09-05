@@ -83,7 +83,7 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
         <i className="ti ti-trash" /><span>Delete</span>
       </div>
       <div
-        className={`${styles.entry} ${entry.status ? styles[entry.status] : hasActual ? styles.paid : ''} ${swiped ? styles.swiped : ''}`}
+        className={`${styles.entry} ${swiped ? styles.swiped : ''}`}
         style={dx ? { transform: `translateX(${dx}px)`, transition: dragging.current ? 'none' : undefined } : undefined}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

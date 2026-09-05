@@ -159,7 +159,7 @@ export default function Packing() {
               <div className={styles.progressLbl}>Packing progress</div>
               <div className={styles.progressCount}>{c.done} / {c.total} packed</div>
             </div>
-            <div className={styles.progressTrack}><div className={styles.progressFill} style={{ width: `${pct}%` }} /></div>
+            <div className={styles.progressTrack}><div className={styles.progressFill} style={{ transform: `scaleX(${pct / 100})` }} /></div>
           </div>
         )
       )}

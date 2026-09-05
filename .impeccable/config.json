@@ -238,6 +238,15 @@
         "rule": "design-system-font-size",
         "value": "26px",
         "createdAt": "2026-09-05T03:07:46.650Z"
+      },
+      {
+        "rule": "design-system-radius",
+        "value": "*",
+        "files": [
+          "src/components/BudgetPrintView/BudgetPrintView.module.css"
+        ],
+        "createdAt": "2026-09-05T03:21:20.465Z",
+        "reason": "Agent: print-density-calibrated radii on tiny chart swatches/progress tracks/tag chips, same rationale as BudgetPrintView's already-documented palette exception"
       }
     ]
   }

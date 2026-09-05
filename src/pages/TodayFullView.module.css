@@ -50,7 +50,7 @@
   gap: 10px;
   position: relative;
 }
-.entry.upNext { border: 1px solid rgba(245, 181, 54, 0.4); border-left: 3px solid var(--gold); }
+.entry.upNext { border: 1px solid rgba(245, 181, 54, 0.4); }
 
 .upNextPill {
   position: absolute; top: -8px; right: 10px;
