@@ -57,7 +57,7 @@
 /* Compact variant — used inline in the family member sheet, where the grid
    sits in a much narrower, already-scrolling column. */
 .compact .catCard { padding: 9px 10px; margin-bottom: 7px; }
-.compact .itemIcon { width: 26px; height: 26px; border-radius: 7px; }
+.compact .itemIcon { width: 26px; height: 26px; border-radius: var(--radius-sm); }
 .compact .itemIcon i { font-size: 13px; }
 .compact .catCardName { font-size: 12px; }
 .compact .catCardDesc { display: none; }

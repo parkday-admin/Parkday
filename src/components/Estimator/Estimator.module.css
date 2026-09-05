@@ -51,7 +51,7 @@
 .costTicket::after { right: -10px; }
 .costLeft { flex: 1.4; min-width: 0; }
 .costLbl { font-size: clamp(10px, 2.6vw, 11px); font-weight: 600; color: rgba(255, 255, 255, 0.42); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; white-space: nowrap; }
-.costNum { font-family: var(--heading); font-size: clamp(26px, 8vw, 42px); font-weight: 400; color: var(--gold); line-height: 1; white-space: nowrap; }
+.costNum { font-family: var(--heading); font-size: clamp(28px, 8vw, 40px); font-weight: 400; color: var(--gold); line-height: 1; white-space: nowrap; }
 .costPp { font-family: var(--heading); font-size: clamp(13px, 4vw, 18px); font-weight: 400; color: rgba(255, 255, 255, 0.85); line-height: 1; }
 .costDivider { width: 1px; background: var(--border-on-dark); margin: 0 clamp(6px, 2.5vw, 16px); flex-shrink: 0; }
 .costRight { flex-shrink: 1; min-width: 0; align-self: center; }
@@ -61,7 +61,7 @@
 /* Progress */
 .progWrap { padding: 0 0 4px; flex-shrink: 0; }
 .progSteps { display: flex; gap: 3px; }
-.ps { flex: 1; height: 4px; border-radius: 2px; background: rgba(13, 35, 64, 0.14); transition: background 0.2s; }
+.ps { flex: 1; height: 4px; border-radius: var(--radius-pill); background: rgba(13, 35, 64, 0.14); transition: background 0.2s; }
 .ps.done { background: var(--teal); }
 .ps.active { background: var(--gold); }
 .ps.skipped { background: rgba(13, 35, 64, 0.08); }
@@ -91,7 +91,7 @@
 
 /* Steppers */
 .steppers { display: flex; flex-direction: column; gap: 8px; }
-.stpr { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; }
+.stpr { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 14px; display: flex; align-items: center; justify-content: space-between; }
 .stprName { font-size: 13px; font-weight: 500; color: var(--text-primary); }
 .stprHint { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
 .stprCtrl { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
@@ -138,7 +138,7 @@
 .teNote { font-size: 10px; color: var(--text-tertiary); margin-top: 6px; line-height: 1.5; }
 
 /* Open-ended amount cards */
-.openCard { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 9px; }
+.openCard { background: rgba(255, 255, 255, 0.45); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 9px; }
 .openCard:last-child { margin-bottom: 0; }
 .openTop { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; }
 .openIcon { width: 28px; height: 28px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -159,18 +159,18 @@
 .builderBtn i { font-size: 13px; }
 
 /* Summary */
-.bkCard { background: var(--white); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.bkCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
 .bkHdr { padding: 8px 13px; background: var(--bg); font-size: 11px; font-weight: 600; color: var(--text-secondary); }
 .bkRow { display: flex; align-items: center; justify-content: space-between; padding: 9px 13px; border-bottom: 1px solid rgba(13, 35, 64, 0.06); }
 .bkRow:last-child { border-bottom: none; }
 .bkLeft { display: flex; align-items: center; gap: 9px; }
-.bkIcon { width: 24px; height: 24px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bkIcon { width: 24px; height: 24px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .bkIcon i { font-size: 12px; }
 .bkName { font-size: 12px; font-weight: 500; color: var(--text-primary); }
 .bkRight { text-align: right; }
 .bkMid { font-size: 13px; font-weight: 600; color: var(--text-primary); }
 .bkRng { font-size: 10px; color: var(--text-tertiary); }
-.sumSel { background: var(--white); border: 1px solid var(--border-light); border-radius: 12px; overflow: hidden; margin-bottom: 14px; }
+.sumSel { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
 .selRow { display: flex; justify-content: space-between; align-items: center; padding: 8px 13px; border-bottom: 1px solid rgba(13, 35, 64, 0.06); }
 .selRow:last-child { border-bottom: none; }
 .selLbl { font-size: 11px; color: var(--text-tertiary); }
@@ -197,10 +197,10 @@
 .sheetBackdrop { position: fixed; inset: 0; background: rgba(20, 24, 30, 0.45); z-index: 60; }
 .sheet {
   position: fixed; left: 0; right: 0; bottom: 0; max-height: 82%;
-  background: var(--white); border-radius: 18px 18px 0 0; box-shadow: 0 -8px 30px rgba(13, 35, 64, 0.25);
+  background: var(--white); border-radius: var(--radius-lg) var(--radius-lg) 0 0; box-shadow: 0 -8px 30px rgba(13, 35, 64, 0.25);
   z-index: 61; display: flex; flex-direction: column;
 }
-.sheetHandle { width: 36px; height: 4px; border-radius: 2px; background: var(--border); margin: 9px auto 2px; flex-shrink: 0; }
+.sheetHandle { width: 36px; height: 4px; border-radius: var(--radius-pill); background: var(--border); margin: 9px auto 2px; flex-shrink: 0; }
 .sheetHdr { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px 10px; border-bottom: 1px solid var(--border-light); flex-shrink: 0; }
 .sheetTitle { font-family: var(--heading); font-size: 17px; font-weight: 400; color: var(--ink); }
 .sheetClose { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -234,7 +234,7 @@
 .expTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .expName { font-size: 12.5px; font-weight: 600; color: var(--text-primary); }
 .expPark { font-size: 10px; color: var(--text-tertiary); margin-top: 1px; }
-.expCheck { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.expCheck { width: 18px; height: 18px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 .expCard.sel .expCheck { background: var(--sky); border-color: var(--sky); }
 .expCheck i { font-size: 12px; color: #fff; display: none; }
 .expCard.sel .expCheck i { display: block; }

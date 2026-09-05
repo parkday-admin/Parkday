@@ -233,6 +233,11 @@
         "rule": "design-system-color",
         "value": "#e8614a",
         "createdAt": "2026-09-04T21:02:11.587Z"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "26px",
+        "createdAt": "2026-09-05T03:07:46.650Z"
       }
     ]
   }
