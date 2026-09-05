@@ -33,16 +33,17 @@
   border: 1.5px solid var(--border-light); border-radius: var(--radius-md); padding: 9px 12px;
 }
 .amtWrap:focus-within { border-color: var(--sky); }
+.amtWrap.err { border-color: var(--coral); }
 .amtPre { font-family: var(--heading); font-size: 16px; color: var(--text-tertiary); }
 .amtInp { border: none; background: transparent; font-family: var(--heading); font-size: 19px; color: var(--night); width: 100%; outline: none; }
 
 .saveBtn {
   margin: 4px 18px 0; width: calc(100% - 36px); padding: 13px;
-  background: var(--sky); border: none; border-radius: var(--radius);
-  font-size: 13.5px; font-weight: 600; color: #fff; cursor: pointer;
+  background: var(--gold); border: none; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 600; color: var(--night); cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.saveBtn:hover { background: var(--sky-dark); }
+.saveBtn:hover { opacity: 0.9; }
 .saveBtn:disabled { opacity: 0.6; cursor: default; }
 .saveBtn i { font-size: 14px; }
 

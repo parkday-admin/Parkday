@@ -30,6 +30,7 @@
   flex-direction: column;
   overflow: hidden;
   animation: slideUp 0.22s cubic-bezier(.4, 0, .2, 1);
+  outline: none;
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 

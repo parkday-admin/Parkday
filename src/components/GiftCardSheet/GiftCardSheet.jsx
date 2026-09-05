@@ -19,7 +19,9 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
   const [last4, setLast4] = useState('')
   const [dateAdded, setDateAdded] = useState(today())
   const [sourceError, setSourceError] = useState(false)
+  const [balanceError, setBalanceError] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     if (!state) return
@@ -29,8 +31,16 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
     setLast4(editing?.last4 || '')
     setDateAdded(editing?.date_added || today())
     setSourceError(false)
+    setBalanceError(false)
+    setConfirmDelete(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
+
+  useEffect(() => {
+    if (!confirmDelete) return
+    const t = setTimeout(() => setConfirmDelete(false), 3000)
+    return () => clearTimeout(t)
+  }, [confirmDelete])
 
   if (!state) return null
 
@@ -39,10 +49,14 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
     if (!trimmed) { setSourceError(true); return }
 
     const originalNum = Number(original) || 0
+    const balanceNum = balance === '' ? originalNum : Number(balance) || 0
+    if (balanceNum > originalNum) { setBalanceError(true); return }
+    setBalanceError(false)
+
     const fields = {
       source: trimmed,
       original_amount: originalNum,
-      balance: balance === '' ? originalNum : Number(balance) || 0,
+      balance: balanceNum,
       last4: last4.trim().slice(0, 4) || null,
       date_added: dateAdded || today(),
     }
@@ -69,6 +83,7 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
 
   async function handleDelete() {
     if (!editing) return
+    if (!confirmDelete) { setConfirmDelete(true); return }
     setSaving(true)
     const { error } = await deleteGiftCard(editing.id)
     setSaving(false)
@@ -81,16 +96,23 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
       <div className={styles.hdr}>
         <div className={styles.title}>{editing ? 'Edit gift card' : 'Add gift card'}</div>
         {editing && (
-          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove gift card">
-            <i className="ti ti-trash" />
+          <button
+            type="button"
+            className={`${styles.trash} ${confirmDelete ? styles.trashConfirm : ''}`}
+            onClick={handleDelete}
+            onBlur={() => setConfirmDelete(false)}
+            aria-label={confirmDelete ? 'Tap again to permanently delete this gift card' : 'Remove gift card'}
+          >
+            <i className={`ti ${confirmDelete ? 'ti-alert-triangle' : 'ti-trash'}`} />
           </button>
         )}
       </div>
 
       <div className={styles.body}>
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Source</div>
+            <label className={styles.fieldLbl} htmlFor="gc-source">Source</label>
             <input
+              id="gc-source"
               className={`${styles.textInp} ${sourceError ? styles.err : ''}`}
               type="text"
               list="gc-source-options"
@@ -105,29 +127,30 @@ export default function GiftCardSheet({ userId, tripId, state, onClose, onSaved,
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Original amount</div>
+            <label className={styles.fieldLbl} htmlFor="gc-original">Original amount</label>
             <div className={styles.amtWrap}>
               <div className={styles.amtPre}>$</div>
-              <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={original} onChange={e => setOriginal(e.target.value)} />
+              <input id="gc-original" className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={original} onChange={e => setOriginal(e.target.value)} />
             </div>
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Balance remaining</div>
-            <div className={styles.amtWrap}>
+            <label className={styles.fieldLbl} htmlFor="gc-balance">Balance remaining</label>
+            <div className={`${styles.amtWrap} ${balanceError ? styles.err : ''}`}>
               <div className={styles.amtPre}>$</div>
-              <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={balance} onChange={e => setBalance(e.target.value)} />
+              <input id="gc-balance" className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={balance} onChange={e => { setBalance(e.target.value); setBalanceError(false) }} />
             </div>
+            {balanceError && <div className={styles.errMsg}>Balance can't be more than the original amount</div>}
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Last 4 digits <span className={styles.optional}>(optional)</span></div>
-            <input className={styles.textInp} type="text" inputMode="numeric" maxLength={4} placeholder="e.g. 4821" value={last4} onChange={e => setLast4(e.target.value.replace(/\D/g, ''))} />
+            <label className={styles.fieldLbl} htmlFor="gc-last4">Last 4 digits <span className={styles.optional}>(optional)</span></label>
+            <input id="gc-last4" className={styles.textInp} type="text" inputMode="numeric" maxLength={4} placeholder="e.g. 4821" value={last4} onChange={e => setLast4(e.target.value.replace(/\D/g, ''))} />
           </div>
 
           <div className={styles.field}>
-            <div className={styles.fieldLbl}>Date added</div>
-            <input className={styles.textInp} type="date" value={dateAdded} onChange={e => setDateAdded(e.target.value)} />
+            <label className={styles.fieldLbl} htmlFor="gc-date">Date added</label>
+            <input id="gc-date" className={styles.textInp} type="date" value={dateAdded} onChange={e => setDateAdded(e.target.value)} />
           </div>
 
         <div className={styles.footerRow}>

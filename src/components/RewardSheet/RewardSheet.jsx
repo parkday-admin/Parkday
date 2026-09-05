@@ -12,6 +12,7 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
   const [original, setOriginal] = useState('')
   const [value, setValue] = useState('')
   const [programError, setProgramError] = useState(false)
+  const [valueError, setValueError] = useState(false)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -22,6 +23,7 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
     setOriginal(editing ? String(editing.original_value) : '')
     setValue(editing ? String(editing.value) : '')
     setProgramError(false)
+    setValueError(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
 
@@ -45,6 +47,9 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
     // doesn't leave the other at $0.
     const valueNum = value === '' ? null : Number(value) || 0
     const originalNum = original === '' ? valueNum : Number(original) || 0
+    if (valueNum != null && originalNum != null && valueNum > originalNum) { setValueError(true); return }
+    setValueError(false)
+
     const fields = {
       type,
       program: trimmed,
@@ -118,10 +123,11 @@ export default function RewardSheet({ userId, tripId, state, onClose, onSaved, o
 
           <div className={styles.field}>
             <div className={styles.fieldLbl}>Balance remaining</div>
-            <div className={styles.amtWrap}>
+            <div className={`${styles.amtWrap} ${valueError ? styles.err : ''}`}>
               <div className={styles.amtPre}>$</div>
-              <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={value} onChange={e => setValue(e.target.value)} />
+              <input className={styles.amtInp} type="number" min="0" step="0.01" placeholder="0.00" value={value} onChange={e => { setValue(e.target.value); setValueError(false) }} />
             </div>
+            {valueError && <div className={styles.errMsg}>Balance can't be more than the original value</div>}
           </div>
 
         <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>

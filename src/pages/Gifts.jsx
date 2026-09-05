@@ -68,6 +68,10 @@ export default function Gifts() {
   }
 
   const totals = giftFundsTotals(giftCards, rewardPrograms)
+  // Depleted cards/rewards sink to the bottom of each list — active ones
+  // stay first since they're the ones a user is actually tracking day to day.
+  const sortedGiftCards = [...giftCards].sort((a, b) => (a.balance <= 0) - (b.balance <= 0))
+  const sortedRewardPrograms = [...rewardPrograms].sort((a, b) => (a.value <= 0) - (b.value <= 0))
   const goal = activeTrip.gc_savings_goal || 0
   const pct = goal > 0 ? Math.min(100, Math.round((totals.totalValue / goal) * 100)) : 0
 
@@ -147,14 +151,20 @@ export default function Gifts() {
             <div className={styles.heroRightVal}>{fmt(totals.totalValue)}</div>
           </div>
         </div>
-        <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ transform: `scaleX(${pct / 100})` }} /></div>
-        <div className={styles.heroSub}>{fmt(totals.totalValue)} of {fmt(goal)} goal · {pct}% there</div>
+        {goal > 0 ? (
+          <>
+            <div className={styles.heroBar}><div className={styles.heroBarFill} style={{ transform: `scaleX(${pct / 100})` }} /></div>
+            <div className={styles.heroSub}>{fmt(totals.totalValue)} of {fmt(goal)} goal · {pct}% there</div>
+          </>
+        ) : (
+          <div className={styles.heroSub}>No savings goal set yet — tap the goal above to add one.</div>
+        )}
         <div className={styles.heroFooter}>
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Total value</div><div className={styles.heroFooterVal} style={{ color: 'var(--gold)' }}>{fmt(totals.totalValue)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Total value</div><div className={styles.heroFooterVal}>{fmt(totals.totalValue)}</div></div>
           <div className={styles.heroFooterDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: 'var(--coral)' }}>{fmt(totals.spent)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal}>{fmt(totals.spent)}</div></div>
           <div className={styles.heroFooterDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal} style={{ color: 'var(--teal)' }}>{fmt(totals.remaining)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal}>{fmt(totals.remaining)}</div></div>
         </div>
       </div>
 
@@ -166,7 +176,7 @@ export default function Gifts() {
         <div className={styles.cardBody}>
           {giftCards.length === 0 ? (
             <div className={styles.cardEmpty}>No gift cards yet.</div>
-          ) : giftCards.map(c => {
+          ) : sortedGiftCards.map(c => {
             const depleted = c.balance <= 0
             const uses = usesFor(expenses, 'gift', c.id).length
             return (
@@ -200,14 +210,14 @@ export default function Gifts() {
         <div className={styles.cardHdr}>
           <div className={styles.cardIcon} style={{ background: 'rgba(126,214,196,0.2)' }}><i className="ti ti-star" style={{ color: 'var(--teal-dark)' }} /></div>
           <div>
-            <div className={styles.cardTitle}>Rewards</div>
+            <div className={styles.cardTitle}>Reward programs</div>
             <div className={styles.cardSub}>Points, dollars &amp; credits — not physical cards</div>
           </div>
         </div>
         <div className={styles.cardBody}>
           {rewardPrograms.length === 0 ? (
             <div className={styles.cardEmpty}>No rewards yet.</div>
-          ) : rewardPrograms.map(r => {
+          ) : sortedRewardPrograms.map(r => {
             const uses = usesFor(expenses, 'reward', r.id).length
             const depleted = r.value <= 0
             return (

@@ -25,6 +25,37 @@ export default function Sheet({ open, onClose, children }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
+  // Move keyboard/screen-reader focus into the sheet on open, and hand it
+  // back to whatever triggered the sheet (e.g. the "Add" button) on close —
+  // without this a screen reader user gets no signal a modal appeared, and
+  // keyboard focus is left stranded on a now-hidden trigger.
+  const prevFocusRef = useRef(null)
+  useEffect(() => {
+    if (!open) return
+    prevFocusRef.current = document.activeElement
+    const t = setTimeout(() => elRef.current?.focus(), 0)
+    return () => {
+      clearTimeout(t)
+      prevFocusRef.current?.focus?.()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    function onKeyDownTrap(e) {
+      if (e.key !== 'Tab' || !elRef.current) return
+      const focusable = elRef.current.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+    }
+    window.addEventListener('keydown', onKeyDownTrap)
+    return () => window.removeEventListener('keydown', onKeyDownTrap)
+  }, [open])
+
   useEffect(() => {
     if (!open) return
     openStack.push(idRef.current)
@@ -51,6 +82,9 @@ export default function Sheet({ open, onClose, children }) {
         <div
           ref={elRef}
           className={styles.sheetInner}
+          role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
           style={dragY ? { transform: `translateY(${dragY}px)`, transition: 'none' } : undefined}
           onMouseDown={onPointerDown}
           onTouchStart={onPointerDown}
