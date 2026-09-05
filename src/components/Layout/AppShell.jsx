@@ -6,6 +6,7 @@ import { fetchActiveTrips } from '../../lib/trips'
 import { createExpense } from '../../lib/expenses'
 import { fetchFamilyMembers } from '../../lib/familyMembers'
 import { fetchGiftCards, fetchRewardPrograms } from '../../lib/giftFunds'
+import { fetchCatalog } from '../../lib/wishlist'
 import { fetchReminders, insertReminders, buildSystemReminders, urgencyLevel } from '../../lib/reminders'
 import { daysUntil } from '../../lib/trips'
 import { categoryMeta } from '../../lib/categories'
@@ -93,6 +94,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
   const [duplicateSheetState, setDuplicateSheetState] = useState(null)
   const [giftCards, setGiftCards] = useState(null)
   const [rewardPrograms, setRewardPrograms] = useState(null)
+  const [catalog, setCatalog] = useState(null)
   const [reminders, setReminders] = useState(null)
   const [toast, setToast] = useState(null)
   const toastTimer = useRef(null)
@@ -115,7 +117,11 @@ export default function AppShell({ session, planType, accountType, collaboratorO
     closeExpenseSheet()
     setExpensesVersion(v => v + 1)
     loadGiftFunds()
-    showToast(message)
+    // The Add Expense drawer already shows its own "stamped ticket" receipt
+    // confirmation before calling this — a toast on top would just repeat
+    // the same news a second time. Only show one if the caller has no
+    // receipt of its own (message present).
+    if (message) showToast(message)
   }
 
   function handleExpenseDeleted(deletedExpense) {
@@ -196,6 +202,14 @@ export default function AppShell({ session, planType, accountType, collaboratorO
     loadGiftFunds()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTrip?.id])
+
+  // The item catalog (rides, dining, snacks, experiences) is trip-independent
+  // and rarely changes, so it's fetched once for the whole session rather
+  // than per-trip like gift funds — the Add Expense drawer uses it for
+  // catalog-backed label suggestions.
+  useEffect(() => {
+    fetchCatalog().then(({ data }) => setCatalog(data))
+  }, [])
 
   async function loadReminders() {
     if (!activeTrip) { setReminders([]); return }
@@ -440,6 +454,7 @@ export default function AppShell({ session, planType, accountType, collaboratorO
           state={sheetState}
           giftCards={giftCards ?? []}
           rewardPrograms={rewardPrograms ?? []}
+          catalog={catalog ?? []}
           onClose={closeExpenseSheet}
           onSaved={handleExpenseSaved}
           onDeleted={handleExpenseDeleted}

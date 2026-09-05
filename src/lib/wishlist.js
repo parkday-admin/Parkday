@@ -105,6 +105,24 @@ export function wlCatMeta(catKey) {
   return { label: WL_CAT_LABEL[catKey] || catKey, icon: m.icon, color: m.color, bg: m.bg, expenseCat }
 }
 
+// Reverse of WL_CAT_TO_EXPENSE_CAT: which wish-list catalog categories feed
+// a given expense category. Built once from the forward map so the two
+// never drift out of sync.
+const EXPENSE_TO_WL_CATS = Object.entries(WL_CAT_TO_EXPENSE_CAT).reduce((acc, [wlCat, expenseCat]) => {
+  (acc[expenseCat] ||= []).push(wlCat)
+  return acc
+}, {})
+
+// Catalog items relevant to an expense-sheet category, for a label
+// typeahead — e.g. picking 'dining' surfaces restaurants, 'll' surfaces
+// rides. Returns [] for categories with no catalog equivalent (Resort,
+// Travel, Transport…).
+export function catalogItemsForExpenseCat(catalog, expenseCat) {
+  const wlCats = EXPENSE_TO_WL_CATS[expenseCat]
+  if (!wlCats || !catalog?.length) return []
+  return catalog.filter(c => wlCats.includes(c.category))
+}
+
 export function priceBucket(mid) {
   if (mid <= 0) return 'free'
   if (mid < 50) return 'under50'

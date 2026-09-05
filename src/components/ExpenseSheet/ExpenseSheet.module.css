@@ -13,12 +13,14 @@
 }
 .trash:hover { background: rgba(224, 83, 63, 0.15); }
 .trash i { font-size: 15px; color: var(--coral); }
+.trashConfirm { background: var(--coral); border-color: var(--coral); }
+.trashConfirm i { color: #fff; }
 
 .body { overflow-y: auto; padding-bottom: 20px; }
 
-.field { margin: 0 18px 14px; }
-.fieldLbl { font-size: 10.5px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
-.optional { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 10px; }
+.field { margin: 0 18px 14px; position: relative; }
+.fieldLbl { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+.optional { font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; }
 
 .catGrid { display: flex; flex-wrap: wrap; gap: 7px; }
 .catPill {
@@ -78,10 +80,42 @@
 
 .saveBtn {
   margin: 4px 18px 0; width: calc(100% - 36px); padding: 13px;
-  background: var(--sky); border: none; border-radius: var(--radius);
-  font-size: 13.5px; font-weight: 600; color: #fff; cursor: pointer;
+  background: var(--gold); border: none; border-radius: var(--radius);
+  font-size: 13.5px; font-weight: 600; color: var(--night); cursor: pointer;
   display: flex; align-items: center; justify-content: center; gap: 6px;
 }
-.saveBtn:hover { background: var(--sky-dark); }
+.saveBtn:hover { opacity: 0.9; }
 .saveBtn:disabled { opacity: 0.6; cursor: default; }
 .saveBtn i { font-size: 14px; }
+
+/* Label typeahead — catalog-backed suggestions */
+.labelField { position: relative; }
+.suggestList {
+  position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; z-index: 5;
+  background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-panel); max-height: 220px; overflow-y: auto; padding: 4px;
+}
+.suggestItem {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 10px; border: none; background: none; border-radius: var(--radius-sm);
+  font-family: var(--sans); text-align: left; cursor: pointer;
+}
+.suggestItem:hover { background: var(--bg); }
+.suggestName { font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
+.suggestPrice { font-size: 11px; color: var(--text-tertiary); flex-shrink: 0; }
+
+/* Payment source — native select styled to sit closer to the pill/segmented
+   language used everywhere else in this form, while keeping native
+   keyboard/screen-reader behavior intact. */
+.selectWrap { position: relative; }
+.selectWrap .textInp { appearance: none; padding-right: 32px; cursor: pointer; }
+.selectChevron { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-tertiary); pointer-events: none; }
+
+/* Post-save "stamped ticket" confirmation */
+.receipt { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 48px 24px; }
+.receiptCheck {
+  width: 52px; height: 52px; border-radius: 50%; background: var(--gold); color: var(--night);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px;
+}
+.receiptAmt { font-family: var(--heading); font-size: 32px; font-weight: 400; color: var(--night); line-height: 1; margin-bottom: 8px; }
+.receiptMeta { font-size: 13px; color: var(--text-secondary); }
