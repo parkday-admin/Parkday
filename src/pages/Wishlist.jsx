@@ -3,7 +3,8 @@ import { useOutletContext } from 'react-router-dom'
 import { fetchExpenses, deleteExpense } from '../lib/expenses'
 import {
   fetchCatalog, fetchWishList, addCatalogItemToWishList, removeWishListItemByCatalogId,
-  deleteWishListItem, WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta,
+  deleteWishListItem, WL_CAT_ORDER, WL_PARK_LABEL, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta,
+  friendlyWishlistError, boothNameMap,
 } from '../lib/wishlist'
 import { dayParkLabel } from '../lib/trips'
 import BrowseCatalogSheet from '../components/BrowseCatalogSheet/BrowseCatalogSheet'
@@ -21,10 +22,22 @@ export default function Wishlist() {
   const [browseOpen, setBrowseOpen] = useState(false)
   const [customOpen, setCustomOpen] = useState(false)
   const [planState, setPlanState] = useState(null)
+  const [confirmRemoveId, setConfirmRemoveId] = useState(null)
 
-  // Items only carry booth_id — resolve the booth's name from the same
-  // catalog list rather than denormalizing a booth_name column.
-  const boothNameById = useMemo(() => new Map((catalog ?? []).map(c => [c.id, c.name])), [catalog])
+  // Owned here (not inside BrowseCatalogSheet) so a search/filter combo
+  // survives closing and reopening the sheet within the same visit.
+  const [catalogSearch, setCatalogSearch] = useState('')
+  const [catFilter, setCatFilter] = useState('all')
+  const [parkFilter, setParkFilter] = useState('all')
+  const [priceFilter, setPriceFilter] = useState('all')
+
+  useEffect(() => {
+    if (!confirmRemoveId) return undefined
+    const t = setTimeout(() => setConfirmRemoveId(null), 3000)
+    return () => clearTimeout(t)
+  }, [confirmRemoveId])
+
+  const boothNameById = useMemo(() => boothNameMap(catalog), [catalog])
 
   async function reload() {
     if (!activeTrip) return
@@ -32,14 +45,14 @@ export default function Wishlist() {
       fetchWishList(userId, activeTrip.id),
       fetchExpenses(activeTrip.id),
     ])
-    if (wlErr) setError(wlErr.message)
+    if (wlErr) setError(friendlyWishlistError(wlErr))
     setWishList(wl)
     setExpenses(ex)
   }
 
   useEffect(() => {
     if (!activeTrip) { setWishList(null); setExpenses(null); return }
-    fetchCatalog().then(({ data, error }) => { if (error) setError(error.message); setCatalog(data) })
+    fetchCatalog().then(({ data, error }) => { if (error) setError(friendlyWishlistError(error)); setCatalog(data) })
     reload()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTrip, userId])
@@ -64,38 +77,56 @@ export default function Wishlist() {
   }
 
   const savedCatalogIds = new Set(wishList.filter(w => w.catalog_id).map(w => w.catalog_id))
+  const addedToTripCount = wishList.filter(w => w.planned_expense_id).length
+  const stillDeciding = wishList.length - addedToTripCount
 
   async function handleToggleSave(catalogItem) {
     if (savedCatalogIds.has(catalogItem.id)) {
       const { error } = await removeWishListItemByCatalogId(userId, activeTrip.id, catalogItem.id)
-      if (error) { showToast?.(error.message); return }
+      if (error) { showToast?.(friendlyWishlistError(error)); return }
     } else {
       const { error } = await addCatalogItemToWishList(userId, activeTrip.id, catalogItem)
-      if (error) { showToast?.(error.message); return }
+      if (error) { showToast?.(friendlyWishlistError(error)); return }
     }
     reload()
   }
 
+  // Removing an item that's already become a real, unspent trip expense is
+  // the higher-stakes case (it deletes a budget line, not just a wish) — a
+  // second confirming tap gates that specific path rather than every
+  // removal, so merely-saved items still delete in one clean click.
+  function itemNeedsRemoveConfirm(item) {
+    if (!item.planned_expense_id) return false
+    const linkedExpense = expenses.find(e => e.id === item.planned_expense_id)
+    return linkedExpense?.actual_amt == null
+  }
+
   async function handleRemove(item) {
+    if (itemNeedsRemoveConfirm(item) && confirmRemoveId !== item.id) {
+      setConfirmRemoveId(item.id)
+      return
+    }
+    setConfirmRemoveId(null)
+
     if (item.planned_expense_id) {
       const linkedExpense = expenses.find(e => e.id === item.planned_expense_id)
       if (linkedExpense?.actual_amt != null) {
         const { error } = await deleteWishListItem(item.id)
-        if (error) { showToast?.(error.message); return }
+        if (error) { showToast?.(friendlyWishlistError(error)); return }
         showToast?.('Removed from wish list — expense kept since it has spending logged')
       } else {
         // Delete the wish list row first — it holds a foreign key to the
         // expense, so deleting the expense first would violate that
         // constraint and fail.
         const { error } = await deleteWishListItem(item.id)
-        if (error) { showToast?.(error.message); return }
+        if (error) { showToast?.(friendlyWishlistError(error)); return }
         const { error: expenseError } = await deleteExpense(item.planned_expense_id)
-        if (expenseError) { showToast?.(expenseError.message); return }
+        if (expenseError) { showToast?.(friendlyWishlistError(expenseError)); return }
         showToast?.('Removed from wish list and trip')
       }
     } else {
       const { error } = await deleteWishListItem(item.id)
-      if (error) { showToast?.(error.message); return }
+      if (error) { showToast?.(friendlyWishlistError(error)); return }
       showToast?.('Removed from wish list')
     }
     reload()
@@ -121,12 +152,29 @@ export default function Wishlist() {
     <div>
       {error && <p className={styles.error}>{error}</p>}
 
+      {wishList.length > 0 && (
+        <div className={styles.hero}>
+          <div className={styles.heroItem}>
+            <div className={styles.heroLbl}>Saved</div>
+            <div className={styles.heroVal} style={{ color: 'var(--gold)' }}>{wishList.length}</div>
+          </div>
+          <div className={styles.heroItem}>
+            <div className={styles.heroLbl}>Planned</div>
+            <div className={styles.heroVal} style={{ color: 'var(--sky-on-dark)' }}>{addedToTripCount}</div>
+          </div>
+          <div className={styles.heroItem}>
+            <div className={styles.heroLbl}>Deciding</div>
+            <div className={styles.heroVal} style={{ color: 'rgba(255, 255, 255, 0.92)' }}>{stillDeciding}</div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.toolbar}>
         <button type="button" className={styles.browseBtn} onClick={() => setBrowseOpen(true)}>
           <i className="ti ti-list-search" /> Browse catalog
         </button>
-        <button type="button" className={styles.addBtn} title="Add custom item" onClick={() => setCustomOpen(true)}>
-          <i className="ti ti-plus" />
+        <button type="button" className={styles.addBtn} onClick={() => setCustomOpen(true)}>
+          <i className="ti ti-plus" /> Add custom item
         </button>
       </div>
 
@@ -158,7 +206,6 @@ export default function Wishlist() {
                         )}
                         <div className={styles.itemSub}>
                           {item.park && <span className={styles.itemPark}>{WL_PARK_LABEL[item.park] || item.park}</span>}
-                          <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{WL_CAT_PILL_LABEL[item.category] || meta.label}</span>
                           {item.lightning_lane_tier && (
                             <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
                               <i className="ti ti-bolt" /> {LL_TIER_LABEL[item.lightning_lane_tier] || item.lightning_lane_tier}
@@ -205,16 +252,22 @@ export default function Wishlist() {
                       </div>
                       <div className={styles.itemActions}>
                         {item.planned_expense_id ? (
-                          <button type="button" className={styles.editBtn} title="Edit trip" onClick={() => setPlanState({ item })}>
-                            <i className="ti ti-pencil" />
+                          <button type="button" className={styles.editBtn} aria-label="Edit trip" onClick={() => setPlanState({ item })}>
+                            <i aria-hidden="true" className="ti ti-pencil" />
                           </button>
                         ) : (
-                          <button type="button" className={styles.editBtn} title="Add to trip" onClick={() => setPlanState({ item })}>
-                            <i className="ti ti-calendar-plus" />
+                          <button type="button" className={styles.editBtn} aria-label="Add to trip" onClick={() => setPlanState({ item })}>
+                            <i aria-hidden="true" className="ti ti-calendar-plus" />
                           </button>
                         )}
-                        <button type="button" className={styles.removeBtn} title="Remove" onClick={() => handleRemove(item)}>
-                          <i className="ti ti-trash" />
+                        <button
+                          type="button"
+                          className={`${styles.removeBtn} ${confirmRemoveId === item.id ? styles.removeBtnConfirm : ''}`}
+                          aria-label={confirmRemoveId === item.id ? 'Tap again to remove — this will also remove it from your budget' : 'Remove'}
+                          onClick={() => handleRemove(item)}
+                          onBlur={() => setConfirmRemoveId(null)}
+                        >
+                          <i aria-hidden="true" className={confirmRemoveId === item.id ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
                         </button>
                       </div>
                     </div>
@@ -232,6 +285,14 @@ export default function Wishlist() {
         savedCatalogIds={savedCatalogIds}
         onClose={() => setBrowseOpen(false)}
         onToggleSave={handleToggleSave}
+        search={catalogSearch}
+        onSearchChange={setCatalogSearch}
+        catFilter={catFilter}
+        onCatFilterChange={setCatFilter}
+        parkFilter={parkFilter}
+        onParkFilterChange={setParkFilter}
+        priceFilter={priceFilter}
+        onPriceFilterChange={setPriceFilter}
       />
 
       <AddToTripSheet

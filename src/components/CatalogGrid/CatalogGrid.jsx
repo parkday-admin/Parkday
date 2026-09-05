@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { WL_CAT_ORDER, WL_CAT_PILL_LABEL, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta, priceBucket } from '../../lib/wishlist'
+import { WL_CAT_ORDER, WL_PARK_LABEL, WL_PARK_GROUPS, LL_TIER_LABEL, DINING_TIER_LABEL, ITEM_TYPE_LABEL, wlCatMeta, priceBucket, boothNameMap } from '../../lib/wishlist'
 import styles from './CatalogGrid.module.css'
 
 const CAT_OPTIONS = [{ value: 'all', label: 'All categories' }, ...WL_CAT_ORDER.map(k => ({ value: k, label: wlCatMeta(k).label }))]
@@ -19,18 +19,34 @@ const PRICE_OPTIONS = [
 // next to the back button, instead of here) — pass hideSearchBar to skip
 // rendering the built-in one in that case. Omit both for the default
 // self-contained search box (used by the compact family-favorites view).
-export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact = false, search: controlledSearch, onSearchChange, hideSearchBar = false }) {
+export default function CatalogGrid({
+  catalog, savedIds, onToggleSave, compact = false,
+  search: controlledSearch, onSearchChange, hideSearchBar = false,
+  catFilter: controlledCatFilter, onCatFilterChange,
+  parkFilter: controlledParkFilter, onParkFilterChange,
+  priceFilter: controlledPriceFilter, onPriceFilterChange,
+}) {
   const [internalSearch, setInternalSearch] = useState('')
   const controlled = onSearchChange != null
   const search = controlled ? controlledSearch : internalSearch
   const setSearch = controlled ? onSearchChange : setInternalSearch
-  const [catFilter, setCatFilter] = useState('all')
-  const [parkFilter, setParkFilter] = useState('all')
-  const [priceFilter, setPriceFilter] = useState('all')
+  // Each filter can independently be lifted to a parent (Wishlist.jsx does
+  // this so filter choices survive the sheet closing/reopening) or left as
+  // this component's own state for callers that don't care, like the
+  // compact family-favorites view.
+  const [internalCatFilter, setInternalCatFilter] = useState('all')
+  const catFilter = onCatFilterChange != null ? controlledCatFilter : internalCatFilter
+  const setCatFilter = onCatFilterChange != null ? onCatFilterChange : setInternalCatFilter
+  const [internalParkFilter, setInternalParkFilter] = useState('all')
+  const parkFilter = onParkFilterChange != null ? controlledParkFilter : internalParkFilter
+  const setParkFilter = onParkFilterChange != null ? onParkFilterChange : setInternalParkFilter
+  const [internalPriceFilter, setInternalPriceFilter] = useState('all')
+  const priceFilter = onPriceFilterChange != null ? controlledPriceFilter : internalPriceFilter
+  const setPriceFilter = onPriceFilterChange != null ? onPriceFilterChange : setInternalPriceFilter
 
   // Items only carry booth_id — resolve the booth's name from the same
   // catalog list rather than denormalizing a booth_name column.
-  const boothNameById = useMemo(() => new Map(catalog.map(c => [c.id, c.name])), [catalog])
+  const boothNameById = useMemo(() => boothNameMap(catalog), [catalog])
 
   const searchTerm = search.trim().toLowerCase()
   const filtered = catalog.filter(c => {
@@ -73,6 +89,8 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
         </select>
       </div>
 
+      <div className={styles.resultCount}>{filtered.length} of {catalog.length} {catalog.length === 1 ? 'item' : 'items'}</div>
+
       {filtered.length === 0 ? (
         <div className={styles.emptyPrompt}>
           <i className="ti ti-mood-empty" />
@@ -90,7 +108,7 @@ export default function CatalogGrid({ catalog, savedIds, onToggleSave, compact =
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div className={styles.catCardName}>{c.name}</div>
                   <div className={styles.catCardPark}>
-                    {c.park === 'All parks' ? 'All parks' : (WL_PARK_LABEL[c.park] || c.park)} · <span className={styles.pill} style={{ background: meta.bg, color: meta.color }}>{WL_CAT_PILL_LABEL[c.category] || meta.label}</span>
+                    {c.park === 'All parks' ? 'All parks' : (WL_PARK_LABEL[c.park] || c.park)}
                     {c.lightning_lane_tier && (
                       <span className={styles.pill} style={{ background: 'rgba(44,165,141,0.18)', color: 'var(--teal-dark)' }}>
                         <i className="ti ti-bolt" /> {LL_TIER_LABEL[c.lightning_lane_tier] || c.lightning_lane_tier}

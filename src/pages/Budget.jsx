@@ -260,18 +260,6 @@ export default function Budget() {
         </div>
       )}
 
-      <div className={styles.topBar}>
-        <div className={styles.subTabs}>
-          <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
-          <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
-        </div>
-        <button type="button" className={styles.exportBtn} onClick={() => setExporting(true)} title="Export PDF">
-          <i className="ti ti-file-download" /> <span>Export PDF</span>
-        </button>
-      </div>
-
-      {tab === 'summary' && (
-      <>
       <div className={styles.hero}>
         <div className={styles.heroHdr}>
           <div className={styles.heroTop}>
@@ -308,6 +296,18 @@ export default function Budget() {
         </div>
       </div>
 
+      <div className={styles.topBar}>
+        <div className={styles.subTabs}>
+          <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
+          <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
+        </div>
+        <button type="button" className={styles.exportBtn} onClick={() => setExporting(true)} title="Export PDF">
+          <i className="ti ti-file-download" /> <span>Export PDF</span>
+        </button>
+      </div>
+
+      {tab === 'summary' && (
+      <>
       <div className={styles.catList}>
         {rows.map(r => {
           const meta = categoryMeta(r.cat)

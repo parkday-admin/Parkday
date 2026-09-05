@@ -105,6 +105,32 @@ export function wlCatMeta(catKey) {
   return { label: WL_CAT_LABEL[catKey] || catKey, icon: m.icon, color: m.color, bg: m.bg, expenseCat }
 }
 
+// Items only carry booth_id — resolve the booth's name from the same
+// catalog list rather than denormalizing a booth_name column. Shared here
+// so Wishlist.jsx and CatalogGrid.jsx don't each rebuild it independently.
+export function boothNameMap(catalog) {
+  return new Map((catalog ?? []).map(c => [c.id, c.name]))
+}
+
+const DB_ERROR_MATCHERS = [
+  [/network|fetch/i, "Couldn't reach Parkday — check your connection and try again."],
+  [/foreign key|violates/i, "That didn't go through cleanly — try refreshing the page."],
+  [/duplicate key|already exists/i, "That's already saved."],
+  [/rate limit/i, "That's a lot of activity at once — give it a moment and try again."],
+]
+
+// Wish-list actions hit Supabase/Postgres directly, whose raw error
+// messages read as developer text — map the recognizable ones to plain
+// copy with a generic fallback, same pattern as auth.js's friendlyAuthError.
+export function friendlyWishlistError(error) {
+  if (!error) return null
+  const message = error.message || String(error)
+  for (const [pattern, friendly] of DB_ERROR_MATCHERS) {
+    if (pattern.test(message)) return friendly
+  }
+  return "Something went wrong — give it another try in a moment."
+}
+
 // Reverse of WL_CAT_TO_EXPENSE_CAT: which wish-list catalog categories feed
 // a given expense category. Built once from the forward map so the two
 // never drift out of sync.

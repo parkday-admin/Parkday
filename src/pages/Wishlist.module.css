@@ -31,6 +31,16 @@
 .emptyHeadline { font-family: var(--heading); font-size: 24px; font-weight: 400; color: var(--night); }
 .emptySubhead { font-size: 14px; color: var(--text-secondary); }
 
+/* Hero — matches the Budgeted/Planned/Spent category-hero pattern used on
+   Budget's category detail page: one navy card, equal-weight stat columns. */
+.hero {
+  background: var(--night); border-radius: var(--radius-lg); padding: 15px 12px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; margin-bottom: 11px;
+}
+.heroItem { text-align: center; }
+.heroLbl { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+.heroVal { font-family: var(--heading); font-size: 20px; font-weight: 400; line-height: 1.3; }
+
 /* Toolbar */
 .toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
 .browseBtn {
@@ -40,9 +50,9 @@
 }
 .browseBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }
 .addBtn {
-  width: 38px; height: 38px; flex-shrink: 0; border-radius: var(--radius-md);
-  border: 1px solid rgba(42, 111, 224, 0.25); background: var(--sky-bg); color: var(--sky);
-  font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 11px 12px; background: var(--sky-bg); border: 1px solid rgba(42, 111, 224, 0.25);
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 600; color: var(--sky); cursor: pointer; font-family: var(--sans);
 }
 .addBtn:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }
 
@@ -59,11 +69,11 @@
 .browseBtnInline:hover { background: rgba(42, 111, 224, 0.13); border-color: var(--sky); }
 
 /* List */
-.catHdr { padding: 0 2px; font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.07em; margin: 14px 0 6px; }
+.catHdr { padding: 0 2px; font-size: 11px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.06em; margin: 14px 0 6px; }
 .catHdr:first-child { margin-top: 0; }
 .card { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); overflow: hidden; margin-bottom: 4px; }
 
-.item { display: flex; align-items: center; gap: 10px; padding: 11px 13px; border-bottom: 1px solid var(--border-light); }
+.item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 13px; border-bottom: 1px solid var(--border-light); }
 .item:last-child { border-bottom: none; }
 .itemIcon { width: 32px; height: 32px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .itemIcon i { font-size: 15px; }
@@ -74,7 +84,7 @@
 .itemSub { display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap; }
 .itemPark { font-size: 12px; color: var(--text-tertiary); }
 .itemPrice { font-size: 12px; color: var(--text-tertiary); }
-.pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 10.5px; font-weight: 600; }
+.pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 11px; font-weight: 600; }
 .itemAdded { display: flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; color: var(--teal-dark); margin-top: 3px; }
 .itemTags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
 .tagChip {
@@ -84,7 +94,7 @@
 
 .itemActions { display: flex; flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
 .editBtn {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 32px; height: 32px; border-radius: var(--radius-md);
   border: 1.5px solid rgba(42, 111, 224, 0.3); background: rgba(42, 111, 224, 0.06);
   cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
@@ -97,3 +107,5 @@
 }
 .removeBtn:hover { background: rgba(224, 83, 63, 0.15); }
 .removeBtn i { font-size: 15px; color: var(--coral); }
+.removeBtnConfirm { background: var(--coral); border-color: var(--coral); }
+.removeBtnConfirm i { color: #fff; }

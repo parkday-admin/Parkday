@@ -12,6 +12,7 @@
 .compact .searchInp { font-size: 15px; }
 
 .filterBar { display: flex; gap: 8px; margin-bottom: 14px; }
+.resultCount { font-size: 11px; font-weight: 600; color: var(--text-tertiary); margin-bottom: 8px; }
 .filterSelect {
   flex: 1; min-width: 0; border: 1.5px solid var(--border-light); background: var(--white);
   border-radius: var(--radius-md); padding: 8px 10px; font-family: var(--sans); font-size: 11.5px; color: var(--ink); outline: none;
@@ -33,7 +34,7 @@
 .catCardName { font-size: 13px; font-weight: 600; color: var(--ink); }
 .catCardPark { font-size: 10.5px; color: var(--text-tertiary); margin-top: 1px; }
 .catCardCuisine { font-size: 10.5px; color: var(--text-tertiary); font-style: italic; margin-top: 2px; }
-.pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 9px; font-weight: 600; margin-left: 4px; }
+.pill { display: inline-flex; align-items: center; gap: 3px; padding: 1px 5px; border-radius: 20px; font-size: 11px; font-weight: 600; margin-left: 4px; }
 .catCardPark .pill:first-of-type { margin-left: 0; }
 
 .catCardTags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
@@ -47,7 +48,7 @@
   background: var(--white); color: var(--text-tertiary); cursor: pointer;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px;
 }
-.heartBtn.saved { border-color: var(--coral); background: rgba(224, 83, 63, 0.1); color: var(--coral); }
+.heartBtn.saved { border-color: var(--gold); background: var(--gold-bg); color: var(--gold-dark); }
 
 .catCardDesc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; margin: 7px 0; }
 .catCardBottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; }
