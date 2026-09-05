@@ -1,9 +1,26 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LL_TYPE_LABEL } from '../../lib/categories'
 import { LL_TIER_LABEL, DINING_TIER_LABEL, llTierToExpenseType } from '../../lib/wishlist'
 import styles from './EntryCard.module.css'
 
 const fmt = n => '$' + Math.round(n || 0).toLocaleString()
+
+// Swipe-to-delete has no visible hint of its own existence — the app's
+// bare first entry card briefly peeks the reveal once per session so the
+// gesture is discoverable without an intrusive tutorial. Module-level flag
+// (not per-instance state) so exactly one card across the whole app claims
+// it, regardless of which list mounts first.
+const SWIPE_HINT_KEY = 'pkd_swipe_hint_shown'
+let swipeHintClaimedThisLoad = false
+function claimSwipeHint() {
+  if (swipeHintClaimedThisLoad) return false
+  try {
+    if (sessionStorage.getItem(SWIPE_HINT_KEY)) return false
+    sessionStorage.setItem(SWIPE_HINT_KEY, '1')
+  } catch { /* storage unavailable — still show it once for this load */ }
+  swipeHintClaimedThisLoad = true
+  return true
+}
 
 const STATUS_STYLE = {
   confirmed: { label: 'Confirmed', cls: 'pillConfirmed' },
@@ -52,6 +69,14 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
   const delta = hasActual ? (entry.planned_amt || 0) - entry.actual_amt : 0
   const underBudget = delta >= 0
 
+  useEffect(() => {
+    if (entry.no_cost || !claimSwipeHint()) return
+    const peek = setTimeout(() => setDx(-28), 500)
+    const settle = setTimeout(() => setDx(0), 1050)
+    return () => { clearTimeout(peek); clearTimeout(settle) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className={styles.entryWrap}>
       <div className={styles.entryDeleteReveal} onClick={() => onDelete(entry)}>
@@ -59,7 +84,7 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
       </div>
       <div
         className={`${styles.entry} ${entry.status ? styles[entry.status] : hasActual ? styles.paid : ''} ${swiped ? styles.swiped : ''}`}
-        style={dx ? { transform: `translateX(${dx}px)`, transition: 'none' } : undefined}
+        style={dx ? { transform: `translateX(${dx}px)`, transition: dragging.current ? 'none' : undefined } : undefined}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -107,9 +132,11 @@ export default function EntryCard({ entry, meta, dayLabel, onEdit, onDelete }) {
                 <div className={styles.entryStrike}>{fmt(entry.planned_amt)}</div>
                 <div className={styles.entryPaidRow}>
                   <span className={styles.entryActualAmt} style={{ color: underBudget ? 'var(--teal-dark)' : 'var(--coral)' }}>{fmt(entry.actual_amt)}</span>
-                  <span className={`${styles.entryDelta} ${underBudget ? styles.deltaUnder : styles.deltaOver}`}>
-                    {underBudget ? '-' : '+'}{fmt(Math.abs(delta))}
-                  </span>
+                  {delta !== 0 && (
+                    <span className={`${styles.entryDelta} ${underBudget ? styles.deltaUnder : styles.deltaOver}`}>
+                      {underBudget ? '-' : '+'}{fmt(Math.abs(delta))}
+                    </span>
+                  )}
                 </div>
               </>
             ) : (

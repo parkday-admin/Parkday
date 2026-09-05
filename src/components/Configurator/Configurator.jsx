@@ -588,6 +588,12 @@ export default function Configurator({ session, planType }) {
             </div>
           </div>
 
+          {editingTrip && (
+            <div className={styles.editingBanner}>
+              <i className="ti ti-pencil" /> Editing an active trip — changes affect its real budget and itinerary.
+            </div>
+          )}
+
           <div className={styles.progWrap}>
             <div className={styles.progSteps}>
               {Array.from({ length: TOTAL_STEPS }, (_, i) => {
@@ -651,7 +657,7 @@ export default function Configurator({ session, planType }) {
                       </>
                     )}
                   </div>
-                  <div className={styles.screenSectionLbl}>Additional guests <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9 }}>(not in your family list — friends, cousins, etc.)</span></div>
+                  <div className={styles.screenSectionLbl}>Additional guests <span className={styles.subNote}>(not in your family list — friends, cousins, etc.)</span></div>
                   <div className={styles.steppers} style={{ marginBottom: 14 }}>
                     <Stepper label="Adults" value={S.extraAdults} onDec={() => setField('extraAdults', Math.max(0, S.extraAdults - 1))} onInc={() => setField('extraAdults', Math.min(8, S.extraAdults + 1))} />
                     <Stepper label="Children" hint="Ages 3–9" value={S.extraChildren} onDec={() => setField('extraChildren', Math.max(0, S.extraChildren - 1))} onInc={() => setField('extraChildren', Math.min(6, S.extraChildren + 1))} />
@@ -699,7 +705,7 @@ export default function Configurator({ session, planType }) {
 
                   {S.travel === 'flying' && (
                     <div>
-                      <div className={styles.dividerLbl}>Flight details <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9 }}>(optional)</span></div>
+                      <div className={styles.dividerLbl}>Flight details <span className={styles.subNote}>(optional)</span></div>
                       <div className={styles.flightRow}>
                         <div className={styles.flightGroup}>
                           <div className={styles.flightGroupLbl}>Arrival flight</div>
@@ -718,13 +724,13 @@ export default function Configurator({ session, planType }) {
                         <Option name="Rideshare" sub="Uber or Lyft from MCO" selected={S.transfer === 'rideshare'} onClick={() => setField('transfer', 'rideshare')} />
                         <Option name="Rental Car" sub="Pick up at MCO" selected={S.transfer === 'rental'} onClick={() => setField('transfer', 'rental')} />
                       </div>
-                      <div className={styles.screenSectionLbl}>MCO departure transfer <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9 }}>(getting back to the airport)</span></div>
+                      <div className={styles.screenSectionLbl}>MCO departure transfer <span className={styles.subNote}>(getting back to the airport)</span></div>
                       <div className={`${styles.og} ${styles.g3}`}>
                         <Option name="Mears Connect" sub="Disney's official shuttle" selected={S.departureTransfer === 'mears'} onClick={() => setField('departureTransfer', 'mears')} />
                         <Option name="Rideshare" sub="Uber or Lyft to MCO" selected={S.departureTransfer === 'rideshare'} onClick={() => setField('departureTransfer', 'rideshare')} />
                         <Option name="Rental Car" sub="Return at MCO" selected={S.departureTransfer === 'rental'} onClick={() => setField('departureTransfer', 'rental')} />
                       </div>
-                      <div className={styles.screenSectionLbl}>Departure airport parking <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, fontSize: 9 }}>(back home)</span></div>
+                      <div className={styles.screenSectionLbl}>Departure airport parking <span className={styles.subNote}>(back home)</span></div>
                       <div className={`${styles.og} ${styles.g3}`}>
                         <Option name="Drop-off" sub="No parking needed" selected={S.parking === 'dropoff'} onClick={() => setField('parking', 'dropoff')} />
                         <Option name="Parking" sub="Home airport daily rate" selected={S.parking === 'parking'} onClick={() => setField('parking', 'parking')} />
@@ -974,13 +980,32 @@ export default function Configurator({ session, planType }) {
   )
 }
 
+// Real example resort names for the "no results" hint, sampled from the
+// actual catalog rather than hardcoded, so it can't go stale if the
+// resort list changes. Generic suffix words (Resort, Inn, Spa…) are
+// skipped so the example is actually a distinctive, searchable word.
+const RESORT_GENERIC_WORDS = new Set(['resort', 'inn', 'hotel', 'spa', 'lodge', 'villas', '&', 'of'])
+function firstDistinctiveWord(name) {
+  return name.split(' ').find(w => !RESORT_GENERIC_WORDS.has(w.toLowerCase())) || name.split(' ')[0]
+}
+const RESORT_EXAMPLES = [0.15, 0.45, 0.8].map(f => {
+  const r = RESORTS[Math.floor(RESORTS.length * f)]
+  return r ? firstDistinctiveWord(r.name) : null
+}).filter(Boolean)
+
 function ResortList({ query, onSelect }) {
   const filtered = query
     ? RESORTS.filter(r => r.name.toLowerCase().includes(query.toLowerCase()))
     : RESORTS
 
   if (!filtered.length) {
-    return <div style={{ padding: '12px 4px', fontSize: 12, color: 'var(--text-tertiary)' }}>No resorts found. Try "Caribbean", "Polynesian", or "Swan".</div>
+    return (
+      <div style={{ padding: '12px 4px', fontSize: 12, color: 'var(--text-tertiary)' }}>
+        No resorts found. Try {RESORT_EXAMPLES.map((name, i) => (
+          <span key={name}>"{name}"{i < RESORT_EXAMPLES.length - 2 ? ', ' : i === RESORT_EXAMPLES.length - 2 ? ', or ' : ''}</span>
+        ))}.
+      </div>
+    )
   }
 
   if (query) {
@@ -1206,6 +1231,7 @@ function BudgetField({ value, onChange, disabled, small }) {
         disabled={disabled}
         value={disabled ? '' : (value || '')}
         onChange={e => onChange(parseFloat(e.target.value) || 0)}
+        title={disabled ? undefined : `Arrow keys adjust in $${small ? 10 : 50} steps`}
       />
     </div>
   )

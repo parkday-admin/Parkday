@@ -1,4 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
+
+function todayLocalDateStr() {
+  const d = new Date()
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
 import { createPortal } from 'react-dom'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { fetchExpenses, setCategoryBudget, deleteExpense, createExpense } from '../lib/expenses'
@@ -53,6 +58,8 @@ export default function Budget() {
   const [exporting, setExporting] = useState(false)
   const [staleSource, setStaleSource] = useState(null)
   const [bannerDismissed, setBannerDismissed] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
+  const dayHeaderRefs = useRef({})
 
   // Loads the source trip's name/year for the "budget targets carried over"
   // banner — only when this trip was actually duplicated and hasn't already
@@ -89,13 +96,14 @@ export default function Budget() {
     if (!activeTrip) { setExpenses(null); return }
     let cancelled = false
     setExpenses(null)
+    setError(null)
     fetchExpenses(activeTrip.id).then(({ data, error }) => {
       if (cancelled) return
       if (error) setError(error.message)
       else setExpenses(data)
     })
     return () => { cancelled = true }
-  }, [activeTrip, expensesVersion])
+  }, [activeTrip, expensesVersion, retryCount])
 
   useEffect(() => {
     if (!toast) return
@@ -103,11 +111,35 @@ export default function Budget() {
     return () => clearTimeout(t)
   }, [toast])
 
-  if (loading || (activeTrip && expenses === null)) {
+  // All Expenses opens scrolled to today's section rather than always Day 1 —
+  // this is framed as an in-the-moment tracker, so "what did I spend today"
+  // is the more likely question than the trip's very first day.
+  useEffect(() => {
+    if (tab !== 'all' || !activeTrip) return
+    const today = tripDays(activeTrip).find(d => d.date === todayLocalDateStr())
+    if (!today) return
+    const frame = requestAnimationFrame(() => {
+      dayHeaderRefs.current[today.day]?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [tab, activeTrip])
+
+  if (loading || (activeTrip && expenses === null && !error)) {
     return (
       <div className={styles.skeleton}>
         <div className={styles.skelBlock} style={{ height: 150 }} />
         <div className={styles.skelBlock} style={{ height: 320 }} />
+      </div>
+    )
+  }
+
+  if (error && expenses === null) {
+    return (
+      <div className={styles.empty}>
+        <i className={`ti ti-alert-circle ${styles.emptyIcon}`} style={{ color: 'var(--coral)' }} />
+        <h1 className={styles.emptyHeadline}>Couldn't load your budget</h1>
+        <p className={styles.emptySubhead}>{error}</p>
+        <button type="button" className={styles.planBtn} onClick={() => setRetryCount(c => c + 1)}>Try again</button>
       </div>
     )
   }
@@ -217,7 +249,6 @@ export default function Budget() {
 
   return (
     <div>
-      {error && <p className={styles.error}>{error}</p>}
 
       {staleSource && !bannerDismissed && totalBudgeted > 0 && (
         <div className={styles.staleBanner}>
@@ -268,12 +299,12 @@ export default function Budget() {
         </div>
         <div className={styles.heroFooter}>
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Budgeted</div><div className={styles.heroFooterVal} style={{ color: 'var(--gold)' }}>{fmt(totalBudgeted)}</div></div>
-          <div className={styles.heroDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Planned</div><div className={styles.heroFooterVal} style={{ color: 'var(--sky-on-dark)' }}>{fmt(totalPlanned)}</div></div>
+          <div className={`${styles.heroDivider} ${styles.hideNarrow}`} />
+          <div className={`${styles.heroFooterStat} ${styles.hideNarrow}`}><div className={styles.heroFooterLbl}>Planned</div><div className={styles.heroFooterVal} style={{ color: 'var(--sky-on-dark)' }}>{fmt(totalPlanned)}</div></div>
           <div className={styles.heroDivider} />
           <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Spent</div><div className={styles.heroFooterVal} style={{ color: totalActual > totalBudgeted ? 'var(--coral)' : 'rgba(255, 255, 255, 0.92)' }}>{fmt(totalActual)}</div></div>
           <div className={styles.heroDivider} />
-          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal} style={{ color: 'var(--teal)' }}>{fmt(remaining)}</div></div>
+          <div className={styles.heroFooterStat}><div className={styles.heroFooterLbl}>Remaining</div><div className={styles.heroFooterVal} style={{ color: remaining < 0 ? 'var(--coral)' : 'var(--teal)' }}>{fmt(remaining)}</div></div>
         </div>
       </div>
 
@@ -372,7 +403,7 @@ export default function Budget() {
                 </>
               )}
               {byDayFiltered.map(g => (
-                <div key={g.day}>
+                <div key={g.day} ref={el => { dayHeaderRefs.current[g.day] = el }}>
                   <div className={styles.sectionLbl}><i className="ti ti-sun" /> Day {g.day} · {g.dow}</div>
                   {g.es.map(e => (
                     <EntryCard

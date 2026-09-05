@@ -72,6 +72,7 @@ export default function Estimator() {
   const [expSelected, setExpSelected] = useState(() => new Set())
   const [apMode, setApMode] = useState('none')
   const [activeSheet, setActiveSheet] = useState(null)
+  const [expParkFilter, setExpParkFilter] = useState('all')
   const [savedEstimates, setSavedEstimates] = useState([])
   const [savingEstimate, setSavingEstimate] = useState(false)
   const [saveEstimateError, setSaveEstimateError] = useState(null)
@@ -214,6 +215,8 @@ export default function Estimator() {
   }
 
   const expSubtotal = EXPERIENCES.filter(e => expSelected.has(e.id)).reduce((sum, e) => sum + expLineTotal(e, S), 0)
+  const EXP_PARKS = ['MK', 'EPCOT', 'HS', 'AK']
+  const filteredExperiences = expParkFilter === 'all' ? EXPERIENCES : EXPERIENCES.filter(e => e.park.includes(expParkFilter))
 
   function useExperiencesEstimate() {
     setField('experiences', expSubtotal)
@@ -554,7 +557,13 @@ export default function Estimator() {
               {activeSheet === 'experiences' && (
                 <>
                   <div className={styles.siDesc} style={{ marginBottom: 12 }}>Tap to add any special experiences you're planning. These are rough per-item estimates — per-person items scale with your party size — toggle what you're considering and we'll total it up below.</div>
-                  {EXPERIENCES.map(e => (
+                  <div className={styles.expParkFilters}>
+                    <button type="button" className={`${styles.expParkChip} ${expParkFilter === 'all' ? styles.sel : ''}`} onClick={() => setExpParkFilter('all')}>All parks</button>
+                    {EXP_PARKS.map(p => (
+                      <button key={p} type="button" className={`${styles.expParkChip} ${expParkFilter === p ? styles.sel : ''}`} onClick={() => setExpParkFilter(p)}>{p}</button>
+                    ))}
+                  </div>
+                  {filteredExperiences.map(e => (
                     <div key={e.id} className={`${styles.expCard} ${expSelected.has(e.id) ? styles.sel : ''}`} onClick={() => toggleExperience(e.id)}>
                       <div className={styles.expTop}>
                         <div>

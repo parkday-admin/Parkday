@@ -70,6 +70,12 @@
 .heroFooterLbl { font-size: 11px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
 .heroFooterVal { font-family: var(--heading); font-size: 16px; font-weight: 400; }
 .heroDivider { width: 1px; height: 30px; background: var(--border-on-dark); }
+@media (max-width: 380px) {
+  /* Budgeted/Spent/Remaining is the decision-relevant trio on the smallest
+     screens — Planned crowds out legibility for the figure that matters
+     least when someone's mid-trip and just checking where they stand. */
+  .hideNarrow { display: none; }
+}
 
 /* Category list */
 .catList { display: flex; flex-direction: column; gap: 8px; padding-bottom: 70px; }

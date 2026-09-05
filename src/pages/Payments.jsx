@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { Link, useOutletContext } from 'react-router-dom'
 import { fetchExpenses } from '../lib/expenses'
 import { findBudgetRow, isPackageBooking } from '../lib/categories'
 import { daysUntil, effectiveFinalPaymentDate } from '../lib/trips'
@@ -13,6 +13,22 @@ const URGENCY_CLASS = { high: 'upHigh', med: 'upMed', low: 'upLow' }
 function dateLabel(d) {
   if (!d) return ''
   return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function monthLabel(d) {
+  if (!d) return 'Unknown'
+  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+}
+
+function paymentIcon(p) {
+  if (p.payment_source?.startsWith('gift:')) return 'ti-gift'
+  if (p.payment_source?.startsWith('reward:')) return 'ti-star'
+  const m = (p.method || '').toLowerCase()
+  if (m.includes('cash')) return 'ti-cash'
+  if (m.includes('credit') || m.includes('debit')) return 'ti-credit-card'
+  if (m.includes('check')) return 'ti-note'
+  if (m.includes('paypal')) return 'ti-brand-paypal'
+  return 'ti-receipt-2'
 }
 
 export default function Payments() {
@@ -67,14 +83,13 @@ export default function Payments() {
 
   if (!isPackageBooking(activeTrip)) {
     return (
-      <div className={styles.card}>
-        <div className={styles.cardBody} style={{ textAlign: 'center', padding: '30px 18px' }}>
-          <i className="ti ti-info-circle" style={{ fontSize: 24, color: 'var(--text-tertiary)' }} />
-          <div className={styles.noPlanTitle}>No package payment plan</div>
-          <div className={styles.noPlanSub}>
-            This trip's resort and tickets were booked separately, so there's no single Disney balance to track here. Log resort and ticket payments as regular expenses on the Budget page instead.
-          </div>
-        </div>
+      <div className={styles.empty}>
+        <i className={`ti ti-info-circle ${styles.emptyIcon}`} />
+        <h1 className={styles.emptyHeadline}>No package payment plan</h1>
+        <p className={styles.emptySubhead}>
+          This trip's resort and tickets were booked separately, so there's no single Disney balance to track here.
+        </p>
+        <Link to="/budget" className={styles.planBtn}>Log payments on the Budget page →</Link>
       </div>
     )
   }
@@ -115,7 +130,18 @@ export default function Payments() {
     refreshAll()
   }
 
-  const sorted = payments.slice().sort((a, b) => b.date.localeCompare(a.date))
+  const sorted = payments.slice().sort((a, b) => new Date(b.date) - new Date(a.date))
+
+  // Group the payment log by calendar month (newest first) instead of one
+  // flat list — mirrors the day-grouping pattern used on Budget's All
+  // Expenses tab for the same reason: a long log needs chunking.
+  const groupedByMonth = []
+  for (const p of sorted) {
+    const label = monthLabel(p.date)
+    let group = groupedByMonth.find(g => g.label === label)
+    if (!group) { group = { label, payments: [] }; groupedByMonth.push(group) }
+    group.payments.push(p)
+  }
 
   return (
     <div>
@@ -140,9 +166,11 @@ export default function Payments() {
           <div className={styles.heroFooterStat}>
             <div className={styles.heroFooterLbl}>Final payment</div>
             <div className={styles.heroFooterVal} style={{ color: '#fff' }}>{paidInFull ? 'Paid' : `${daysOut}d`}</div>
-            <span className={`${styles.urgencyPill} ${styles[URGENCY_CLASS[paidInFull ? 'low' : lvl]]}`}>
-              {paidInFull ? 'Done' : URGENCY_LABEL[lvl]}
-            </span>
+            {!paidInFull && (
+              <span className={`${styles.urgencyPill} ${styles[URGENCY_CLASS[lvl]]}`}>
+                {URGENCY_LABEL[lvl]}
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -179,27 +207,32 @@ export default function Payments() {
         <div className={styles.cardBody}>
           {sorted.length === 0 ? (
             <div className={styles.cardEmpty}>No payments logged yet.</div>
-          ) : sorted.map(p => (
-            <div key={p.id} className={styles.pmtRow}>
-              <div className={styles.pmtIcon}><i className="ti ti-receipt-2" /></div>
-              <div className={styles.pmtInfo}>
-                <div className={styles.pmtName}>{fmt(p.amount)}<span className={styles.methodPill}>{p.method}</span></div>
-                <div className={styles.pmtSub}>{dateLabel(p.date)}{p.note ? ` · ${p.note}` : ''}</div>
-              </div>
-              <div className={styles.pmtActions}>
-                <button type="button" className={styles.editBtn} title="Edit payment" onClick={() => setSheetState({ editingPayment: p })}>
-                  <i className="ti ti-pencil" />
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.removeBtn} ${confirmDeleteId === p.id ? styles.removeBtnConfirm : ''}`}
-                  title={confirmDeleteId === p.id ? 'Tap again to remove' : 'Remove payment'}
-                  onClick={() => handleDeleteRow(p)}
-                  onBlur={() => setConfirmDeleteId(null)}
-                >
-                  <i className={confirmDeleteId === p.id ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
-                </button>
-              </div>
+          ) : groupedByMonth.map(group => (
+            <div key={group.label}>
+              <div className={styles.monthLbl}>{group.label}</div>
+              {group.payments.map(p => (
+                <div key={p.id} className={styles.pmtRow}>
+                  <div className={styles.pmtIcon}><i className={`ti ${paymentIcon(p)}`} /></div>
+                  <div className={styles.pmtInfo}>
+                    <div className={styles.pmtName}>{fmt(p.amount)}<span className={styles.methodPill}>{p.method}</span></div>
+                    <div className={styles.pmtSub}>{dateLabel(p.date)}{p.note ? ` · ${p.note}` : ''}</div>
+                  </div>
+                  <div className={styles.pmtActions}>
+                    <button type="button" className={styles.editBtn} title="Edit payment" onClick={() => setSheetState({ editingPayment: p })}>
+                      <i className="ti ti-pencil" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`${styles.removeBtn} ${confirmDeleteId === p.id ? styles.removeBtnConfirm : ''}`}
+                      title={confirmDeleteId === p.id ? `Tap again to remove ${fmt(p.amount)}` : 'Remove payment'}
+                      onClick={() => handleDeleteRow(p)}
+                      onBlur={() => setConfirmDeleteId(null)}
+                    >
+                      <i className={confirmDeleteId === p.id ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           ))}
           <button type="button" className={styles.addBtn} onClick={() => setSheetState({})}>

@@ -225,6 +225,9 @@
 .siSub:first-child { margin-top: 0; }
 
 /* Experiences mini-selector */
+.expParkFilters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.expParkChip { padding: 6px 12px; border-radius: 20px; border: 1.5px solid var(--border-light); background: var(--white); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+.expParkChip.sel { border-color: var(--sky); background: rgba(42, 111, 224, 0.08); color: var(--sky); }
 .expCard { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 7px; cursor: pointer; transition: border-color 0.12s, background 0.12s; }
 .expCard:last-child { margin-bottom: 0; }
 .expCard.sel { border-color: var(--sky); background: rgba(42, 111, 224, 0.07); }
