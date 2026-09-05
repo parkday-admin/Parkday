@@ -39,6 +39,9 @@ typography:
     fontFamily: "Inter, system-ui, sans-serif"
     fontSize: "10px–12.5px"
     fontWeight: 600
+  secondary:
+    fontFamily: "Inter, system-ui, sans-serif"
+    fontWeight: 500
 rounded:
   sm: "8px"
   md: "11px"
@@ -130,6 +133,7 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 - **Title** (600, 13–15px): card titles, row/list-item names, header wordmarks in compact chrome (e.g. the account-avatar initial) — Inter, semibold, ink- or navy-colored. Denser contexts (a card header inside another card, a nav-drawer trip name) sit at the low end; standalone card titles sit at 15px.
 - **Value** (400, 16–20px, Fraunces): compact numeric/currency displays inside rows, chips, and stat blocks (a budget row's amount, a day chip's date number, a stat block's dollar figure) — smaller than Headline, but still a "this number matters" moment, so it stays in the serif.
 - **Body** (400, 14–15px, line-height 150%): paragraphs, form values, general content.
+- **Secondary** (500, matches the size of the role it modifies): the missing middle step between Body's 400 and every other role's 600 — metadata that reads as more than throwaway detail but isn't a title (a card's secondary action link, a row's inline sub-value). Use sparingly and only where a role would otherwise sit at 600 by default rather than by genuine emphasis; most metadata/hint text stays at Body's plain 400.
 - **Button** (600, 13.5px): the compact tier for button/action labels and dense form inputs — sits just under Body since buttons carry less reading weight than paragraph text (a sheet's primary "Save"/"Add" button, a text input's typed value).
 - **Label** (600, 10–12.5px, often uppercase with ~0.06–0.1em tracking): field labels, section eyebrows, badges, nav sub-labels.
 - **Micro** (600, 9px, uppercase, ~0.06–0.1em tracking): the smallest eyebrow tier — used only for compact stat labels and secondary metadata rows where even Label reads too large (a stat block's "PLANNED"/"SPENT" caption, a day-chip's weekday). Never used for anything a user needs to read comfortably at a glance from a distance.
@@ -140,6 +144,10 @@ Warm and restrained: one ink (navy), one paper (cream), one accent pair (sky for
 **The Icon Glyph Exception.** Icon font (`<i class="ti ...">`) sizes follow their component's density and touch-target needs (roughly 11–20px), not the text ramp above — a tab-bar icon, a chevron, and a drag handle are sized to their own container, not to a paragraph's type scale.
 
 **The Persuade-Scale Exception.** The Hierarchy above is calibrated to the app's Operate-mode density. The marketing homepage (Persuade mode) earns a larger, independent hero/section-heading scale (h1 ≈50px, section h2s ≈30–38px, sub-headings ≈21–22px) so it can carry a landing page's visual weight — these sizes are intentional and specific to Persuade surfaces, not a drift from the in-app Display range.
+
+**The Emphasis-Number Rule.** Inter's weight range tops out at 600 almost everywhere on purpose — 700 is reserved for the single most important figure in a dense, multi-number view (an over-budget actual-spend amount in an expense row, a totals row in a table) so it stays a genuine standout rather than a default. Fraunces numbers never take this treatment; per the Serif-Is-a-Number Rule they stay 400 always, since the serif itself carries the weight.
+
+**The Tabular Numbers Rule.** Every Inter numeral on the site renders with `font-variant-numeric: tabular-nums` (set globally in `index.css`) so digits hold a fixed width — aligned currency columns, countdown/day figures, and any place two numbers stack visually stay steady instead of jittering with proportional figures.
 
 ## Layout
 

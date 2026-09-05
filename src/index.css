@@ -51,6 +51,7 @@
   --shadow-panel: 0 20px 40px -12px rgba(13, 35, 64, 0.25);
 
   font: 15px/150% var(--sans);
+  font-variant-numeric: tabular-nums;
   color: var(--text-primary);
   background: var(--cream);
   -webkit-font-smoothing: antialiased;
