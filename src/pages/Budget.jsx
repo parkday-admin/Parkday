@@ -298,6 +298,7 @@ export default function Budget() {
 
       <div className={styles.topBar}>
         <div className={styles.subTabs}>
+          <div className={`${styles.subTabIndicator} ${tab === 'all' ? styles.subTabIndicatorRight : ''}`} />
           <button type="button" className={`${styles.subTab} ${tab === 'summary' ? styles.subTabActive : ''}`} onClick={() => setTab('summary')}>Summary</button>
           <button type="button" className={`${styles.subTab} ${tab === 'all' ? styles.subTabActive : ''}`} onClick={() => setTab('all')}>All Expenses</button>
         </div>
