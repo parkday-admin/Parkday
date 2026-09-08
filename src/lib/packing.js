@@ -67,38 +67,43 @@ function isToddler(member) {
   return age != null && age < 3
 }
 
-// Per-family-member checklist, keyed by category.
+// Per-family-member checklist, keyed by category. Conditional items also
+// record why they were suggested, in `reasons` (keyed by item text), so the
+// UI can show the user the trip detail that triggered the suggestion instead
+// of presenting every item as an unexplained fixed requirement.
 export function buildPersonItems(member, tripCtx) {
   const { isFlying, isSummer, parkDayCount } = tripCtx
   const child = isChild(member)
   const toddler = isToddler(member)
+  const reasons = new Map()
+  const note = (text, reason) => { reasons.set(text, reason); return text }
 
   const documents = [child ? 'Copy of birth certificate (optional, for ID)' : 'Government-issued photo ID']
-  if (isFlying) documents.push('Mobile boarding pass loaded')
+  if (isFlying) documents.push(note('Mobile boarding pass loaded', "Because you're flying"))
   documents.push('Park ticket / MagicMobile pass loaded')
-  if (member.annual_pass) documents.push('Annual Pass card')
+  if (member.annual_pass) documents.push(note('Annual Pass card', 'Because you hold an Annual Pass'))
 
   const parkbag = ['Reusable water bottle']
-  if (isSummer) parkbag.push('Travel-size sunscreen (for touch-ups)', 'Poncho')
+  if (isSummer) parkbag.push(note('Travel-size sunscreen (for touch-ups)', 'Because your trip is in summer'), note('Poncho', 'Because your trip is in summer'))
   parkbag.push('Portable phone charger', 'Snacks for the parks')
-  if (child) parkbag.push('Autograph book & pen', 'Character ears / headband', 'Small comfort item (stuffed animal)')
+  if (child) parkbag.push(note('Autograph book & pen', 'Since a child is packing'), note('Character ears / headband', 'Since a child is packing'), note('Small comfort item (stuffed animal)', 'Since a child is packing'))
 
   const clothing = [`Park-day outfits (${parkDayCount}–${parkDayCount + 1}, moisture-wicking)`, 'Comfortable broken-in shoes']
-  if (isSummer) clothing.push('Light rain jacket', 'Hat or cap', 'Sunglasses')
+  if (isSummer) clothing.push(note('Light rain jacket', 'Because your trip is in summer'), note('Hat or cap', 'Because your trip is in summer'), note('Sunglasses', 'Because your trip is in summer'))
   clothing.push('Swimsuit + cover-up', 'Pajamas')
-  if (child) clothing.push('Extra change of clothes (accidents happen)')
-  if (toddler) clothing.push('Diapers & wipes')
+  if (child) clothing.push(note('Extra change of clothes (accidents happen)', 'Since a child is packing'))
+  if (toddler) clothing.push(note('Diapers & wipes', 'Since a toddler is packing'))
 
   const medical = ['Prescription medications']
-  if (isFlying) medical.push('Motion sickness tablets (for the flight)')
+  if (isFlying) medical.push(note('Motion sickness tablets (for the flight)', "Because you're flying"))
   medical.push('Pain/fever reliever', 'Band-aids & blister care')
-  if (isSummer) medical.push('After-sun / aloe vera gel')
-  if (child) medical.push("Children's sunscreen SPF 50")
+  if (isSummer) medical.push(note('After-sun / aloe vera gel', 'Because your trip is in summer'))
+  if (child) medical.push(note("Children's sunscreen SPF 50", 'Since a child is packing'))
 
   const resort = ['Phone & watch chargers', 'Toiletries bag']
-  if (child) resort.push('Nightlight', 'Sound machine (or app)')
+  if (child) resort.push(note('Nightlight', 'Since a child is packing'), note('Sound machine (or app)', 'Since a child is packing'))
 
-  return { documents, parkbag, clothing, medical, resort }
+  return { documents, parkbag, clothing, medical, resort, reasons }
 }
 
 // Shared "Group" tab checklist — no per-person clothing/medical items.
@@ -108,21 +113,28 @@ export function buildGroupItems(familyMembers, tripCtx) {
     const age = familyMemberAge(m.birthdate)
     return age != null && age < 6
   })
+  const reasons = new Map()
+  const note = (text, reason) => { reasons.set(text, reason); return text }
 
   const documents = ['Printed/mobile copies of resort & ticket confirmations', 'Travel insurance info']
-  if (isFlying) documents.unshift('TSA-compliant liquids bag')
+  if (isFlying) documents.unshift(note('TSA-compliant liquids bag', "Because you're flying"))
 
   const parkbag = []
   if (isSummer) {
     const bottles = Math.ceil(parkDayCount / 2)
-    parkbag.push(`Reef-safe sunscreen (${bottles}–${bottles + 1} family-size bottles)`, 'Cooling towels (2–3)', 'Rain ponchos (spares)', 'Portable misting fan')
+    parkbag.push(
+      note(`Reef-safe sunscreen (${bottles}–${bottles + 1} family-size bottles)`, 'Because your trip is in summer'),
+      note('Cooling towels (2–3)', 'Because your trip is in summer'),
+      note('Rain ponchos (spares)', 'Because your trip is in summer'),
+      note('Portable misting fan', 'Because your trip is in summer'),
+    )
   }
   parkbag.push('Comprehensive first aid kit', 'Ziploc bags, assorted sizes')
-  if (hasYoungKid) parkbag.push('Stroller')
+  if (hasYoungKid) parkbag.push(note('Stroller', 'Since young kids are on this trip'))
 
   const resort = ['Laundry pods', 'Door magnet / room decorations', 'Snack stash for the room', 'Portable charger (shared backup)']
 
-  return { documents, parkbag, clothing: [], medical: [], resort }
+  return { documents, parkbag, clothing: [], medical: [], resort, reasons }
 }
 
 function itemsToRows(userId, tripId, familyMemberId, itemsByCategory) {
@@ -138,6 +150,16 @@ function itemsToRows(userId, tripId, familyMemberId, itemsByCategory) {
 export function buildTabRows(userId, tripId, familyMemberId, member, familyMembers, tripCtx) {
   const items = member ? buildPersonItems(member, tripCtx) : buildGroupItems(familyMembers, tripCtx)
   return itemsToRows(userId, tripId, familyMemberId, items)
+}
+
+// Text -> reason lookup for the active tab's auto-generated items, so the UI
+// can tell the user why a default item was suggested. Custom (user-added)
+// items simply won't be present in this map. Recomputed rather than stored
+// alongside the row, since the generated text is deterministic from trip
+// context and this avoids a schema change.
+export function buildTabReasons(member, familyMembers, tripCtx) {
+  const items = member ? buildPersonItems(member, tripCtx) : buildGroupItems(familyMembers, tripCtx)
+  return items.reasons
 }
 
 // Generates every tab's default rows (one per family member + the group

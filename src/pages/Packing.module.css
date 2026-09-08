@@ -31,26 +31,26 @@
 .famPrompt i { font-size: 15px; color: var(--sky); flex-shrink: 0; margin-top: 1px; }
 .famPromptLink { background: none; border: none; padding: 0; color: var(--sky); font-weight: 600; font-size: 12px; cursor: pointer; text-decoration: underline; }
 
-/* ── Progress ── */
-.progressCard { background: var(--white); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 13px 15px; margin-bottom: 14px; }
-.progressTop { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
-.progressLbl { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-.progressCount { font-size: 12.5px; color: var(--text-tertiary); }
-.progressTrack { height: 6px; background: var(--border-light); border-radius: 3px; overflow: hidden; }
-.progressFill { width: 100%; height: 100%; background: var(--sky); border-radius: 3px; transform-origin: left; transition: transform 0.2s; }
-.allDone {
-  display: flex; align-items: center; gap: 9px; background: rgba(44, 165, 141, 0.1); border: 1px solid rgba(44, 165, 141, 0.3);
-  border-radius: var(--radius); padding: 10px 13px; margin-bottom: 14px; font-size: 12.5px; font-weight: 600; color: var(--teal-dark);
-}
-.allDone i { font-size: 17px; }
+/* ── Progress — navy "stamped ticket" surface, matching the Dashboard hero ── */
+.progressCard { background: var(--night); border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+.progressLbl { font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.45); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.progressCountRow { display: flex; align-items: baseline; gap: 7px; margin-bottom: 12px; }
+.progressCount { font-family: var(--heading); font-size: 28px; line-height: 1; color: #fff; }
+.progressCountLbl { font-size: 12px; color: rgba(255, 255, 255, 0.45); }
+.progressDoneRow { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.progressDoneRow i { font-size: 20px; color: var(--teal); }
+.progressDoneText { font-family: var(--heading); font-size: 20px; line-height: 1; color: #fff; }
 
 /* ── Categories ── */
 .cat { margin-bottom: 16px; }
 .cat:last-child { margin-bottom: 0; }
-.catHdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.catHdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; padding: 4px 2px; border-radius: var(--radius-sm); cursor: pointer; }
+.catHdr:hover { background: var(--bg); }
 .catIcon { width: 24px; height: 24px; border-radius: var(--radius-sm); background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 12px; color: var(--sky-dark); }
-.catTitle { font-size: 14.5px; font-weight: 700; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; }
+.catTitle { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
 .catCount { font-size: 12px; color: var(--text-tertiary); margin-left: auto; }
+.catChevron { font-size: 13px; color: var(--text-tertiary); transition: transform 0.15s; }
+.catChevronCollapsed { transform: rotate(-90deg); }
 
 .item { display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--border-light); cursor: pointer; }
 .item:last-child { border-bottom: none; }
@@ -60,17 +60,25 @@
 .itemChecked .check i { display: block; }
 .itemText { flex: 1; font-size: 15px; color: var(--text-primary); }
 .itemChecked .itemText { color: var(--text-tertiary); text-decoration: line-through; }
-.itemDel { width: 24px; height: 24px; border-radius: 50%; border: none; background: none; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+.itemReason { width: 24px; height: 24px; border-radius: 50%; border: none; background: none; font-size: 14px; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: help; }
+.itemReason:hover, .itemReason:focus-visible { background: var(--bg); color: var(--sky-dark); }
+.itemDel { width: 32px; height: 32px; border-radius: 50%; border: none; background: none; color: var(--text-tertiary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
 .itemDel:hover { background: rgba(224, 83, 63, 0.12); color: var(--coral); }
 
 .addRow { display: flex; gap: 7px; margin-top: 8px; }
 .addInp { flex: 1; border: 1.5px solid var(--border-light); background: var(--white); border-radius: var(--radius-md); padding: 8px 12px; font-size: 12.5px; color: var(--ink); outline: none; }
 .addInp:focus { border-color: var(--sky); }
+.addInp:disabled { opacity: 0.6; cursor: not-allowed; }
 .addBtn { width: 36px; height: 36px; border-radius: var(--radius-md); border: none; background: var(--sky); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; }
 .addBtn:hover { background: var(--sky-dark); }
+.addBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.addBtn:disabled:hover { background: var(--sky); }
 
 .resetBtn {
-  display: block; margin: 6px auto 0; background: none; border: none; font-size: 11px; color: var(--text-tertiary);
-  cursor: pointer; padding: 6px 10px; text-decoration: underline;
+  display: flex; align-items: center; gap: 6px; margin: 6px auto 0; background: var(--white);
+  border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 12px; font-weight: 500;
+  color: var(--text-secondary); cursor: pointer; padding: 8px 14px;
 }
-.resetBtn:hover { color: var(--sky); }
+.resetBtn i { font-size: 13px; }
+.resetBtn:hover { border-color: var(--sky); color: var(--sky-dark); }
+.resetBtnConfirm, .resetBtnConfirm:hover { background: var(--coral-bg); border-color: rgba(224, 83, 63, 0.4); color: var(--coral-text); }
