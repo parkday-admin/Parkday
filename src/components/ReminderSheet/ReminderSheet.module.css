@@ -12,7 +12,10 @@
   cursor: pointer; display: flex; align-items: center; justify-content: center;
 }
 .trash:hover { background: rgba(224, 83, 63, 0.15); }
+.trash:disabled { opacity: 0.6; cursor: not-allowed; }
 .trash i { font-size: 15px; color: var(--coral); }
+.trashConfirm, .trashConfirm:hover { background: var(--coral); border-color: var(--coral); }
+.trashConfirm i { color: #fff; }
 
 .body { overflow-y: auto; padding-bottom: 20px; }
 

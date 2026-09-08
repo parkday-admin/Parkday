@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import { daysUntil } from '../lib/trips'
-import { setReminderDone, urgencyLevel, URGENCY_LABEL } from '../lib/reminders'
+import { setReminderDone, urgencyLevel, isHighStakes, URGENCY_LABEL } from '../lib/reminders'
+import { onActivateKey } from '../lib/a11y'
 import ReminderSheet from '../components/ReminderSheet/ReminderSheet'
 import styles from './Reminders.module.css'
 
@@ -13,22 +14,42 @@ function dateLabel(d) {
 const URGENCY_CLASS = { high: 'upHigh', med: 'upMed', low: 'upLow' }
 
 function ReminderCard({ r, showPill, onToggle, onClick }) {
-  const lvl = urgencyLevel(r.daysOut ?? 0)
+  const lvl = urgencyLevel(r.daysOut ?? 0, isHighStakes(r))
   const whenLine = r.daysOut != null && r.daysOut > 0 ? `${dateLabel(r.reminder_date)} · in ${r.daysOut} day${r.daysOut === 1 ? '' : 's'}` : dateLabel(r.reminder_date)
+  // System reminders can't be opened (handleCardClick no-ops for them), so
+  // only give the card a button role, focus stop, and pointer cursor when
+  // there's actually something for it to do — a system reminder's card is
+  // just a display container, and the checkbox stays independently usable.
+  const clickable = !r.system
+  const cardLabel = [r.title, r.system && 'trip requirement', showPill && URGENCY_LABEL[lvl], whenLine]
+    .filter(Boolean).join(', ')
   return (
-    <div className={`${styles.card} ${r.done ? styles.cardDone : ''}`} onClick={() => onClick(r)}>
+    <div
+      className={`${styles.card} ${r.done ? styles.cardDone : ''} ${clickable ? styles.cardClickable : ''}`}
+      {...(clickable ? {
+        role: 'button',
+        tabIndex: 0,
+        onClick: () => onClick(r),
+        onKeyDown: onActivateKey(() => onClick(r)),
+      } : {})}
+      aria-label={cardLabel}
+    >
       <button
         type="button"
         className={`${styles.check} ${r.done ? styles.checkChecked : ''}`}
         title={r.done ? 'Mark not done' : 'Mark done'}
+        aria-label={r.done ? `Mark "${r.title}" not done` : `Mark "${r.title}" done`}
         onClick={e => { e.stopPropagation(); onToggle(r) }}
       >
-        <i className="ti ti-check" />
+        <i aria-hidden="true" className="ti ti-check" />
       </button>
-      <div className={styles.icon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
+      <div aria-hidden="true" className={styles.icon} style={{ background: r.bg }}><i className={`ti ${r.icon}`} style={{ color: r.color }} /></div>
       <div className={styles.body}>
         <div className={styles.top}>
-          <div className={styles.cardTitle}>{r.title}</div>
+          <div className={styles.titleRow}>
+            <div className={styles.cardTitle}>{r.title}</div>
+            {r.system && <span className={styles.systemTag}>Trip requirement</span>}
+          </div>
           {showPill && <span className={`${styles.urgencyPill} ${styles[URGENCY_CLASS[lvl]]}`}>{URGENCY_LABEL[lvl]}</span>}
         </div>
         {r.reminder_date && <div className={styles.when}>{whenLine}</div>}
@@ -58,7 +79,7 @@ export default function Reminders() {
   if (!activeTrip) {
     return (
       <div className={styles.empty}>
-        <i className={`ti ti-bell ${styles.emptyIcon}`} />
+        <i aria-hidden="true" className={`ti ti-bell ${styles.emptyIcon}`} />
         <h1 className={styles.emptyHeadline}>No active trip</h1>
         <p className={styles.emptySubhead}>Plan a trip to see reminders.</p>
       </div>
@@ -72,7 +93,7 @@ export default function Reminders() {
 
   async function handleToggle(r) {
     const { error } = await setReminderDone(r.id, !r.done)
-    if (error) { showToast?.(error.message); return }
+    if (error) { showToast?.('Couldn’t update that reminder. Try again.'); return }
     refetchReminders?.()
   }
 
@@ -97,7 +118,7 @@ export default function Reminders() {
       <div className={styles.sortRow}>
         <div className={styles.sortLbl}>Upcoming</div>
         <button type="button" className={styles.sortBtn} onClick={() => setSortAsc(a => !a)}>
-          <i className="ti ti-arrows-sort" /> {sortAsc ? 'Soonest first' : 'Latest first'}
+          <i aria-hidden="true" className="ti ti-arrows-sort" /> {sortAsc ? 'Soonest first' : 'Latest first'}
         </button>
       </div>
 
@@ -109,8 +130,15 @@ export default function Reminders() {
 
       {completed.length > 0 && (
         <>
-          <div className={styles.completedToggle} onClick={() => setCompletedOpen(o => !o)}>
-            <i className={`ti ti-chevron-${completedOpen ? 'up' : 'down'}`} />
+          <div
+            className={styles.completedToggle}
+            role="button"
+            tabIndex={0}
+            aria-expanded={completedOpen}
+            onClick={() => setCompletedOpen(o => !o)}
+            onKeyDown={onActivateKey(() => setCompletedOpen(o => !o))}
+          >
+            <i aria-hidden="true" className={`ti ti-chevron-${completedOpen ? 'up' : 'down'}`} />
             <span>Completed ({completed.length})</span>
           </div>
           {completedOpen && completed.map(r => <ReminderCard key={r.id} r={r} showPill={false} onToggle={handleToggle} onClick={handleCardClick} />)}
@@ -118,7 +146,7 @@ export default function Reminders() {
       )}
 
       <button type="button" className={styles.addBtn} onClick={() => setSheetState({})}>
-        <i className="ti ti-plus" /> Add reminder
+        <i aria-hidden="true" className="ti ti-plus" /> Add reminder
       </button>
 
       <ReminderSheet

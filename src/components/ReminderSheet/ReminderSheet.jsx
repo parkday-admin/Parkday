@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createReminder, updateReminder, deleteReminder } from '../../lib/reminders'
 import Sheet from '../Sheet/Sheet'
 import styles from './ReminderSheet.module.css'
@@ -12,6 +12,8 @@ export default function ReminderSheet({ userId, tripId, state, onClose, onSaved,
   const [titleError, setTitleError] = useState(false)
   const [dateError, setDateError] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const deleteConfirmTimer = useRef(null)
 
   useEffect(() => {
     if (!state) return
@@ -20,8 +22,15 @@ export default function ReminderSheet({ userId, tripId, state, onClose, onSaved,
     setDescription(editing?.description || '')
     setTitleError(false)
     setDateError(false)
+    setConfirmingDelete(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state])
+
+  useEffect(() => {
+    if (!confirmingDelete) return undefined
+    deleteConfirmTimer.current = setTimeout(() => setConfirmingDelete(false), 3000)
+    return () => clearTimeout(deleteConfirmTimer.current)
+  }, [confirmingDelete])
 
   if (!state) return null
 
@@ -40,16 +49,18 @@ export default function ReminderSheet({ userId, tripId, state, onClose, onSaved,
       : await createReminder(userId, tripId, fields)
     setSaving(false)
 
-    if (error) { onError?.(error.message); return }
+    if (error) { onError?.(`Couldn’t ${editing ? 'update' : 'add'} that reminder. Try again.`); return }
     onSaved?.(editing ? 'Reminder updated' : 'Reminder added')
   }
 
   async function handleDelete() {
     if (!editing) return
+    if (!confirmingDelete) { setConfirmingDelete(true); return }
+    setConfirmingDelete(false)
     setSaving(true)
     const { error } = await deleteReminder(editing.id)
     setSaving(false)
-    if (error) { onError?.(error.message); return }
+    if (error) { onError?.('Couldn’t remove that reminder. Try again.'); return }
     onDeleted?.()
   }
 
@@ -58,8 +69,16 @@ export default function ReminderSheet({ userId, tripId, state, onClose, onSaved,
       <div className={styles.hdr}>
         <div className={styles.title}>{editing ? 'Edit reminder' : 'Add reminder'}</div>
         {editing && (
-          <button type="button" className={styles.trash} onClick={handleDelete} title="Remove reminder">
-            <i className="ti ti-trash" />
+          <button
+            type="button"
+            className={`${styles.trash} ${confirmingDelete ? styles.trashConfirm : ''}`}
+            disabled={saving}
+            onClick={handleDelete}
+            onBlur={() => setConfirmingDelete(false)}
+            title={confirmingDelete ? 'Tap again to remove' : 'Remove reminder'}
+            aria-label={confirmingDelete ? 'Tap again to confirm removing this reminder' : 'Remove reminder'}
+          >
+            <i aria-hidden="true" className={confirmingDelete ? 'ti ti-alert-triangle' : 'ti ti-trash'} />
           </button>
         )}
       </div>
@@ -94,7 +113,7 @@ export default function ReminderSheet({ userId, tripId, state, onClose, onSaved,
           </div>
 
         <button type="button" className={styles.saveBtn} disabled={saving} onClick={handleSave}>
-          <i className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
+          <i aria-hidden="true" className="ti ti-check" /> {saving ? 'Saving…' : 'Save'}
         </button>
       </div>
     </Sheet>

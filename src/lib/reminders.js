@@ -53,7 +53,23 @@ export async function setReminderDone(id, done) {
   return { error }
 }
 
-export function urgencyLevel(daysOut) {
+// Titles of system reminders with a real financial/booking-window
+// consequence if missed, as opposed to routine prep (packing, check-in).
+// These escalate to "urgent" earlier than a plain days-out count would.
+const HIGH_STAKES_TITLES = new Set([
+  'Dining reservations', 'Experience reservations', 'Lightning Lane Multi Pass',
+  'Individual Lightning Lane', 'Final payment due',
+])
+export function isHighStakes(reminder) {
+  return !!reminder.system && HIGH_STAKES_TITLES.has(reminder.title)
+}
+
+export function urgencyLevel(daysOut, highStakes = false) {
+  if (highStakes) {
+    if (daysOut <= 14) return 'high'
+    if (daysOut <= 21) return 'med'
+    return 'low'
+  }
   if (daysOut <= 6) return 'high'
   if (daysOut <= 12) return 'med'
   return 'low'
@@ -107,7 +123,7 @@ export function buildSystemReminders(trip, userId) {
         ? 'Resort guests can book Multi Pass selections starting 7 days before check-in. Have your top picks for each park day ready.'
         : 'Guests can book Multi Pass selections starting 3 days before check-in. Have your top picks for each park day ready.',
       reminder_date: addDays(trip.arrival_date, -llWindowDays),
-      icon: 'ti-bolt', color: '#1B7D68', bg: 'rgba(44,165,141,0.18)',
+      icon: 'ti-bolt', color: 'var(--sky-dark)', bg: 'var(--steel-bg)',
     })
   }
 
@@ -116,7 +132,7 @@ export function buildSystemReminders(trip, userId) {
       title: 'Individual Lightning Lane',
       description: 'Individual attraction selections open at park open each day, in addition to your Multi Pass bookings.',
       reminder_date: trip.arrival_date,
-      icon: 'ti-flame', color: 'var(--coral-text)', bg: 'rgba(224,83,63,0.15)',
+      icon: 'ti-flame', color: 'var(--sunset-dark)', bg: 'var(--sunset-bg)',
     })
   }
 
@@ -125,7 +141,7 @@ export function buildSystemReminders(trip, userId) {
       title: 'Final payment due',
       description: 'Disney requires full payment of your Vacation Package 30 days before check-in.',
       reminder_date: trip.final_payment_date || addDays(trip.arrival_date, -30),
-      icon: 'ti-credit-card', color: 'var(--teal-dark)', bg: 'rgba(44,165,141,0.16)',
+      icon: 'ti-credit-card', color: 'var(--violet-dark)', bg: 'var(--violet-bg)',
     })
   }
 
@@ -133,7 +149,7 @@ export function buildSystemReminders(trip, userId) {
     title: 'Pack bags',
     description: 'Give yourself a couple of days of buffer before your trip.',
     reminder_date: addDays(trip.arrival_date, -2),
-    icon: 'ti-briefcase', color: '#8a5a00', bg: 'rgba(245,181,54,0.18)',
+    icon: 'ti-briefcase', color: 'var(--gold-text)', bg: 'var(--gold-bg)',
   })
 
   return rows.map((r, i) => ({ user_id: userId, trip_id: trip.id, system: true, sort_order: i, ...r }))
