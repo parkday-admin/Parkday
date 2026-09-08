@@ -538,6 +538,14 @@ export default function Configurator({ session, planType }) {
       if (expErr) { setError(expErr.message); setSaving(false); return }
     }
 
+    // Editing a trip deletes and recreates every is_budget row above, including
+    // the package category's — which wipes the actual_amt that Payments'
+    // insert/update/delete trigger had synced onto it. Re-run that same sync
+    // now so previously-logged payments aren't dropped from the budget.
+    if (isPackage) {
+      await supabase.rpc('sync_package_actual_amt', { p_trip_id: savedTripId })
+    }
+
     if (!editingTrip) clearDraft()
     setSaving(false)
     if (editingTrip) showToast?.('Trip updated')
