@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation, useOutletContext } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import { onAuthStateChange, adoptSessionFromHandoff, buildSessionHandoffHash, getCurrentSession } from './lib/auth'
 import { getProfile } from './lib/profile'
 import { getCollaboratorStatus } from './lib/collaborator'
@@ -307,6 +308,7 @@ export default function App() {
         <AppRoutes session={session} profile={profile} justSignedIn={justSignedIn} />
       </BrowserRouter>
       <IOSInstallBanner />
+      <Analytics />
     </>
   )
 }
