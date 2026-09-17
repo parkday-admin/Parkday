@@ -52,13 +52,16 @@ export function findBudgetRow(rows, cat) {
 // but the `package` category's budget row is the one place Trip Funds
 // payments sync a total-paid amount directly onto (see supabase payments
 // triggers) — there's no separate "entry" to log a package payment against.
+// `planned` needs the same exception: a package never gets real entries of
+// its own, so without folding the budget row's planned_amt back in, its
+// planned total would always read $0 regardless of the total cost entered.
 export function categoryTotals(rows, cat) {
   const budgetRow = findBudgetRow(rows, cat)
   const entries = rows.filter(r => r !== budgetRow && !r.no_cost)
   return {
     budgetRow,
     budgeted: budgetRow?.planned_amt || 0,
-    planned: entries.reduce((s, e) => s + (e.planned_amt || 0), 0),
+    planned: entries.reduce((s, e) => s + (e.planned_amt || 0), 0) + (cat === 'package' ? (budgetRow?.planned_amt || 0) : 0),
     actual: entries.filter(e => e.actual_amt != null).reduce((s, e) => s + e.actual_amt, 0) + (budgetRow?.actual_amt || 0),
     count: entries.length,
   }
